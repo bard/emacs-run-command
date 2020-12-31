@@ -7,14 +7,26 @@
 (declare-function helm "ext:helm")
 (declare-function helm-build-sync-source "ext:helm")
 
-(defvar run-command-config (list 'run-command-package-json 'run-command-hugo
-                                 'run-command-makefile 'run-command-global))
+(defgroup run-command nil "Run an external command from a context-dependent list.
+:group 'convenience")
+
+(defcustom run-command-completion-method 'helm
+  "Completion framework to use to select a command."
+  :type '(choice (const :tag "Helm"
+                        helm)))
+
+(defcustom run-command-config (list 'run-command-package-json 'run-command-hugo
+                                    'run-command-makefile 'run-command-global)
+  "List of functions that will produce runnable commands."
+  :type '(repeat function):group'run-command)
 
 (defun run-command ()
   (interactive)
-  (helm :buffer "*helm scripts*"
-        :prompt "Script name: "
-        :sources (run-command--sources)))
+  (pcase run-command-completion-method
+    ('helm
+     (helm :buffer "*helm scripts*"
+           :prompt "Script name: "
+           :sources (run-command--sources)))))
 
 (defun run-command--sources ()
   (mapcar 'run-command--source-from-config run-command-config))
