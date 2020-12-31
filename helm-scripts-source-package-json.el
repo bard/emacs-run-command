@@ -4,8 +4,7 @@
   (let ((project-dir (helm-scripts-util--get-project-dir)))
     (when (and project-dir
                (file-exists-p (concat project-dir "package.json")))
-      (let* ((config (mmr/get-package-json-script-config project-dir))
-             (scripts (plist-get config :scripts)))
+      (let* ((scripts (mmr/get-package-json-script-config project-dir)))
         (helm-build-sync-source "package.json"
           :candidates scripts
           :action 'helm-scripts-util--action
@@ -16,8 +15,8 @@
     (insert-file-contents (concat project-dir "package.json"))
     (let* ((package-json (json-parse-buffer))
            (project-name (gethash "name" package-json))
-           (scripts (gethash "scripts" package-json))
-           (script-names '())
+           (script-map (gethash "scripts" package-json))
+           (scripts '())
            (runner (if (file-exists-p (concat project-dir "yarn.lock"))
                        "yarn"
                      "npm")))
@@ -27,10 +26,9 @@
                                          :name key
                                          :project-name project-name
                                          :project-dir project-dir))
-                         script-names)))
-               scripts)
-      (list :project-name project-name
-            :scripts script-names))))
+                         scripts)))
+               script-map)
+      scripts)))
 
 
 
