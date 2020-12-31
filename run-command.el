@@ -24,32 +24,34 @@
   (interactive)
   (pcase run-command-completion-method
     ('helm
-     (helm :buffer "*helm scripts*"
-           :prompt "Script name: "
-           :sources (run-command--sources)))))
+     (helm :buffer "*run-command*"
+           :prompt "Command name: "
+           :sources (run-command--helm-sources)))))
 
-(defun run-command--sources ()
-  (mapcar 'run-command--source-from-config run-command-config))
+(defun run-command--helm-sources ()
+  (mapcar 'run-command--helm-source-from-config
+          run-command-config))
 
-(defun run-command--source-from-config (config-name)
+(defun run-command--helm-source-from-config (config-name)
   (let* ((scripts (funcall config-name))
          (candidates (mapcar (lambda (script)
                                (cons (plist-get script :display) script))
                              scripts)))
     (helm-build-sync-source (symbol-name config-name)
-      :action 'run-command-util--action
-      :candidates candidates)))
+      :action 'run-command--helm-action
+      :candidates candidates
+      :filtered-candidate-transformer '(helm-adaptive-sort))))
 
-(defun run-command--action (script)
-  (let* ((script-command (plist-get script :command))
-         (script-name (plist-get script :name))
+(defun run-command--helm-action (script)
+  (let* ((command (plist-get script :command))
+         (command-name (plist-get script :name))
          (scope-name (plist-get script :scope-name))
          (working-dir (plist-get script :working-dir))
          (compilation-buffer-name-function (lambda (name-of-mode)
-                                             (concat "*" script-name "(" scope-name ")"
+                                             (concat "*" command-name "(" scope-name ")"
                                                      "*"))))
     (let ((default-directory working-dir))
       (compile (if helm-current-prefix-arg
                    (read-string "> "
-                                (concat script-command " "))
-                 script-command)))))
+                                (concat command " "))
+                 command)))))
