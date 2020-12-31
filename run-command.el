@@ -1,9 +1,4 @@
 
-(require 'run-command-package-json)
-(require 'run-command-make)
-(require 'run-command-hugo)
-(require 'run-command-global)
-
 (declare-function helm "ext:helm")
 (declare-function helm-build-sync-source "ext:helm")
 
@@ -15,8 +10,7 @@
   :type '(choice (const :tag "Helm"
                         helm)))
 
-(defcustom run-command-config (list 'run-command-package-json 'run-command-hugo
-                                    'run-command-makefile 'run-command-global)
+(defcustom run-command-config nil
   "List of functions that will produce runnable commands."
   :type '(repeat function):group'run-command)
 

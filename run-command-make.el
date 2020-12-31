@@ -1,3 +1,4 @@
+(require 'helm-make)
 
 (defun run-command-makefile ()
   (let ((project-dir (locate-dominating-file default-directory
