@@ -1,4 +1,3 @@
-(provide 'helm-scripts-util)
 
 (defun helm-scripts-util--get-project-dir ()
   (locate-dominating-file default-directory
@@ -18,3 +17,5 @@
                    (read-string "> "
                                 (concat script-command " "))
                  script-command)))))
+
+(provide 'helm-scripts-util)
