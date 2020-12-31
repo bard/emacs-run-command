@@ -1,5 +1,5 @@
 
-(defun helm-scripts-makefile ()
+(defun run-command-makefile ()
   (let ((project-dir (locate-dominating-file default-directory
                                              "Makefile")))
     (when project-dir
@@ -13,4 +13,4 @@
                         :command (concat "make " target)))
                 targets)))))
 
-(provide 'helm-scripts-make)
+(provide 'run-command-make)

@@ -1,5 +1,5 @@
 
-(defun helm-scripts-package-json ()
+(defun run-command-package-json ()
   (let ((project-dir (locate-dominating-file default-directory
                                              "package.json")))
     (when project-dir
@@ -24,4 +24,4 @@
           (message "%S" scripts)
           scripts)))))
 
-(provide 'helm-scripts-package-json)
+(provide 'run-command-package-json)

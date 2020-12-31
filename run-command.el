@@ -1,32 +1,34 @@
 
-(require 'helm-scripts-package-json)
-(require 'helm-scripts-make)
-(require 'helm-scripts-hugo)
-(require 'helm-scripts-global)
+(require 'run-command-package-json)
+(require 'run-command-make)
+(require 'run-command-hugo)
+(require 'run-command-global)
 
-(defvar helm-scripts-config (list 'helm-scripts-package-json 'helm-scripts-hugo
-                                  'helm-scripts-makefile 'helm-scripts-global))
+(declare-function helm "ext:helm")
+(declare-function helm-build-sync-source "ext:helm")
 
-(defun helm-scripts ()
+(defvar run-command-config (list 'run-command-package-json 'run-command-hugo
+                                 'run-command-makefile 'run-command-global))
+
+(defun run-command ()
   (interactive)
   (helm :buffer "*helm scripts*"
         :prompt "Script name: "
-        :sources (helm-scripts--sources)))
+        :sources (run-command--sources)))
 
-(defun helm-scripts--sources ()
-  (mapcar 'helm-scripts--source-from-config
-          helm-scripts-config))
+(defun run-command--sources ()
+  (mapcar 'run-command--source-from-config run-command-config))
 
-(defun helm-scripts--source-from-config (config-name)
+(defun run-command--source-from-config (config-name)
   (let* ((scripts (funcall config-name))
          (candidates (mapcar (lambda (script)
                                (cons (plist-get script :display) script))
                              scripts)))
     (helm-build-sync-source (symbol-name config-name)
-      :action 'helm-scripts-util--action
+      :action 'run-command-util--action
       :candidates candidates)))
 
-(defun helm-scripts--action (script)
+(defun run-command--action (script)
   (let* ((script-command (plist-get script :command))
          (script-name (plist-get script :name))
          (scope-name (plist-get script :scope-name))

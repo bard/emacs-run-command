@@ -1,5 +1,5 @@
 
-(defun helm-scripts-hugo ()
+(defun run-command-hugo ()
   (let* ((project-dir (locate-dominating-file default-directory
                                               "archetypes")))
     (when project-dir
@@ -35,4 +35,4 @@
                     :scope-name project-name
                     :working-dir project-dir))))))
 
-(provide 'helm-scripts-hugo)
+(provide 'run-command-hugo)
