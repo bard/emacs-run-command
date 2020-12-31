@@ -12,9 +12,9 @@
           :filtered-candidate-transformer '(helm-adaptive-sort))))))
 
 (defun helm-scripts--get-hugo-scripts ()
-  (let* ((project-dir (helm-scripts-util--get-project-dir)))
-    (when (and project-dir
-               (file-exists-p (concat project-dir "archetypes")))
+  (let* ((project-dir (locate-dominating-file default-directory
+                                              "archetypes")))
+    (when project-dir
       (let ((project-name (file-name-nondirectory (directory-file-name project-dir))))
         (list (list :display "start local server (drafts+fastRender)"
                     :name "start:server"

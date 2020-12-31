@@ -12,9 +12,9 @@
           :filtered-candidate-transformer '(helm-adaptive-sort))))))
 
 (defun helm-scripts--get-package-json-scripts ()
-  (let ((project-dir (helm-scripts-util--get-project-dir)))
-    (when (and project-dir
-               (file-exists-p (concat project-dir "package.json")))
+  (let ((project-dir (locate-dominating-file default-directory
+                                             "package.json")))
+    (when project-dir
       (with-temp-buffer
         (insert-file-contents (concat project-dir "package.json"))
         (let* ((package-json (json-parse-buffer))

@@ -1,9 +1,4 @@
 
-(defun helm-scripts-util--get-project-dir ()
-  (locate-dominating-file default-directory
-                          (lambda (dir)
-                            (file-exists-p (concat dir ".git")))))
-
 (defun helm-scripts-util--action (script)
   (let* ((script-command (plist-get script :command))
          (script-name (plist-get script :name))

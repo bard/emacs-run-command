@@ -11,8 +11,7 @@
 
 (defun helm-scripts--get-makefile-scripts ()
   (let ((project-dir (locate-dominating-file default-directory
-                                             (lambda (dir)
-                                               (file-exists-p (concat dir "Makefile"))))))
+                                             "Makefile")))
     (when project-dir
       (let* ((makefile (concat project-dir "Makefile"))
              (targets (helm--make-cached-targets makefile)))
