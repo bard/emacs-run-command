@@ -10,7 +10,7 @@
 (defun helm-scripts-sources ()
   (mapcar 'funcall helm-script-config))
 
-(defun mmr/helm-scripts ()
+(defun helm-scripts ()
   (interactive)
   (helm :buffer "*helm scripts*"
         :prompt "Script name: "

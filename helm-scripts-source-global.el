@@ -1,4 +1,4 @@
-(defvar mmr/helm-scripts-global '(("clone node starter" . mmr/clone-node-starter)))
+(defvar helm-scripts-global '(("clone node starter" . mmr/clone-node-starter)))
 
 (defun mmr/clone-node-starter ()
   (let ((name (read-string "name: ")))
@@ -7,7 +7,7 @@
 
 (defun helm-scripts-source-global ()
   (helm-build-sync-source "global scripts"
-    :candidates mmr/helm-scripts-global
+    :candidates helm-scripts-global
     :action (lambda (fn)
               (funcall fn))))
 

@@ -4,13 +4,14 @@
   (let ((project-dir (helm-scripts-util--get-project-dir)))
     (when (and project-dir
                (file-exists-p (concat project-dir "package.json")))
-      (let* ((scripts (mmr/get-package-json-script-config project-dir)))
+      (let* ((scripts (helm-scripts--get-package-json-script-config
+                       project-dir)))
         (helm-build-sync-source "package.json"
           :candidates scripts
           :action 'helm-scripts-util--action
           :filtered-candidate-transformer '(helm-adaptive-sort))))))
 
-(defun mmr/get-package-json-script-config (project-dir)
+(defun helm-scripts--get-package-json-script-config (project-dir)
   (with-temp-buffer
     (insert-file-contents (concat project-dir "package.json"))
     (let* ((package-json (json-parse-buffer))
