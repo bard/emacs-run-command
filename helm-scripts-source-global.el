@@ -5,7 +5,7 @@
     (shell-command (format "git clone ~/projects/starter-node-basic %s"
                            name))))
 
-(defun helm-scripts-source-global (project-dir)
+(defun helm-scripts-source-global ()
   (helm-build-sync-source "global scripts"
     :candidates mmr/helm-scripts-global
     :action (lambda (fn)

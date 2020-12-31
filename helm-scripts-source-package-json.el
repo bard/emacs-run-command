@@ -1,3 +1,5 @@
+(require 'helm-scripts-util)
+
 (defun mmr/helm-package-json-scripts--action (script)
   (let* ((script-command (plist-get script :command))
          (script-name (plist-get script :name))
@@ -12,15 +14,16 @@
                                 (concat script-command " "))
                  script-command)))))
 
-(defun helm-scripts-source-package-json (project-dir)
-  (when (and project-dir
-             (file-exists-p (concat project-dir "package.json")))
-    (let* ((config (mmr/get-package-json-script-config project-dir))
-           (scripts (plist-get config :scripts)))
-      (helm-build-sync-source "package.json"
-        :candidates scripts
-        :action 'mmr/helm-package-json-scripts--action
-        :filtered-candidate-transformer '(helm-adaptive-sort)))))
+(defun helm-scripts-source-package-json ()
+  (let ((project-dir (helm-scripts-util--get-project-dir)))
+    (when (and project-dir
+               (file-exists-p (concat project-dir "package.json")))
+      (let* ((config (mmr/get-package-json-script-config project-dir))
+             (scripts (plist-get config :scripts)))
+        (helm-build-sync-source "package.json"
+          :candidates scripts
+          :action 'mmr/helm-package-json-scripts--action
+          :filtered-candidate-transformer '(helm-adaptive-sort))))))
 
 (defun mmr/get-package-json-script-config (project-dir)
   (with-temp-buffer
