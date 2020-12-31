@@ -6,7 +6,7 @@
                (file-exists-p (concat project-dir "archetypes")))
       (let ((project-name (file-name-nondirectory (directory-file-name project-dir))))
         (helm-build-sync-source "Hugo"
-          :action 'mmr/helm-package-json-scripts--action
+          :action 'helm-scripts-util--action
           :candidates (list (cons "start local server (drafts+fastRender)" (list :name "start:server"
                                                                                  :command "hugo server --disableFastRender -D --navigateToChanged"
                                                                                  :project-name project-name
