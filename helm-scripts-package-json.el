@@ -1,17 +1,5 @@
-(require 'helm-scripts-util)
 
-(defun helm-scripts-source-package-json ()
-  (let ((scripts (helm-scripts--get-package-json-scripts)))
-    (when scripts
-      (let ((candidates (mapcar (lambda (script)
-                                  (cons (plist-get script :display) script))
-                                scripts)))
-        (helm-build-sync-source "package.json"
-          :candidates candidates
-          :action 'helm-scripts-util--action
-          :filtered-candidate-transformer '(helm-adaptive-sort))))))
-
-(defun helm-scripts--get-package-json-scripts ()
+(defun helm-scripts-package-json ()
   (let ((project-dir (locate-dominating-file default-directory
                                              "package.json")))
     (when project-dir
@@ -36,4 +24,4 @@
           (message "%S" scripts)
           scripts)))))
 
-(provide 'helm-scripts-source-package-json)
+(provide 'helm-scripts-package-json)

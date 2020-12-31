@@ -1,17 +1,5 @@
-(require 'helm-scripts-util)
 
-(defun helm-scripts-source-hugo ()
-  (let ((scripts (helm-scripts--get-hugo-scripts)))
-    (when scripts
-      (let ((candidates (mapcar (lambda (script)
-                                  (cons (plist-get script :display) script))
-                                scripts)))
-        (helm-build-sync-source "Hugo"
-          :action 'helm-scripts-util--action
-          :candidates candidates
-          :filtered-candidate-transformer '(helm-adaptive-sort))))))
-
-(defun helm-scripts--get-hugo-scripts ()
+(defun helm-scripts-hugo ()
   (let* ((project-dir (locate-dominating-file default-directory
                                               "archetypes")))
     (when project-dir
@@ -47,4 +35,4 @@
                     :scope-name project-name
                     :working-dir project-dir))))))
 
-(provide 'helm-scripts-source-hugo)
+(provide 'helm-scripts-hugo)

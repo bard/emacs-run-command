@@ -1,15 +1,5 @@
-(require 'helm-scripts-util)
 
-(defun helm-scripts-source-make ()
-  (let ((scripts (helm-scripts--get-makefile-scripts)))
-    (when scripts
-      (let ((candidates (mapcar (lambda (script)
-                                  (cons (plist-get script :display) script))
-                                scripts)))
-        (helm-build-sync-source "targets" :candidates candidates
-                                :action 'helm-scripts-util--action)))))
-
-(defun helm-scripts--get-makefile-scripts ()
+(defun helm-scripts-makefile ()
   (let ((project-dir (locate-dominating-file default-directory
                                              "Makefile")))
     (when project-dir
@@ -23,4 +13,4 @@
                         :command (concat "make " target)))
                 targets)))))
 
-(provide 'helm-scripts-source-make)
+(provide 'helm-scripts-make)
