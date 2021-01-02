@@ -16,14 +16,14 @@
 
 (defun run-command--helm-action (command-spec)
   (cl-destructuring-bind
-      (&key command name scope-name working-dir &allow-other-keys)
+      (&key command-name command-line scope-name working-dir &allow-other-keys)
       command-spec
     (let ((compilation-buffer-name-function
-           (run-command--compilation-buffer-name name scope-name))
+           (run-command--compilation-buffer-name command-name scope-name))
           (default-directory working-dir)
-          (final-command  (if helm-current-prefix-arg
-                              (read-string "> " (concat command " "))
-                            command)))
-      (compile final-command))))
+          (final-command-line (if helm-current-prefix-arg
+                                  (read-string "> " (concat command-line " "))
+                                command-line)))
+      (compile final-command-line))))
 
 (provide 'run-command--helm)

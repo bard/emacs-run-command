@@ -9,11 +9,11 @@
       (let* ((makefile (concat project-dir "Makefile"))
              (targets (helm--make-cached-targets makefile)))
         (mapcar (lambda (target)
-                  (list :name target
+                  (list :command-name target
+                        :command-line (concat "make " target)
                         :display target
                         :working-dir project-dir
-                        :scope-name project-dir
-                        :command (concat "make " target)))
+                        :scope-name project-dir))
                 targets)))))
 
 (provide 'run-command-make)

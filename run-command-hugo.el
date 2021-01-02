@@ -5,34 +5,34 @@
                                               "archetypes")))
     (when project-dir
       (let ((project-name (file-name-nondirectory (directory-file-name project-dir))))
-        (list (list :display "start local server (drafts+fastRender)"
-                    :name "start:server"
-                    :command "hugo server --disableFastRender -D --navigateToChanged"
+        (list (list :command-name "start:server"
+                    :command-line "hugo server --disableFastRender -D --navigateToChanged"
+                    :display "start local server (drafts+fastRender)"
                     :scope-name project-name
                     :working-dir project-dir)
-              (list :display "start local server"
-                    :name "start:server"
-                    :command "hugo server"
+              (list :command-name "start:server"
+                    :command-line "hugo server"
+                    :display "start local server"
                     :scope-name project-name
                     :working-dir project-dir)
-              (list :display "build"
-                    :name "build"
-                    :command "hugo"
+              (list :command-name "build"
+                    :command-line "hugo"
+                    :display "build"
                     :scope-name project-name
                     :working-dir project-dir)
-              (list :display "validate"
-                    :name "validate"
-                    :command "for i in `fd .html$ public/`; do echo $i; tidy -errors -q $i ; done"
+              (list :command-name "validate"
+                    :command-line "for i in `fd .html$ public/`; do echo $i; tidy -errors -q $i ; done"
+                    :display "validate"
                     :scope-name project-name
                     :working-dir project-dir)
-              (list :display "update modules"
-                    :name "update:modules"
-                    :command "unset HUGO_MODULE_REPLACEMENTS; hugo mod get -u"
+              (list :command-name "update:modules"
+                    :command-line "unset HUGO_MODULE_REPLACEMENTS; hugo mod get -u"
+                    :display "update modules"
                     :scope-name project-name
                     :working-dir project-dir)
-              (list :display "new post"
-                    :name "post:new"
-                    :command "hugo new posts/unnamed.md"
+              (list :command-name "post:new"
+                    :command-line "hugo new posts/unnamed.md"
+                    :display "new post"
                     :scope-name project-name
                     :working-dir project-dir))))))
 

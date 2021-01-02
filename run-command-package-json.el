@@ -15,8 +15,8 @@
                          "npm")))
           (maphash (lambda (key value)
                      (let ((command (concat runner " run " key)))
-                       (push (list :command command
-                                   :name key
+                       (push (list :command-name key
+                                   :command-line command
                                    :display key
                                    :scope-name project-name
                                    :working-dir project-dir)

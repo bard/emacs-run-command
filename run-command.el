@@ -68,7 +68,7 @@
 
 (defun run-command--compilation-buffer-name (command-name scope-name)
   (lambda (mode-name)
-    (concat "*" command-name "(" scope-name ")" "*")))
+    (format "*%s[%s]*" command-name scope-name)))
 
 (provide 'run-command)
 

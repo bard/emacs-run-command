@@ -14,11 +14,11 @@
 
 (defun run-command--ivy-action (selection)
   (cl-destructuring-bind
-      (&key command name scope-name working-dir &allow-other-keys)
+      (&key command-name command-line scope-name working-dir &allow-other-keys)
       (cdr selection)
     (let ((compilation-buffer-name-function
-           (run-command--compilation-buffer-name name scope-name))
+           (run-command--compilation-buffer-name command-name scope-name))
           (default-directory working-dir))
-      (compile command))))
+      (compile command-line))))
 
 (provide 'run-command--ivy)
