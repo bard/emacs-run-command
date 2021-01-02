@@ -38,8 +38,9 @@
 (require 'run-command--helm)
 (require 'run-command--ivy)
 
-(defgroup run-command nil "Run an external command from a context-dependent list.
-:group 'convenience")
+(defgroup run-command nil
+  "Run an external command from a context-dependent list."
+  :group 'convenience)
 
 (defcustom run-command-completion-method 'helm
   "Completion framework to use to select a command."
