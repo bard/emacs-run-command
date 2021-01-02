@@ -42,7 +42,7 @@
   :group 'convenience)
 
 (defcustom run-command-completion-method
-  (if (fboundp 'helm) 'helm 'ivy)
+  (if (featurep 'ivy) 'ivy 'helm)
   "Completion framework to use to select a command."
   :type '(choice (const :tag "Helm" helm)
                  (const :tag "Ivy" ivy)))
