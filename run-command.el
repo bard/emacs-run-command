@@ -24,6 +24,9 @@
 
 ;;; Commentary:
 ;;
+;; Pick and run a command from one or more user-configurable,
+;; context-dependent lists of commands. Autocompletion via helm or
+;; ivy, running via `compile'.
 
 ;;; Code:
 
