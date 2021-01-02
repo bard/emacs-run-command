@@ -41,12 +41,11 @@
   "Run an external command from a context-dependent list."
   :group 'convenience)
 
-(defcustom run-command-completion-method 'helm
+(defcustom run-command-completion-method
+  (if (fboundp 'helm) 'helm 'ivy)
   "Completion framework to use to select a command."
-  :type '(choice (const :tag "Helm"
-                        helm)
-                 (const :tag "Ivy"
-                        ivy)))
+  :type '(choice (const :tag "Helm" helm)
+                 (const :tag "Ivy" ivy)))
 
 (defcustom run-command-config nil
   "List of functions that will produce runnable commands."
