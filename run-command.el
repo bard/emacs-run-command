@@ -49,14 +49,15 @@
 
 (defcustom run-command-config nil
   "List of functions that will produce runnable commands."
-  :type '(repeat function):group'run-command)
+  :type '(repeat function)
+  :group'run-command)
 
 ;; Entry point
 
-(defun run-command ()
+(defun run-command ()  
   (interactive)
   (pcase run-command-completion-method
-    ('helm
+    (helm
      (helm :buffer "*run-command*"
            :prompt "Command Name: "
            :sources (run-command--helm-sources)))
