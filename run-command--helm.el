@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (require 'run-command)
 
 (defun run-command--helm-sources ()

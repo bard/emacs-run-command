@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 
 (defun run-command-hugo ()
   (let* ((project-dir (locate-dominating-file default-directory

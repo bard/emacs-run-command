@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (require 'helm-make)
 
 (defun run-command-make ()
