@@ -48,13 +48,35 @@
                  (const :tag "Ivy" ivy)))
 
 (defcustom run-command-config nil
-  "List of functions that will produce runnable commands."
+  "List of functions that will produce runnable commands.
+
+Each function will be called without arguments and is expected
+to return a list-of-plists, where each plist represents a
+runnable command and has the following format:
+
+  :command-name
+
+  :command-line
+
+  :display
+
+  :scope-name
+
+  :working-dir
+"
   :type '(repeat function)
   :group'run-command)
 
 ;; Entry point
 
-(defun run-command ()  
+(defun run-command ()
+  "Pick a command from a context-dependent list, and run it.
+
+The command is run with `compile'.
+
+The command list is produced by the functions configured in
+`run-command-config' (see that for the format expected from
+said functions)."  
   (interactive)
   (pcase run-command-completion-method
     (helm
