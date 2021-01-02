@@ -1,4 +1,4 @@
-;;; run-command.el --- Run an external command from a list -*- lexical-binding: t -*-
+;;; run-command.el --- Run an external command from a context-dependent list -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2020-2021 Massimiliano Mirra
 
