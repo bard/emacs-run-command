@@ -22,7 +22,6 @@
                                    :working-dir project-dir)
                              scripts)))
                    script-map)
-          (message "%S" scripts)
           scripts)))))
 
 (provide 'run-command-package-json)
