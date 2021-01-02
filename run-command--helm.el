@@ -1,7 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'run-command)
-
 (defun run-command--helm-sources ()
   (mapcar 'run-command--helm-source-from-config
           run-command-config))
@@ -17,17 +15,15 @@
       :filtered-candidate-transformer '(helm-adaptive-sort))))
 
 (defun run-command--helm-action (command-spec)
-  (let* ((command (plist-get command-spec :command))
-         (command-name (plist-get command-spec :name))
-         (scope-name (plist-get command-spec :scope-name))
-         (working-dir (plist-get command-spec :working-dir))
-         (compilation-buffer-name-function (lambda (name-of-mode)
-                                             (concat "*" command-name "(" scope-name ")"
-                                                     "*"))))
-    (let ((default-directory working-dir))
-      (compile (if helm-current-prefix-arg
-                   (read-string "> "
-                                (concat command " "))
-                 command)))))
+  (cl-destructuring-bind
+      (&key command name scope-name working-dir &allow-other-keys)
+      command-spec
+    (let ((compilation-buffer-name-function
+           (run-command--compilation-buffer-name name scope-name))
+          (default-directory working-dir)
+          (final-command  (if helm-current-prefix-arg
+                              (read-string "> " (concat command " "))
+                            command)))
+      (compile final-command))))
 
 (provide 'run-command--helm)

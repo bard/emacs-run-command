@@ -1,7 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'run-command)
-
 (defun run-command--ivy-targets ()
   (mapcan (lambda (command-list-generator)
             (let ((command-specs (funcall command-list-generator)))
@@ -15,16 +13,12 @@
           run-command-config))
 
 (defun run-command--ivy-action (selection)
-  (let* ((command-spec (cdr selection))
-         (command (plist-get command-spec :command))
-         (command-name (plist-get command-spec :name))
-         (scope-name (plist-get command-spec :scope-name))
-         (working-dir (plist-get command-spec :working-dir))
-         (compilation-buffer-name-function (lambda (name-of-mode)
-                                             (concat "*" command-name "(" scope-name ")"
-                                                     "*"))))
-    (message "spec: %S" command)
-    (let ((default-directory working-dir))
+  (cl-destructuring-bind
+      (&key command name scope-name working-dir &allow-other-keys)
+      (cdr selection)
+    (let ((compilation-buffer-name-function
+           (run-command--compilation-buffer-name name scope-name))
+          (default-directory working-dir))
       (compile command))))
 
 (provide 'run-command--ivy)

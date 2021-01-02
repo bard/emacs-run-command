@@ -66,6 +66,10 @@
                      (run-command--ivy-targets)
                      :action 'run-command--ivy-action)))))
 
+(defun run-command--compilation-buffer-name (command-name scope-name)
+  (lambda (mode-name)
+    (concat "*" command-name "(" scope-name ")" "*")))
+
 (provide 'run-command)
 
 ;;; run-command.el ends here
