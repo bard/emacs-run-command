@@ -1,9 +1,10 @@
-Pick external commands from smart lists that are based on project type, buffer mode, favorite scripts, ... anything you want, and run them in compilation mode, with as few keystrokes as possible and without memorizing new bindings. Add commands through functions that return a list of simple command specs. Autocomplete with Helm or Ivy.
+Select external commands from smart lists that are based on project type, buffer mode, favorite scripts, or anything you fancy, and run them in compilation mode, with as few keystrokes as possible and without memorizing key bindings.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
 **Table of Contents**
 
+- [Demo](#demo)
 - [Installing](#installing)
 - [Configuring](#configuring)
 - [Invoking](#invoking)
@@ -13,9 +14,15 @@ Pick external commands from smart lists that are based on project type, buffer m
 
 <!-- markdown-toc end -->
 
+## Demo
+
+Using `run-command` to create a project from a boilerplate, start a watcher that re-run the main source whenever a file changes, and start the test runner.
+
+![Demo](./demo.gif)
+
 ## Installing
 
-To be submitted to MELPA. For now, clone repository and add to load path, e.g. with:
+To be submitted to MELPA. For now, clone repository and add to load path, e.g.:
 
 ```emacs-lisp
 (use-package run-command
@@ -40,9 +47,14 @@ Run `M-x run-command` or bind it to a key:
 
 ```emacs-lisp
 (global-set-key (kbd "C-c c") 'run-command)
+
+;; or:
+
+(use-package run-command
+  :bind ("C-c c" . run-command)
 ```
 
-When using Helm, selecting with `C-u RET` instead of `RET` allows editing the command before it's run. (See #1 if you can help bring that to Ivy.)
+When using Helm, you can edit a command before running by selecting it with `C-u RET` instead of `RET`. (See #1 if you can help bring that to Ivy.)
 
 ## Adding commands
 
@@ -57,11 +69,9 @@ Say you want to serve the current buffer's directory via http. Add this to Emacs
 
 And customize `run-command-config` to include `run-command-local`.
 
-Run `M-x run-command` and the command list will include `serve-http-dir`.
-
 ### Readable name
 
-To display a more descriptive command name, use `:display`:
+Use `:display` to provide a more descriptive command name. For example:
 
 ```emacs-lisp
 (defun run-command-local ()
@@ -73,7 +83,9 @@ To display a more descriptive command name, use `:display`:
 
 ### Context-aware lists
 
-Say that, when you run the command while on a file somewhere in a `public_html` directory tree, you want to serve the `public_html` directory, not the current directory:
+Use `:working-dir` to change the working directory for the command.
+
+For example, if you want to serve `public_html` when the file you're visiting is somewhere in a `public_html` directory tree, and the current directory in all other cases:
 
 ```emacs-lisp
 (defun run-command-local ()
@@ -81,6 +93,6 @@ Say that, when you run the command while on a file somewhere in a `public_html` 
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
          :working-dir
-         (let ((container (locate-dominating-file default-directory "public")))
-           (if container (concat container "public") default-directory)))))
+         (let ((project-dir (locate-dominating-file default-directory "public")))
+           (if project-dir (concat project-dir "public") default-directory)))))
 ```
