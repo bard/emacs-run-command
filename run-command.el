@@ -94,6 +94,19 @@ said functions)."
   (lambda (mode-name)
     (format "*%s[%s]*" command-name scope-name)))
 
+(defun run-command--normalize-command-spec (command-spec)
+  (when (not (plist-get command-spec :command-name))
+    (error "[run-command] `:command-name' item missing from command spec"))
+  (when (not (plist-get command-spec :command-line))
+    (error "[run-command] `:command-line' item missing from command spec"))
+  (append command-spec
+          (when (not (plist-get command-spec :display))
+            (list :display (plist-get command-spec :command-name)))
+          (when (not (plist-get command-spec :working-dir))
+            (list :working-dir default-directory))
+          (when (not (plist-get command-spec :scope-name))
+            (list :scope-name default-directory))))
+
 ;; Helm integration
 
 (defun run-command--helm-sources ()
@@ -101,7 +114,8 @@ said functions)."
           run-command-config))
 
 (defun run-command--helm-source-from-config (command-list-generator)
-  (let* ((command-specs (funcall command-list-generator))
+  (let* ((command-specs (mapcar #'run-command--normalize-command-spec
+                                (funcall command-list-generator)))
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
@@ -126,7 +140,8 @@ said functions)."
 
 (defun run-command--ivy-targets ()
   (mapcan (lambda (command-list-generator)
-            (let ((command-specs (funcall command-list-generator)))
+            (let ((command-specs (mapcar #'run-command--normalize-command-spec
+                                         (funcall command-list-generator))))
               (mapcar (lambda (command-spec)
                         (cons (concat (propertize (concat (symbol-name command-list-generator)
                                                           "/")
