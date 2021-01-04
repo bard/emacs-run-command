@@ -57,13 +57,23 @@ runnable command and has the following format:
 
   :command-name
 
+    (string, required) A name for the command, used internally as well as (if
+:display is not provided) shown to the user.
+
   :command-line
+
+    (string, required) The command line that will be executed. It will be passed
+to `compile'.
 
   :display
 
-  :scope-name
+    (string, optional) A descriptive name for the command that will be shown
+in place of :command-name.
 
   :working-dir
+
+    (string, optional) Directory path to run the command in. If not given,
+command will be run in `default-directory'.
 "
   :type '(repeat function)
   :group'run-command)
