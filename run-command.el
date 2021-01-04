@@ -62,8 +62,8 @@ runnable command and has the following format:
 
   :command-line
 
-    (string, required) The command line that will be executed. It will be passed
-to `compile'.
+    (string, required) The command line that will be executed.  It will be
+passed to `compile'.
 
   :display
 
@@ -72,9 +72,8 @@ in place of :command-name.
 
   :working-dir
 
-    (string, optional) Directory path to run the command in. If not given,
-command will be run in `default-directory'.
-"
+    (string, optional) Directory path to run the command in.  If not given,
+command will be run in `default-directory'."
   :type '(repeat function)
   :group'run-command)
 
@@ -87,7 +86,7 @@ The command is run with `compile'.
 
 The command list is produced by the functions configured in
 `run-command-recipes' (see that for the format expected from
-said functions)."  
+said functions)."
   (interactive)
   (pcase run-command-completion-method
     ('helm
