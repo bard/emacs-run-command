@@ -31,13 +31,9 @@ To be submitted to MELPA. For now, clone repository and add to load path, e.g.:
 
 ## Configuring
 
-Customize `run-command-recipes` and add command list generators. Some generators are provided with this package:
+Customize `run-command-recipes`. This package ships with one recipe for JavaScript projects (`run-command-package-json`) and two more (`run-command-make` and `run-command-hugo`) can be found under [examples](./examples).
 
-- `run-command-package-json` for npm projects
-- `run-command-hugo` for Hugo sites
-- `run-command-make` for Makefiles (requires [helm-make](https://github.com/abo-abo/helm-make) to be installed)
-
-Command list generators are functions that return a list of commands in a simple format, see [Adding commands](#adding-commands) below to add your own.
+The recipe format is intentionally simple — it's meant to let _you_ add commands easily, rather than pull opaque collections from a repository. See [Add commands](#add-commands) below for a tutorial.
 
 `run-command` supports [Helm](https://github.com/emacs-helm/helm/) and [ivy](https://github.com/abo-abo/swiper) for completion. It tries to autodetect which one to use; if it gets it wrong, customize `run-config-completion-method`.
 

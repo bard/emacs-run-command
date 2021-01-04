@@ -1,4 +1,4 @@
-;;; -*- lexical-binding: t -*-
+;; Requires https://github.com/abo-abo/helm-make
 
 (require 'helm-make)
 
@@ -16,4 +16,4 @@
                         :scope-name project-dir))
                 targets)))))
 
-(provide 'run-command-make)
+
