@@ -25,9 +25,10 @@
 
 ;;; Commentary:
 ;;
-;; Pick and run a command from one or more user-configurable,
-;; context-dependent lists of commands. Autocompletion via helm or
-;; ivy, running via `compile'.
+;; Pick external commands from smart lists that are based on project type,
+;; buffer mode, favorite scripts, or anything you fancy, and run them in
+;; compilation mode, in as few keystrokes as possible, without memorizing
+;; key bindings, autocompleting with Helm or Ivy.
 
 ;;; Code:
 
