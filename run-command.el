@@ -90,19 +90,19 @@ The command list is produced by the functions configured in
 said functions)."  
   (interactive)
   (pcase run-command-completion-method
-    (helm
+    ('helm
      (helm :buffer "*run-command*"
            :prompt "Command Name: "
            :sources (run-command--helm-sources)))
-    (ivy (unless (window-minibuffer-p)
-           (ivy-read "Command Name: "
-                     (run-command--ivy-targets)
-                     :action 'run-command--ivy-action)))))
+    ('ivy (unless (window-minibuffer-p)
+            (ivy-read "Command Name: "
+                      (run-command--ivy-targets)
+                      :action 'run-command--ivy-action)))))
 
 ;; Utilities
 
 (defun run-command--compilation-buffer-name (command-name scope-name)
-  (lambda (mode-name)
+  (lambda ()
     (format "*%s[%s]*" command-name scope-name)))
 
 (defun run-command--normalize-command-spec (command-spec)
