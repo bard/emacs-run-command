@@ -31,7 +31,7 @@ To be submitted to MELPA. For now, clone repository and add to load path, e.g.:
 
 ## Configuring
 
-Customize `run-command-config` and add command list generators. Some generators are provided with this package:
+Customize `run-command-recipes` and add command list generators. Some generators are provided with this package:
 
 - `run-command-package-json` for npm projects
 - `run-command-hugo` for Hugo sites
@@ -67,7 +67,7 @@ Say you want to serve the current buffer's directory via http. Add this to Emacs
          :command-line "python3 -m http.server 8000")))
 ```
 
-And customize `run-command-config` to include `run-command-local`.
+And customize `run-command-recipes` to include `run-command-local`.
 
 ### Readable name
 

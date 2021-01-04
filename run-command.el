@@ -47,7 +47,7 @@
   :type '(choice (const :tag "Helm" helm)
                  (const :tag "Ivy" ivy)))
 
-(defcustom run-command-config nil
+(defcustom run-command-recipes nil
   "List of functions that will produce runnable commands.
 
 Each function will be called without arguments and is expected
@@ -75,7 +75,7 @@ runnable command and has the following format:
 The command is run with `compile'.
 
 The command list is produced by the functions configured in
-`run-command-config' (see that for the format expected from
+`run-command-recipes' (see that for the format expected from
 said functions)."  
   (interactive)
   (pcase run-command-completion-method
@@ -111,7 +111,7 @@ said functions)."
 
 (defun run-command--helm-sources ()
   (mapcar 'run-command--helm-source-from-config
-          run-command-config))
+          run-command-recipes))
 
 (defun run-command--helm-source-from-config (command-list-generator)
   (let* ((command-specs (mapcar #'run-command--normalize-command-spec
@@ -149,7 +149,7 @@ said functions)."
                                                   'shadow)
                                       (plist-get command-spec :display)) command-spec))
                       command-specs)))
-          run-command-config))
+          run-command-recipes))
 
 (defun run-command--ivy-action (selection)
   (cl-destructuring-bind
