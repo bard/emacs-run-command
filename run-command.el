@@ -128,7 +128,7 @@ said functions)."
 ;; Utilities
 
 (defun run-command--compilation-buffer-name (command-name scope-name)
-  (lambda ()
+  (lambda (name-of-mode)
     (format "*%s[%s]*" command-name scope-name)))
 
 (defun run-command--normalize-command-spec (command-spec)
