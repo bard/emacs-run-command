@@ -101,8 +101,7 @@ said functions)."
 ;; Recipes
 
 (defun run-command-recipe-package-json ()
-  "Extract NPM scripts for `run-command' from the current project's 
-package.json."
+  "Extract NPM scripts for `run-command' from the current project's package.json."
   (let ((project-dir (locate-dominating-file default-directory
                                              "package.json")))
     (when project-dir
