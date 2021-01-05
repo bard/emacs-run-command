@@ -1,5 +1,5 @@
 
-(defun run-command-hugo ()
+(defun run-command-recipe-hugo ()
   (let* ((project-dir (locate-dominating-file default-directory
                                               "archetypes")))
     (when project-dir

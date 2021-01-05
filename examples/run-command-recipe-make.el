@@ -2,7 +2,7 @@
 
 (require 'helm-make)
 
-(defun run-command-make ()
+(defun run-command-recipe-make ()
   (let ((project-dir (locate-dominating-file default-directory
                                              "Makefile")))
     (when project-dir

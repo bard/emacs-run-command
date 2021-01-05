@@ -32,7 +32,7 @@ To be submitted to MELPA soon. For now, clone repository, and add to load path, 
 
 ## Configuring
 
-Customize `run-command-recipes`. A recipe for JavaScript/npm projects in included (`run-command-package-json`) and two more (`run-command-make` and `run-command-hugo`) can be found in the [examples](./examples).
+Customize `run-command-recipes`. A recipe for JavaScript/npm projects is included (`run-command-recipe-package-json`) and two more (`run-command-recipe-make` and `run-command-recipe-hugo`) can be found in the [examples](./examples).
 
 The recipe format is intentionally simple, it's meant to let you add commands easily, rather than pull opaque collections from a repository. See [Add commands](#add-commands) below for a guided example.
 
@@ -58,20 +58,20 @@ When using Helm, you can edit a command before running by selecting it with `C-u
 Example: you want to serve the current directory via HTTP. Add this to Emacs's init file:
 
 ```emacs-lisp
-(defun run-command-local () ;; any name will do
+(defun run-command-recipe-local ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000")))
 ```
 
-And customize `run-command-recipes` to include `run-command-local`.
+And customize `run-command-recipes` to include `run-command-recipe-local`.
 
 ### Readable command names
 
 Use `:display` to provide a more descriptive name for a command:
 
 ```emacs-lisp
-(defun run-command-local ()
+(defun run-command-recipe-local ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
@@ -85,7 +85,7 @@ The recipe runs in the context of the current buffer, and can inquire about its 
 Example: you want to serve the current directory, unless the file you're visiting is somewhere under a `public_html` directory, in which case you want to serve that directory instead. You would use `locate-dominating-file` to look for a `public_html` ancestor, and assign it to `:working-dir` if found:
 
 ```emacs-lisp
-(defun run-command-local ()
+(defun run-command-recipe-local ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
