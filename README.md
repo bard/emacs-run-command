@@ -9,9 +9,10 @@ Helm or Ivy.
 - [Installing](#installing)
 - [Configuring](#configuring)
 - [Invoking](#invoking)
-- [Adding commands](#adding-commands)
+- [Tutorial: adding commands](#tutorial-adding-commands)
   - [Readable command names](#readable-command-names)
-  - [Context-aware lists, and specifying a working directory](#context-aware-lists-and-specifying-a-working-directory)
+  - [Context-aware recipes directory](#context-aware-recipes)
+  - [Specifying the working directory](#specifying-the-working-directory)
 
 <!-- markdown-toc end -->
 
@@ -53,9 +54,9 @@ Run `M-x run-command` or bind it to a key:
 
 When using Helm, you can edit a command before running by selecting it with `C-u RET` instead of `RET`. (See [#1](https://github.com/bard/emacs-run-command/issues) if you can help bring that to Ivy.)
 
-## Adding commands
+## Tutorial: adding commands
 
-Example: you want to serve the current directory via HTTP. Add this to Emacs's init file:
+Example: you want to serve the current directory over HTTP. Add this to Emacs's init file:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
@@ -68,28 +69,59 @@ And customize `run-command-recipes` to include `run-command-recipe-local`.
 
 ### Readable command names
 
-Use `:display` to provide a more descriptive name for a command:
+To provide a more user-friendly name for a command, use `:display`:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
-         :display "Serve directory via HTTP")))
+         :display "Serve directory over HTTP port 8000")))
 ```
 
-### Context-aware lists, and specifying a working directory
+### Context-aware recipes
 
-The recipe runs in the context of the current buffer, and can inquire about its context in whichever way makes sense (including different ways for different commands).
+A recipe runs in the context of the current buffer, and can look at the context to decide to what a command should be, or whether it should be available at all.
 
-Example: you want to serve the current directory, unless the file you're visiting is somewhere under a `public_html` directory, in which case you want to serve that directory instead. You would use `locate-dominating-file` to look for a `public_html` ancestor, and assign it to `:working-dir` if found:
+Example: if a buffer is associated to an executable file, you want to run it:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
+         :display "Serve directory over HTTP port 8000")
+   (let ((file (buffer-file-name)))
+     (when (and file
+                (file-executable-p file))
+       (list
+        :command-name "run-buffer-file"
+        :command-line file
+        :display "Run file associated to current buffer")))))
+```
+
+When no file is associated to the buffer (e.g. a `*Help*` or dired buffer), or when the file is not executable, the code above simply returns `nil`.
+
+### Specifying the working directory
+
+Example: you want to serve the current directory over HTTP, unless the file you're visiting is somewhere under a `public_html` directory, in which case you want to serve that directory instead.
+
+You would use `locate-dominating-file` to look for a `public_html` ancestor and, if found, make that the `:working-dir`:
+
+```emacs-lisp
+(defun run-command-recipe-local ()
+  (list
+   (list :command-name "serve-http-dir"
+         :command-line "python3 -m http.server 8000"
+         :display "Serve directory over HTTP port 8000"
          :working-dir
          (let ((project-dir (locate-dominating-file default-directory "public_html")))
            (if project-dir (concat project-dir "public_html") default-directory)))))
+   (let ((file (buffer-file-name)))
+     (when (and file
+                (file-executable-p file))
+       (list
+        :command-name "run-buffer-file"
+        :command-line file
+        :display "Run file associated to current buffer")))))
 ```

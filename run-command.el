@@ -127,6 +127,10 @@ said functions)."
 
 ;; Utilities
 
+(defun run-command--generate-command-specs (command-recipe-function)
+  (mapcar #'run-command--normalize-command-spec
+          (delq nil (funcall command-recipe-function))))
+
 (defun run-command--compilation-buffer-name (command-name scope-name)
   (lambda (name-of-mode)
     (format "*%s[%s]*" command-name scope-name)))
@@ -150,13 +154,12 @@ said functions)."
   (mapcar 'run-command--helm-source-from-config
           run-command-recipes))
 
-(defun run-command--helm-source-from-config (command-list-generator)
-  (let* ((command-specs (mapcar #'run-command--normalize-command-spec
-                                (funcall command-list-generator)))
+(defun run-command--helm-source-from-config (command-recipe)
+  (let* ((command-specs (run-command--generate-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
-    (helm-build-sync-source (symbol-name command-list-generator)
+    (helm-build-sync-source (symbol-name command-recipe)
       :action 'run-command--helm-action
       :candidates candidates
       :filtered-candidate-transformer '(helm-adaptive-sort))))
@@ -176,15 +179,16 @@ said functions)."
 ;; Ivy integration
 
 (defun run-command--ivy-targets ()
-  (mapcan (lambda (command-list-generator)
-            (let ((command-specs (mapcar #'run-command--normalize-command-spec
-                                         (funcall command-list-generator))))
+  (mapcan (lambda (command-recipe)
+            (let ((command-specs
+                   (run-command--generate-command-specs command-recipe)))
               (mapcar (lambda (command-spec)
-                        (cons (concat (propertize (concat (symbol-name command-list-generator)
-                                                          "/")
-                                                  'face
-                                                  'shadow)
-                                      (plist-get command-spec :display)) command-spec))
+                        (cons (concat
+                               (propertize (concat (symbol-name command-recipe)
+                                                   "/")
+                                           'face
+                                           'shadow)
+                               (plist-get command-spec :display)) command-spec))
                       command-specs)))
           run-command-recipes))
 
