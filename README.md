@@ -103,6 +103,8 @@ Example: if a buffer is associated to an executable file, you want to run it:
 
 When no file is associated to the buffer (e.g. a `*Help*` or dired buffer), or when the file is not executable, the code above simply returns `nil`.
 
+(See [examples/run-command-recipe-executables.el](examples/run-command-recipe-executables.el) for a variant that will start the command once, and re-run it every time it's modified.)
+
 ### Specifying the working directory
 
 Example: you want to serve the current directory over HTTP, unless the file you're visiting is somewhere under a `public_html` directory, in which case you want to serve that directory instead.
