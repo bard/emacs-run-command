@@ -148,6 +148,12 @@ said functions)."
           (when (not (plist-get command-spec :scope-name))
             (list :scope-name default-directory))))
 
+(defun run-command--shorter-recipe-name-maybe (command-recipe)
+  (let ((recipe-name (symbol-name command-recipe)))
+    (if (string-match "^run-command-recipe-\\(.+\\)$" recipe-name)
+        (match-string 1 recipe-name)
+      recipe-name)))
+
 ;; Helm integration
 
 (defun run-command--helm-sources ()
@@ -159,7 +165,7 @@ said functions)."
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
-    (helm-build-sync-source (symbol-name command-recipe)
+    (helm-build-sync-source (run-command--shorter-recipe-name-maybe command-recipe)
       :action 'run-command--helm-action
       :candidates candidates
       :filtered-candidate-transformer '(helm-adaptive-sort))))
@@ -181,13 +187,13 @@ said functions)."
 (defun run-command--ivy-targets ()
   (mapcan (lambda (command-recipe)
             (let ((command-specs
-                   (run-command--generate-command-specs command-recipe)))
+                   (run-command--generate-command-specs command-recipe))
+                  (recipe-name
+                   (run-command--shorter-recipe-name-maybe command-recipe)))
               (mapcar (lambda (command-spec)
                         (cons (concat
-                               (propertize (concat (symbol-name command-recipe)
-                                                   "/")
-                                           'face
-                                           'shadow)
+                               (propertize (concat recipe-name "/")
+                                           'face 'shadow)
                                (plist-get command-spec :display)) command-spec))
                       command-specs)))
           run-command-recipes))
