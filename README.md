@@ -13,6 +13,7 @@ Helm or Ivy.
   - [Readable command names](#readable-command-names)
   - [Context-aware recipes directory](#context-aware-recipes)
   - [Specifying the working directory](#specifying-the-working-directory)
+- [Tuning compilation mode](#tuning-compilation-mode)
 
 <!-- markdown-toc end -->
 
@@ -125,3 +126,7 @@ You would use `locate-dominating-file` to look for a `public_html` ancestor and,
         :command-line file
         :display "Run file associated to current buffer")))))
 ```
+
+## Tuning compilation mode
+
+Since `run-command` uses compilation mode so heavily, it pays to tune that so as to provide functionality that commands expect, such as color output and between-runs screen clearing. See [Lightweight Emacs integration with external commands via compilation mode](https://massimilianomirra.com/notes/lightweight-emacs-integration-with-external-commands-via-compilation-mode/) for a guide.
