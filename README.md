@@ -25,11 +25,11 @@ Below, using `run-command` to 1) create a project from a boilerplate, 2) start a
 
 ## Installing
 
-To be submitted to MELPA soon. For now, clone repository, and add to load path, e.g.:
+Submitted to MELPA. Meanwhile, clone the repository, and add to load path, e.g. with:
 
 ```emacs-lisp
 (use-package run-command
-  :load-path "~/projects/emacs-run-command")
+  :load-path "~/path/to/emacs-run-command")
 ```
 
 ## Configuring
