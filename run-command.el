@@ -48,6 +48,18 @@
   :type '(choice (const :tag "Helm" helm)
                  (const :tag "Ivy" ivy)))
 
+(defcustom run-command-run-method
+  'compile
+  "Run strategy.
+
+Terminal Mode: use a buffer in `term-mode'.
+    - Supports full ANSI including colors and cursor movements.
+    - Lower performance.
+
+Compilation Mode: use a buffer in `compilation-mode'."
+  :type '(choice (const :tag "Terminal Mode" term)
+                 (const :tag "Compilation Mode" compile)))
+
 (defcustom run-command-recipes nil
   "List of functions that will produce runnable commands.
 
@@ -131,10 +143,6 @@ said functions)."
   (mapcar #'run-command--normalize-command-spec
           (delq nil (funcall command-recipe-function))))
 
-(defun run-command--compilation-buffer-name (command-name scope-name)
-  (lambda (name-of-mode)
-    (format "*%s[%s]*" command-name scope-name)))
-
 (defun run-command--normalize-command-spec (command-spec)
   (when (not (plist-get command-spec :command-name))
     (error "[run-command] `:command-name' item missing from command spec"))
@@ -154,6 +162,48 @@ said functions)."
         (match-string 1 recipe-name)
       recipe-name)))
 
+(defvar-local run-command-command-spec nil
+  "Holds command spec for command run via `run-command'.")
+
+(define-minor-mode run-command-term-minor-mode
+  "Minor mode to re-run `run-command' commands started in term buffers."
+  :keymap '(("g" .  run-command-term-recompile)))
+
+(defun run-command-term-recompile ()
+  "Provide `recompile' in term buffers with command run via `run-command'."
+  (interactive)
+  (run-command--run run-command-command-spec))
+
+(defun run-command--run (command-spec)
+  (cl-destructuring-bind
+      (&key command-name command-line scope-name working-dir &allow-other-keys)
+      command-spec
+    (let* ((buffer-name-base (format "%s[%s]" command-name scope-name))
+           (buffer-name (format "*%s*" buffer-name-base))
+           (default-directory working-dir))
+      (pcase run-command-run-method
+        ('compile
+         (let ((compilation-buffer-name-function (lambda (name-of-mode) buffer-name)))
+           (compile command-line)))
+        ('term
+         (when (get-buffer buffer-name)
+           (let ((proc (get-buffer-process buffer-name)))
+             (when (and proc
+                        (yes-or-no-p "A process is running; kill it?"))
+               (condition-case ()
+                   (progn
+                     (interrupt-process proc)
+                     (sit-for 1)
+                     (delete-process proc))
+                 (error nil)))))
+         (with-current-buffer
+             (make-term buffer-name-base shell-file-name nil "-c" command-line)
+           (erase-buffer)
+           (compilation-minor-mode)
+           (run-command-term-minor-mode)
+           (setq-local run-command-command-spec command-spec)
+           (display-buffer (current-buffer))))))))
+
 ;; Helm integration
 
 (defun run-command--helm-sources ()
@@ -171,16 +221,13 @@ said functions)."
       :filtered-candidate-transformer '(helm-adaptive-sort))))
 
 (defun run-command--helm-action (command-spec)
-  (cl-destructuring-bind
-      (&key command-name command-line scope-name working-dir &allow-other-keys)
-      command-spec
-    (let ((compilation-buffer-name-function
-           (run-command--compilation-buffer-name command-name scope-name))
-          (default-directory working-dir)
-          (final-command-line (if helm-current-prefix-arg
-                                  (read-string "> " (concat command-line " "))
-                                command-line)))
-      (compile final-command-line))))
+  (let* ((command-line (plist-get command-spec :command-line))
+         (final-command-line (if helm-current-prefix-arg
+                                 (read-string "> " (concat command-line " "))
+                               command-line)))
+    (run-command--run (plist-put command-spec
+                                 :command-line
+                                 final-command-line))))
 
 ;; Ivy integration
 
@@ -199,13 +246,8 @@ said functions)."
           run-command-recipes))
 
 (defun run-command--ivy-action (selection)
-  (cl-destructuring-bind
-      (&key command-name command-line scope-name working-dir &allow-other-keys)
-      (cdr selection)
-    (let ((compilation-buffer-name-function
-           (run-command--compilation-buffer-name command-name scope-name))
-          (default-directory working-dir))
-      (compile command-line))))
+  (let ((command-spec (cdr selection)))
+    (run-command--run command-spec)))
 
 (provide 'run-command)
 
