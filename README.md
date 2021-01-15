@@ -1,5 +1,4 @@
-Pick external commands from smart lists that are based on project type, buffer mode, favorite scripts, or anything you fancy, and run them in compilation mode, in as few keystrokes as possible, without memorizing key bindings, autocompleting with
-Helm or Ivy.
+Run external commands from dynamic, configurable lists based on project type, buffer mode, favorite scripts, or anything you want. Autocompletion via Helm or Ivy.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
@@ -19,13 +18,15 @@ Helm or Ivy.
 
 ## Demo
 
-Below, using `run-command` to 1) create a project from a boilerplate, 2) start a file watcher runs the main file upon file changes, and 3) start the test runner.
+Screencast below shows using `run-command` to 1) create a project from a boilerplate, 2) execute the main source on every save, and 3) start the test runner.
 
 ![Demo](./demo.gif)
 
 ## Installing
 
-Submitted to MELPA. Meanwhile, clone the repository, and add to load path, e.g. with:
+Submitted to MELPA ([subscribe to the PR](https://github.com/melpa/melpa/pull/7344) to be notified).
+
+Meanwhile, clone the repository, and add to load path, e.g. with:
 
 ```emacs-lisp
 (use-package run-command
@@ -36,9 +37,11 @@ Submitted to MELPA. Meanwhile, clone the repository, and add to load path, e.g. 
 
 Customize `run-command-recipes`. A recipe for JavaScript/npm projects is included (`run-command-recipe-package-json`) and two more (`run-command-recipe-make` and `run-command-recipe-hugo`) can be found in the [examples](./examples).
 
-The recipe format is intentionally simple, it's meant to let you add commands easily, rather than pull opaque collections from a repository. See [Add commands](#add-commands) below for a guided example.
+The recipe format is simple, and meant to let you quickly throw together lists of useful commands. See [Add commands](#add-commands) below for a guided example.
 
 `run-command` supports [Helm](https://github.com/emacs-helm/helm/) and [Ivy](https://github.com/abo-abo/swiper) for completion. It tries to autodetect which one to use; if it gets it wrong, customize `run-config-completion-method`.
+
+By default, commands are run in `compilation-mode`. Alternatively, you can run them in a `term-mode` buffer with `compilation-minor-mode`; this is especially useful for commands with rich output such as colors, progress bars, screen refreshes, and so on. To enable it, customize `run-command-run-method` setting it to `term`, and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find differences with the `compile` method.
 
 ## Invoking
 
@@ -128,7 +131,3 @@ You would use `locate-dominating-file` to look for a `public_html` ancestor and,
         :command-line file
         :display "Run file associated to current buffer")))))
 ```
-
-## Tuning compilation mode
-
-Since `run-command` uses compilation mode so heavily, it pays to tune that so as to provide functionality that commands expect, such as color output and between-runs screen clearing. See [Lightweight Emacs integration with external commands via compilation mode](https://massimilianomirra.com/notes/lightweight-emacs-integration-with-external-commands-via-compilation-mode/) for a guide.
