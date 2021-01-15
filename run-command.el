@@ -131,7 +131,7 @@ said functions)."
                        (push (list :command-name key
                                    :command-line command
                                    :display key
-                                   :scope-name project-name
+                                   :scope-name (abbreviate-file-name project-dir)
                                    :working-dir project-dir)
                              scripts)))
                    script-map)
