@@ -154,7 +154,7 @@ said functions)."
           (when (not (plist-get command-spec :working-dir))
             (list :working-dir default-directory))
           (when (not (plist-get command-spec :scope-name))
-            (list :scope-name default-directory))))
+            (list :scope-name (abbreviate-file-name default-directory)))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
   (let ((recipe-name (symbol-name command-recipe)))
