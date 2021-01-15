@@ -35,9 +35,7 @@ Meanwhile, clone the repository, and add to load path, e.g. with:
 
 ## Configuring
 
-Customize `run-command-recipes`. A recipe for JavaScript/npm projects is included (`run-command-recipe-package-json`) and two more (`run-command-recipe-make` and `run-command-recipe-hugo`) can be found in the [examples](./examples).
-
-The recipe format is simple, and meant to let you quickly throw together lists of useful commands. See [Add commands](#add-commands) below for a guided example.
+Customize `run-command-recipes` to choose recipes. One for JavaScript/npm projects is included (`run-command-recipe-package-json`) and three more are provided in the [examples](./examples), but recipes are really intended to be quickly put together by the user, hence the simple format. See [Add commands](#add-commands) below for a tutorial.
 
 `run-command` supports [Helm](https://github.com/emacs-helm/helm/) and [Ivy](https://github.com/abo-abo/swiper) for completion. It tries to autodetect which one to use; if it gets it wrong, customize `run-config-completion-method`.
 
