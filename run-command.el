@@ -21,7 +21,7 @@
 ;; GNU General Public License for more details.
 
 ;; For a full copy of the GNU General Public License
-;; see <http://www.gnu.org/licenses/>.
+;; see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;
@@ -144,16 +144,16 @@ said functions)."
           (delq nil (funcall command-recipe-function))))
 
 (defun run-command--normalize-command-spec (command-spec)
-  (when (not (plist-get command-spec :command-name))
+  (unless (plist-get command-spec :command-name)
     (error "[run-command] `:command-name' item missing from command spec"))
-  (when (not (plist-get command-spec :command-line))
+  (unless (plist-get command-spec :command-line)
     (error "[run-command] `:command-line' item missing from command spec"))
   (append command-spec
-          (when (not (plist-get command-spec :display))
+          (unless (plist-get command-spec :display)
             (list :display (plist-get command-spec :command-name)))
-          (when (not (plist-get command-spec :working-dir))
+          (unless  (plist-get command-spec :working-dir)
             (list :working-dir default-directory))
-          (when (not (plist-get command-spec :scope-name))
+          (unless  (plist-get command-spec :scope-name)
             (list :scope-name (abbreviate-file-name default-directory)))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
@@ -207,7 +207,7 @@ said functions)."
 ;; Helm integration
 
 (defun run-command--helm-sources ()
-  (mapcar 'run-command--helm-source-from-config
+  (mapcar #'run-command--helm-source-from-config
           run-command-recipes))
 
 (defun run-command--helm-source-from-config (command-recipe)
