@@ -120,7 +120,6 @@ said functions)."
       (with-temp-buffer
         (insert-file-contents (concat project-dir "package.json"))
         (let* ((package-json (json-parse-buffer))
-               (project-name (gethash "name" package-json))
                (script-map (gethash "scripts" package-json))
                (scripts '())
                (runner (if (file-exists-p (concat project-dir "yarn.lock"))
