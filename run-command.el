@@ -35,6 +35,7 @@
 (declare-function helm "ext:helm")
 (declare-function helm-build-sync-source "ext:helm")
 (declare-function ivy-read "ext:ivy")
+(defvar helm-current-prefix-arg)
 
 ;; Customization
 
