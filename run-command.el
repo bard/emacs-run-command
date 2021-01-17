@@ -139,11 +139,13 @@ said functions)."
 
 ;; Utilities
 
-(defun run-command--generate-command-specs (command-recipe-function)
+(defun run-command--generate-command-specs (command-recipe)
+  "Execute `COMMAND-RECIPE' to generate command specs."
   (mapcar #'run-command--normalize-command-spec
-          (delq nil (funcall command-recipe-function))))
+          (delq nil (funcall command-recipe))))
 
 (defun run-command--normalize-command-spec (command-spec)
+  "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
   (unless (plist-get command-spec :command-name)
     (error "[run-command] `:command-name' item missing from command spec"))
   (unless (plist-get command-spec :command-line)
@@ -157,6 +159,7 @@ said functions)."
             (list :scope-name (abbreviate-file-name default-directory)))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
+  "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
   (let ((recipe-name (symbol-name command-recipe)))
     (if (string-match "^run-command-recipe-\\(.+\\)$" recipe-name)
         (match-string 1 recipe-name)
@@ -175,6 +178,7 @@ said functions)."
   (run-command--run run-command-command-spec))
 
 (defun run-command--run (command-spec)
+  "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
   (cl-destructuring-bind
       (&key command-name command-line scope-name working-dir &allow-other-keys)
       command-spec
@@ -207,10 +211,12 @@ said functions)."
 ;; Helm integration
 
 (defun run-command--helm-sources ()
-  (mapcar #'run-command--helm-source-from-config
+  "Create Helm sources from all active recipes."
+  (mapcar #'run-command--helm-source-from-recipe
           run-command-recipes))
 
-(defun run-command--helm-source-from-config (command-recipe)
+(defun run-command--helm-source-from-recipe (command-recipe)
+  "Create a Helm source from `COMMAND-RECIPE'."
   (let* ((command-specs (run-command--generate-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
@@ -221,6 +227,7 @@ said functions)."
       :filtered-candidate-transformer '(helm-adaptive-sort))))
 
 (defun run-command--helm-action (command-spec)
+  "Execute `COMMAND-SPEC' from Helm."
   (let* ((command-line (plist-get command-spec :command-line))
          (final-command-line (if helm-current-prefix-arg
                                  (read-string "> " (concat command-line " "))
@@ -232,6 +239,7 @@ said functions)."
 ;; Ivy integration
 
 (defun run-command--ivy-targets ()
+  "Create Ivy targets from all recipes."
   (mapcan (lambda (command-recipe)
             (let ((command-specs
                    (run-command--generate-command-specs command-recipe))
@@ -246,6 +254,7 @@ said functions)."
           run-command-recipes))
 
 (defun run-command--ivy-action (selection)
+  "Execute `SELECTION' from Ivy."
   (let ((command-spec (cdr selection)))
     (run-command--run command-spec)))
 
