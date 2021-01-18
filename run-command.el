@@ -41,7 +41,9 @@
 
 (defgroup run-command nil
   "Run an external command from a context-dependent list."
-  :group 'convenience)
+  :group 'convenience
+  :prefix "run-command-"
+  :link '(url-link "https://github.com/bard/run-command"))
 
 (defcustom run-command-completion-method
   (if (featurep 'ivy) 'ivy 'helm)
