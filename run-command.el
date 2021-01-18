@@ -126,7 +126,7 @@ said functions)."
                (runner (if (file-exists-p (concat project-dir "yarn.lock"))
                            "yarn"
                          "npm")))
-          (maphash (lambda (key value)
+          (maphash (lambda (key _value)
                      (let ((command (concat runner " run " key)))
                        (push (list :command-name key
                                    :command-line command
@@ -187,7 +187,7 @@ said functions)."
            (default-directory working-dir))
       (pcase run-command-run-method
         ('compile
-         (let ((compilation-buffer-name-function (lambda (name-of-mode) buffer-name)))
+         (let ((compilation-buffer-name-function (lambda (_name-of-mode) buffer-name)))
            (compile command-line)))
         ('term
          (when (get-buffer buffer-name)
