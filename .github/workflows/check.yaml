@@ -1,0 +1,28 @@
+name: lint
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        emacs_version:
+          - 27.1
+        ignore_warnings:
+          - true
+        include:
+          - emacs_version: snapshot
+            ignore_warnings: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: purcell/setup-emacs@master
+        with:
+          version: ${{ matrix.emacs_version }}
+      - uses: leotaku/elisp-check@master
+        with:
+          file: run-command.el
