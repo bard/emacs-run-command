@@ -1,6 +1,6 @@
 
 (defun run-command-recipe-hugo ()
-  (let* ((dotenv-snippet (concat "set -a; test -f && source .env; set +a;"))
+  (let* ((dotenv-snippet (concat "set -a; test -f .env && source .env; set +a;"))
          (project-dir (locate-dominating-file default-directory
                                               "archetypes")))
     (when project-dir
