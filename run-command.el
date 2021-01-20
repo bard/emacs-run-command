@@ -25,10 +25,9 @@
 
 ;;; Commentary:
 ;;
-;; Pick external commands from smart lists that are based on project type,
-;; buffer mode, favorite scripts, or anything you fancy, and run them in
-;; compilation mode, in as few keystrokes as possible, without memorizing
-;; key bindings, autocompleting with Helm or Ivy.
+;; Run external commands from dynamic, configurable lists based on
+;; project type, buffer mode, favorite scripts, or anything you
+;; want. Autocompletion via Helm or Ivy.
 
 ;;; Code:
 
