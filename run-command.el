@@ -42,7 +42,7 @@
   "Run an external command from a context-dependent list."
   :group 'convenience
   :prefix "run-command-"
-  :link '(url-link "https://github.com/bard/run-command"))
+  :link '(url-link "https://github.com/bard/emacs-run-command"))
 
 (defcustom run-command-completion-method
   (if (featurep 'ivy) 'ivy 'helm)
