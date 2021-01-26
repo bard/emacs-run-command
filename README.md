@@ -22,7 +22,9 @@ Run external commands from dynamic, configurable lists based on project type, bu
 
 Screencast below shows using `run-command` to 1) create a project from a boilerplate, 2) execute the main source on every save, and 3) start the test runner.
 
-![Demo](./demo.gif)
+<div style="text-align: center;">
+<img src="./demo.gif">
+</div>
 
 ## Installing
 
