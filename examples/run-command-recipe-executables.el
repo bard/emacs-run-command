@@ -1,14 +1,22 @@
 
+;; Run the current buffer's file, if executable. Optionally, re-run it on every
+;; save (requires `entr' from http://entrproject.org/, available via apt,
+;; pacman, brew).
+
 (defun run-command-recipe-executables ()
-  (let ((file (buffer-file-name)))
-    (when (and file (file-executable-p file))
-      (list
-       (list
-        :command-name "run-buffer-file"
-        :command-line file
-        :display "Run file associated to buffer")
-       (list
-        :command-name "run-buffer-file-watch"
-        ;; `entr' (http://entrproject.org/) is available via APT, pacman, brew
-        :command-line (format "echo %s | entr -c /_" file)
-        :display "Run file associated to buffer (re-run on each save)")))))
+  (let* ((buffer-file (buffer-file-name))
+         (executable-p (and buffer-file (file-executable-p buffer-file))))
+    (when
+        (list
+         (and executable-p
+              (list
+               :command-name "run-buffer-file"
+               :command-line buffer-file
+               :display "Run this buffer's file"))
+         (and executable-p
+              (list
+               :command-name "run-buffer-file-watch"
+               :command-line (format "echo %s | entr -c /_" buffer-file)
+               :display "Run this buffer's file (re-run on each save)"))))))
+
+

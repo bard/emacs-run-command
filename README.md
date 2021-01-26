@@ -1,30 +1,31 @@
 [![MELPA](https://melpa.org/packages/run-command-badge.svg)](https://melpa.org/#/run-command)
 
-Run external commands from dynamic, configurable lists based on project type, buffer mode, favorite scripts, or anything you want. Autocompletion via Helm or Ivy.
+# run-command
+
+**Leave Emacs less**. Relocate those frequent shell commands to configurable, dynamic, context-sensitive lists, and run them at a fraction of the keystrokes via Helm or Ivy.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
-**Table of Contents**
+Table of Contents:
 
 - [Demo](#demo)
 - [Installing](#installing)
+- [Quickstart](#quickstart)
 - [Configuring](#configuring)
 - [Invoking](#invoking)
 - [Tutorial: adding commands](#tutorial-adding-commands)
   - [Readable command names](#readable-command-names)
-  - [Context-aware recipes directory](#context-aware-recipes)
   - [Specifying the working directory](#specifying-the-working-directory)
-- [Tuning compilation mode](#tuning-compilation-mode)
+  - [Enabling and disabling depending on context](#enabling-and-disabling-depending-on-context)
+  - [Generating commands on the fly](#generating-commands-on-the-fly)
 
 <!-- markdown-toc end -->
 
 ## Demo
 
-Screencast below shows using `run-command` to 1) create a project from a boilerplate, 2) execute the main source on every save, and 3) start the test runner.
+The screencast below shows using `run-command` to 1) create a project from a boilerplate, 2) execute a file on every save, and 3) start the test runner.
 
-<div style="text-align: center;">
-<img src="./demo.gif">
-</div>
+<p align="center"><img alt="demo" src="./demo.gif"></p>
 
 ## Installing
 
@@ -32,43 +33,57 @@ Screencast below shows using `run-command` to 1) create a project from a boilerp
 
 ## Configuring
 
-Customize `run-command-recipes` to choose recipes. One for JavaScript/npm projects is included (`run-command-recipe-package-json`) and three more are provided in the [examples](./examples), but recipes are really intended to be quickly put together by the user, hence the simple format. See [Add commands](#add-commands) below for a tutorial.
+By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`.
 
-`run-command` supports [Helm](https://github.com/emacs-helm/helm/) and [Ivy](https://github.com/abo-abo/swiper) for completion. It tries to autodetect which one to use; if it gets it wrong, customize `run-config-completion-method`.
+Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 
-By default, commands are run in `compilation-mode`. Alternatively, you can run them in a `term-mode` buffer with `compilation-minor-mode`; this is especially useful for commands with rich output such as colors, progress bars, screen refreshes, and so on. To enable it, customize `run-command-run-method` setting it to `term`, and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find differences with the `compile` method.
+The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
-## Invoking
+## Quickstart
 
-Run `M-x run-command` or bind it to a key:
-
-```emacs-lisp
-(global-set-key (kbd "C-c c") 'run-command)
-
-;; or:
-
-(use-package run-command
-  :bind ("C-c c" . run-command)
-```
-
-When using Helm, you can edit a command before running by selecting it with `C-u RET` instead of `RET`. (See [#1](https://github.com/bard/emacs-run-command/issues) if you can help bring that to Ivy.)
-
-## Tutorial: adding commands
-
-Example: you want to serve the current directory over HTTP. Add this to Emacs's init file:
+1. Add a "command recipe" to your init file, for example:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
   (list
+   (list :command-name "say-hello"
+         :command-line "echo Hello, World!")
    (list :command-name "serve-http-dir"
-         :command-line "python3 -m http.server 8000")))
+         :command-line "python3 -m http.server 8000")
+   (when (equal (buffer-name) "README.md")
+     ;; uses https://github.com/joeyespo/grip
+     (list :command-name "preview-github-readme"
+           :command-line "grip --browser --norefresh"))))
 ```
 
-And customize `run-command-recipes` to include `run-command-recipe-local`.
+2. Customize `run-command-recipes` and add `run-command-recipe-local` to the list.
+
+3. Type `M-x run-command RET`.
+
+Read more about [configuration](#configuring), [invocation](#invoking), and [how to add commands](#tutorial-adding-commands), or check out some [recipe examples](./examples).
+
+## Invoking
+
+Type `M-x run-command` or bind `run-command` to a key:
+
+```emacs-lisp
+(global-set-key (kbd "C-c c") 'run-command)
+```
+
+Or:
+
+```emacs-lisp
+(use-package run-command
+  :bind ("C-c c" . run-command)
+```
+
+When using Helm, you can edit a command before running it by typing `C-u RET` instead of `RET`. (See [issue #1](https://github.com/bard/emacs-run-command/issues) if you can help bring that to Ivy.)
+
+## Tutorial: adding commands
 
 ### Readable command names
 
-To provide a more user-friendly name for a command, use `:display`:
+To provide a more user-friendly name for a command, use the `:display` property:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
@@ -78,36 +93,11 @@ To provide a more user-friendly name for a command, use `:display`:
          :display "Serve directory over HTTP port 8000")))
 ```
 
-### Context-aware recipes
-
-A recipe runs in the context of the current buffer, and can look at the context to decide to what a command should be, or whether it should be available at all.
-
-Example: if a buffer is associated to an executable file, you want to run it:
-
-```emacs-lisp
-(defun run-command-recipe-local ()
-  (list
-   (list :command-name "serve-http-dir"
-         :command-line "python3 -m http.server 8000"
-         :display "Serve directory over HTTP port 8000")
-   (let ((file (buffer-file-name)))
-     (when (and file
-                (file-executable-p file))
-       (list
-        :command-name "run-buffer-file"
-        :command-line file
-        :display "Run file associated to current buffer")))))
-```
-
-When no file is associated to the buffer (e.g. a `*Help*` or dired buffer), or when the file is not executable, the code above simply returns `nil`.
-
-(See [examples/run-command-recipe-executables.el](examples/run-command-recipe-executables.el) for a variant that will start the command once, and re-run it every time it's modified.)
-
 ### Specifying the working directory
 
-Example: you want to serve the current directory over HTTP, unless the file you're visiting is somewhere under a `public_html` directory, in which case you want to serve that directory instead.
+A command runs by default in the current buffer's directory. You can make it run in a different directory by setting `:working-dir`.
 
-You would use `locate-dominating-file` to look for a `public_html` ancestor and, if found, make that the `:working-dir`:
+For example, you want to serve the current directory via HTTP, unless you're visiting a file that is somewhere below a `public_html` directory, in which case you want to serve `public_html` instead:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
@@ -115,14 +105,38 @@ You would use `locate-dominating-file` to look for a `public_html` ancestor and,
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
          :display "Serve directory over HTTP port 8000"
-         :working-dir
-         (let ((project-dir (locate-dominating-file default-directory "public_html")))
-           (if project-dir (concat project-dir "public_html") default-directory)))))
-   (let ((file (buffer-file-name)))
-     (when (and file
-                (file-executable-p file))
-       (list
-        :command-name "run-buffer-file"
-        :command-line file
-        :display "Run file associated to current buffer")))))
+         :working-dir (let ((project-dir
+                             (locate-dominating-file default-directory "public_html")))
+                        (if project-dir
+                            (concat project-dir "public_html")
+                          default-directory)))))
 ```
+
+See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that uses the project's directory for all commands.
+
+### Enabling and disabling depending on context
+
+To disable a command in certain circumstances, make its recipe return `nil` in its place.
+
+For example, you want to enable a command only when a buffer's file is executable:
+
+```emacs-lisp
+(defun run-command-recipe-local ()
+  (let* ((buffer-file (buffer-file-name))
+         (executable-p (and buffer-file (file-executable-p buffer-file))))
+    (list
+     (if executable-p
+         (list
+          :command-name "run-buffer-file"
+          :command-line buffer-file
+          :display "Run this buffer's file")
+       nil))))
+```
+
+See the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.
+
+### Generating commands on the fly
+
+Recipes are plain old Lisp functions, so they generate commands based on e.g. project setup.
+
+See the [NPM project recipe](examples/run-command-recipe-package-json.el), which uses a JavaScript's project `package.json` file to generate commands, and the [Make project recipe](examples/run-command-recipe-make.el), which does the same for `Makefile` projects.

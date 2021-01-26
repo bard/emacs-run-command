@@ -1,4 +1,7 @@
 
+;; Provide commands to work with Hugo (https://gohugo.io) web sites.
+;; Honor `<projectroot>/.env' file for some of them.
+
 (defun run-command-recipe-hugo ()
   (let* ((dotenv-snippet (concat "set -a; test -f .env && source .env; set +a;"))
          (project-dir (locate-dominating-file default-directory

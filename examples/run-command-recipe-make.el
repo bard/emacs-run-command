@@ -1,4 +1,6 @@
-;; Requires https://github.com/abo-abo/helm-make
+
+;; Run a target from the project's Makefile. Requires
+;; https://github.com/abo-abo/helm-make
 
 (require 'helm-make)
 
