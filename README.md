@@ -51,10 +51,10 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
          :command-line "echo Hello, World!")
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000")
-   (when (equal (buffer-name) "README.md")
-     ;; uses https://github.com/joeyespo/grip
-     (list :command-name "preview-github-readme"
-           :command-line "grip --browser --norefresh"))))
+   (list :command-name "preview-github-readme"
+         ;; uses https://github.com/joeyespo/grip
+         :command-line "grip --browser --norefresh"
+         :enable (equal (buffer-name) "README.md"))))
 ```
 
 2. Customize `run-command-recipes` and add `run-command-recipe-local` to the list.
@@ -123,24 +123,23 @@ See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe 
 
 ### Enabling and disabling depending on context
 
-To disable a command in certain circumstances, make its recipe return `nil` in its place.
+To disable a command in certain circumstances, set `:enable` to `nil`. To disable an entire recipe, just make it return `nil`.
 
-For example, you want to enable a command only when a buffer's file is executable:
+For example, you want to enable a command only when the current buffer is visiting an executable file:
 
 ```emacs-lisp
 (defun run-command-recipe-local ()
-  (let* ((buffer-file (buffer-file-name))
-         (executable-p (and buffer-file (file-executable-p buffer-file))))
+  (let ((buffer-file (buffer-file-name)))
     (list
-     (if executable-p
-         (list
-          :command-name "run-buffer-file"
-          :command-line buffer-file
-          :display "Run this buffer's file")
-       nil))))
+     :command-name "run-buffer-file"
+     :command-line buffer-file
+     :display "Run this buffer's file"
+     :enable (and buffer-file (file-executable-p buffer-file)))))
 ```
 
 See the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.
+
+See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that switches off entirely when you're not in a Hugo project.
 
 ### Generating commands on the fly
 

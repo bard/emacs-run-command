@@ -6,17 +6,16 @@
 (defun run-command-recipe-executables ()
   (let* ((buffer-file (buffer-file-name))
          (executable-p (and buffer-file (file-executable-p buffer-file))))
-    (when
-        (list
-         (and executable-p
-              (list
-               :command-name "run-buffer-file"
-               :command-line buffer-file
-               :display "Run this buffer's file"))
-         (and executable-p
-              (list
-               :command-name "run-buffer-file-watch"
-               :command-line (format "echo %s | entr -c /_" buffer-file)
-               :display "Run this buffer's file (re-run on each save)"))))))
+    (list
+     (list
+      :command-name "run-buffer-file"
+      :command-line buffer-file
+      :display "Run this buffer's file"
+      :enable executable-p)
+     (list
+      :command-name "run-buffer-file-watch"
+      :command-line (format "echo %s | entr -c /_" buffer-file)
+      :display "Run this buffer's file (re-run on each save)"
+      :enable executable-p))))
 
 
