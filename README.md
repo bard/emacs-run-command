@@ -2,17 +2,20 @@
 
 # run-command
 
-**Leave Emacs less**. Relocate those frequent shell commands to configurable, dynamic, context-sensitive lists, and run them at a fraction of the keystrokes via Helm or Ivy.
+Emacs, the text editor where you can read mail and play Tetris, is often cast in opposition to the Unix philosophy of "do one thing well" and "combine programs". It's a false dichotomy. Emacs can do a lot _and_ can be combined usefully with other programs.
+
+`run-command` makes the combination convenient through a simple configuration format and an interaction flow that stays out of your way. Where you'd usually reach for a shell or look for a specialized major mode, with `run-command` you can write a short recipe and get a command that is easy to bring up, invoke, and keep track of, without leaving Emacs.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
 Table of Contents:
 
 - [Demo](#demo)
+- [Features](#features)
 - [Installing](#installing)
 - [Quickstart](#quickstart)
-- [Configuring](#configuring)
 - [Invoking](#invoking)
+- [Optional configuration](#optional-configuration)
 - [Tutorial: adding commands](#tutorial-adding-commands)
   - [Readable command names](#readable-command-names)
   - [Specifying the working directory](#specifying-the-working-directory)
@@ -23,21 +26,19 @@ Table of Contents:
 
 ## Demo
 
-The screencast below shows using `run-command` to 1) create a project from a boilerplate, 2) execute a file on every save, and 3) start the test runner.
+The screencast below shows using `run-command` to 1) clone a project from a boilerplate, 2) execute a file on every save, and 3) start the test runner.
 
 <p align="center"><img alt="demo" src="./demo.gif"></p>
+
+## Features
+
+- **Unopinionated**: run a command against a file, a project, a service, anything.
+- **Minimal cognitive tax**: one key binding, one configuration variable, two sensible defaults.
+- **Flexible configuration**: hardcode commands, generate them dynamically based on context, or anything in between.
 
 ## Installing
 
 [Available from MELPA](https://melpa.org/#/run-command).
-
-## Configuring
-
-By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`.
-
-Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
-
-The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
 ## Quickstart
 
@@ -60,7 +61,7 @@ The auto-completion framework is automatically detected. It can be set manually 
 
 3. Type `M-x run-command RET`.
 
-Read more about [configuration](#configuring), [invocation](#invoking), and [how to add commands](#tutorial-adding-commands), or check out some [recipe examples](./examples).
+Read more about [invocation](#invoking), [configuration](#optional-configuration), and [how to add commands](#tutorial-adding-commands), or check out some [recipe examples](./examples).
 
 ## Invoking
 
@@ -78,6 +79,12 @@ Or:
 ```
 
 When using Helm, you can edit a command before running it by typing `C-u RET` instead of `RET`. (See [issue #1](https://github.com/bard/emacs-run-command/issues) if you can help bring that to Ivy.)
+
+## Optional configuration
+
+By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
+
+The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
 ## Tutorial: adding commands
 
