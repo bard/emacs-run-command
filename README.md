@@ -53,10 +53,10 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000")
 
-   (list :command-name "preview-github-readme"
-         ;; uses https://github.com/joeyespo/grip
-         :command-line "grip --browser --norefresh"
-         :enable (equal (buffer-name) "README.md"))
+   (when (equal (buffer-name) "README.md")
+     (list :command-name "preview-github-readme"
+           ;; uses https://github.com/joeyespo/grip
+           :command-line "grip --browser --norefresh"))
 
    (when-let ((word (thing-at-point 'word t)))
      (list :command-name "wordnet-synonyms"
@@ -131,7 +131,7 @@ See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe 
 
 ### Enabling and disabling depending on context
 
-To disable a command in certain circumstances, set `:enable` to `nil`. To disable an entire recipe, just make it return `nil`.
+To disable a command in certain circumstances, return `nil` in its place.
 
 For example, you want to enable a command only when the current buffer is visiting an executable file:
 
@@ -139,10 +139,11 @@ For example, you want to enable a command only when the current buffer is visiti
 (defun run-command-recipe-local ()
   (let ((buffer-file (buffer-file-name)))
     (list
-     :command-name "run-buffer-file"
-     :command-line buffer-file
-     :display "Run this buffer's file"
-     :enable (and buffer-file (file-executable-p buffer-file)))))
+     (when (and buffer-file (file-executable-p buffer-file))
+       (list
+        :command-name "run-buffer-file"
+        :command-line buffer-file
+        :display "Run this buffer's file")))))
 ```
 
 See the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.

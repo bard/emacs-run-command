@@ -7,15 +7,15 @@
   (let* ((buffer-file (buffer-file-name))
          (executable-p (and buffer-file (file-executable-p buffer-file))))
     (list
-     (list
-      :command-name "run-buffer-file"
-      :command-line buffer-file
-      :display "Run this buffer's file"
-      :enable executable-p)
-     (list
-      :command-name "run-buffer-file-watch"
-      :command-line (format "echo %s | entr -c /_" buffer-file)
-      :display "Run this buffer's file (re-run on each save)"
-      :enable executable-p))))
+     (when executable-p
+       (list
+        :command-name "run-buffer-file"
+        :command-line buffer-file
+        :display "Run this buffer's file"))
+     (when executable-p
+       (list
+        :command-name "run-buffer-file-watch"
+        :command-line (format "echo %s | entr -c /_" buffer-file)
+        :display "Run this buffer's file (re-run on each save)")))))
 
 

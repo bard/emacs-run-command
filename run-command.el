@@ -118,12 +118,7 @@ said functions)."
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs (funcall command-recipe)))
     (mapcar #'run-command--normalize-command-spec
-            (cl-remove-if
-             (lambda (spec)
-               (or (not spec)
-                   (and (plist-member spec :enable)
-                        (eq (plist-get spec :enable) nil))))
-             command-specs))))
+            (delq nil command-specs))))
 
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
