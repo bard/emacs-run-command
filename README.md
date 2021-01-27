@@ -2,7 +2,7 @@
 
 # run-command
 
-Emacs, the text editor where you can read mail and play Tetris, is often cast in opposition to the Unix philosophy of "do one thing well" and "combine programs". It's a false dichotomy. Emacs can do a lot _and_ can be combined usefully with other programs.
+Emacs, the text editor where you can read mail and play Tetris, is often cast in opposition to the Unix philosophy of "do one thing well" and "combine programs". It's a false dichotomy. Emacs can do a lot on its own _and_ can be combined usefully with other programs.
 
 `run-command` makes the combination convenient through a simple configuration format and an interaction flow that stays out of your way. Where you'd usually reach for a shell or look for a specialized major mode, with `run-command` you can write a short recipe and get a command that is easy to bring up, invoke, and keep track of, without leaving Emacs.
 
