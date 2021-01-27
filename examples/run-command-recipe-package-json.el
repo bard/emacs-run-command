@@ -1,27 +1,27 @@
 
-;; Run an NPM script from the project's package.json file.
+;; Run a script from the project's package.json file. Supports both npm and yarn.
+
+(defun run-command-recipe-package-json--get-scripts (package-json-file)
+  "Extract NPM scripts from `package-json-file'."
+  (with-temp-buffer
+    (insert-file-contents package-json-file)
+    (let* ((json-data (json-parse-buffer))
+           (script-hash (gethash "scripts" json-data))
+           (scripts '()))
+      (maphash (lambda (key _value) (push key scripts)) script-hash)
+      scripts)))
 
 (defun run-command-recipe-package-json ()
-  "Extract NPM scripts for `run-command' from the current project's package.json."
-  (let ((project-dir (locate-dominating-file default-directory
-                                             "package.json")))
-    (when project-dir
-      (with-temp-buffer
-        (insert-file-contents (concat project-dir "package.json"))
-        (let* ((package-json (json-parse-buffer))
-               (script-map (gethash "scripts" package-json))
-               (scripts '())
-               (runner (if (file-exists-p (concat project-dir "yarn.lock"))
-                           "yarn"
-                         "npm")))
-          (maphash (lambda (key _value)
-                     (let ((command (concat runner " run " key)))
-                       (push (list :command-name key
-                                   :command-line command
-                                   :display key
-                                   :scope-name (abbreviate-file-name project-dir)
-                                   :working-dir project-dir)
-                             scripts)))
-                   script-map)
-          scripts)))))
+  (when-let* ((project-dir
+               (locate-dominating-file default-directory "package.json"))
+              (scripts
+               (run-command-recipe-package-json--get-scripts (concat project-dir "package.json")))
+              (script-runner
+               (if (file-exists-p (concat project-dir "yarn.lock")) "yarn" "npm")))
+    (mapcar (lambda (script)
+              (list :command-name script
+                    :command-line (concat script-runner " run " script)
+                    :display script
+                    :working-dir project-dir))
+            scripts)))
 
