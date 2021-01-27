@@ -128,9 +128,11 @@ said functions)."
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
   (unless (plist-get command-spec :command-name)
-    (error "[run-command] `:command-name' item missing from command spec"))
+    (error "[run-command] `:command-name' item missing from command spec: %S"
+           command-spec))
   (unless (plist-get command-spec :command-line)
-    (error "[run-command] `:command-line' item missing from command spec"))
+    (error "[run-command] `:command-line' item missing from command spec: %S"
+           command-spec))
   (append command-spec
           (unless (plist-get command-spec :display)
             (list :display (plist-get command-spec :command-name)))
