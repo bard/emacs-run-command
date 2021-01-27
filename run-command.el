@@ -137,7 +137,9 @@ said functions)."
           (unless  (plist-get command-spec :working-dir)
             (list :working-dir default-directory))
           (unless  (plist-get command-spec :scope-name)
-            (list :scope-name (abbreviate-file-name default-directory)))))
+            (list :scope-name (abbreviate-file-name
+                               (or (plist-get command-spec :working-dir)
+                                   default-directory ))))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
   "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
