@@ -32,7 +32,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 
 ## Features
 
-- **Unopinionated**: run a command against a file, a project, a service, anything.
+- **Unopinionated**: run a command against a word, a file, a project, a service, anything.
 - **Minimal cognitive tax**: one key binding, one configuration variable, two sensible defaults.
 - **Flexible configuration**: hardcode commands, generate them dynamically based on context, or anything in between.
 
@@ -49,12 +49,20 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
   (list
    (list :command-name "say-hello"
          :command-line "echo Hello, World!")
+
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000")
+
    (list :command-name "preview-github-readme"
          ;; uses https://github.com/joeyespo/grip
          :command-line "grip --browser --norefresh"
-         :enable (equal (buffer-name) "README.md"))))
+         :enable (equal (buffer-name) "README.md"))
+
+   (when-let ((word (thing-at-point 'word t)))
+     (list :command-name "wordnet-synonyms"
+           ;; uses https://wordnet.princeton.edu/documentation/wn1wn
+           :command-line (format "wn '%s' -synsn -synsv -synsa -synsr" word)
+           :display (format "Look up '%s' synonyms in wordnet" word)))))
 ```
 
 2. Customize `run-command-recipes` and add `run-command-recipe-local` to the list.
