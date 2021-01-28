@@ -160,12 +160,12 @@ said functions)."
 (defun run-command--run (command-spec)
   "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
   (cl-destructuring-bind
-      (&key command-name command-line scope-name working-dir &allow-other-keys)
+      (&key command-name command-line scope-name working-dir run-method &allow-other-keys)
       command-spec
     (let* ((buffer-name-base (format "%s[%s]" command-name scope-name))
            (buffer-name (format "*%s*" buffer-name-base))
            (default-directory working-dir))
-      (pcase run-command-run-method
+      (pcase (or run-method run-command-run-method)
         ('compile
          (let ((compilation-buffer-name-function (lambda (_name-of-mode) buffer-name)))
            (compile command-line)))
@@ -202,9 +202,9 @@ said functions)."
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
     (helm-build-sync-source (run-command--shorter-recipe-name-maybe command-recipe)
-      :action 'run-command--helm-action
-      :candidates candidates
-      :filtered-candidate-transformer '(helm-adaptive-sort))))
+                            :action 'run-command--helm-action
+                            :candidates candidates
+                            :filtered-candidate-transformer '(helm-adaptive-sort))))
 
 (defun run-command--helm-action (command-spec)
   "Execute `COMMAND-SPEC' from Helm."

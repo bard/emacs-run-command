@@ -90,7 +90,15 @@ When using Helm, you can edit a command before running it by typing `C-u RET` in
 
 ## Optional configuration
 
-By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
+By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues. Run method can also be set per command using the `:run-method` property:
+
+```emacs-lisp
+(defun run-command-recipe-local ()
+  (list
+   (list :command-name "hello"
+         :command-line "echo hello"
+         :run-method 'term)))
+```
 
 The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
