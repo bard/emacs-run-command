@@ -33,8 +33,10 @@
 
 (declare-function helm "ext:helm")
 (declare-function helm-build-sync-source "ext:helm")
-(declare-function ivy-read "ext:ivy")
 (defvar helm-current-prefix-arg)
+
+(declare-function ivy-read "ext:ivy")
+(defvar ivy-current-prefix-arg)
 
 ;; Customization
 
@@ -259,6 +261,7 @@ said functions)."
                                  :command-line final-command-line))))
 
 (defun run-command--ivy-edit-action (selection)
+  "Edit `SELECTION' then execute from Ivy."
   (let ((ivy-current-prefix-arg t))
     (run-command--ivy-action selection)))
 
