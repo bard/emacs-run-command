@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 ;;
-;; Leave Emacs less. Relocate those frequent shell commands to configurable,
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
 ;; dynamic, context-sensitive lists, and run them at a fraction of the
 ;; keystrokes via Helm or Ivy.
 
@@ -45,9 +45,10 @@
   :link '(url-link "https://github.com/bard/emacs-run-command"))
 
 (defcustom run-command-completion-method
-  (if (featurep 'ivy) 'ivy 'helm)
+  'auto
   "Completion framework to use to select a command."
-  :type '(choice (const :tag "Helm" helm)
+  :type '(choice (const :tag "Autodetect" auto)
+                 (const :tag "Helm" helm)
                  (const :tag "Ivy" ivy)))
 
 (defcustom run-command-run-method
@@ -103,16 +104,27 @@ The command list is produced by the functions configured in
 said functions)."
   (interactive)
   (pcase run-command-completion-method
-    ('helm
-     (helm :buffer "*run-command*"
-           :prompt "Command Name: "
-           :sources (run-command--helm-sources)))
-    ('ivy (unless (window-minibuffer-p)
-            (ivy-read "Command Name: "
-                      (run-command--ivy-targets)
-                      :action 'run-command--ivy-action)))))
+    ('auto
+     (if (featurep 'ivy)
+         (run-command--ivy)
+       (run-command--helm)))
+    ('helm (run-command--helm))
+    ('ivy (run-command--ivy))))
 
 ;; Utilities
+
+(defun run-command--helm ()
+  "Complete command with helm and run it."
+  (helm :buffer "*run-command*"
+        :prompt "Command Name: "
+        :sources (run-command--helm-sources)))
+
+(defun run-command--ivy ()
+  "Complete command with ivy and run it."
+  (unless (window-minibuffer-p)
+    (ivy-read "Command Name: "
+              (run-command--ivy-targets)
+              :action 'run-command--ivy-action)))
 
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
