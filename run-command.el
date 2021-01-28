@@ -199,7 +199,7 @@ said functions)."
            (with-current-buffer (get-buffer buffer-name)
              (erase-buffer)))
          (with-current-buffer
-             (make-term buffer-name-base shell-file-name nil "-c" (format "echo %s && %s" command-line command-line))
+             (make-term buffer-name-base shell-file-name nil "-c" command-line)
            (compilation-minor-mode)
            (run-command-term-minor-mode)
            (setq-local run-command-command-spec command-spec)
