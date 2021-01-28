@@ -248,18 +248,19 @@ said functions)."
                       command-specs)))
           run-command-recipes))
 
-(defun run-command--ivy-action (selection &optional edit)
+(defun run-command--ivy-action (selection)
   "Execute `SELECTION' from Ivy."
   (let* ((command-spec (cdr selection))
          (command-line (plist-get command-spec :command-line))
-         (final-command-line (if (or edit ivy-current-prefix-arg)
+         (final-command-line (if ivy-current-prefix-arg
                                  (read-string "> " (concat command-line " "))
                                command-line)))
     (run-command--run (plist-put command-spec
                                  :command-line final-command-line))))
 
 (defun run-command--ivy-edit-action (selection)
-  (run-command--ivy-action selection t))
+  (let ((ivy-current-prefix-arg t))
+    (run-command--ivy-action selection)))
 
 (provide 'run-command)
 
