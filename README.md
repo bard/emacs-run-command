@@ -86,7 +86,7 @@ Or:
   :bind ("C-c c" . run-command)
 ```
 
-When using Helm, you can edit a command before running it by typing `C-u RET` instead of `RET`. (See [issue #1](https://github.com/bard/emacs-run-command/issues) if you can help bring that to Ivy.)
+You can edit a command before running it by typing `C-u RET` instead of `RET`.
 
 ## Optional configuration
 
