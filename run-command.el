@@ -49,7 +49,8 @@
   "Completion framework to use to select a command."
   :type '(choice (const :tag "Autodetect" auto)
                  (const :tag "Helm" helm)
-                 (const :tag "Ivy" ivy)))
+                 (const :tag "Ivy" ivy)
+                 (const :tag "completing-read" completing-read)))
 
 (defcustom run-command-run-method
   'compile
@@ -109,9 +110,17 @@ said functions)."
          (run-command--ivy)
        (run-command--helm)))
     ('helm (run-command--helm))
-    ('ivy (run-command--ivy))))
+    ('ivy (run-command--ivy))
+    ('completing-read (run-command--completing-read))))
 
 ;; Utilities
+
+(defun run-command--completing-read ()
+  (let* ((targets (run-command--ivy-targets))
+         (choice (completing-read "Command Name: " targets)))
+    (when choice
+      (let ((command-spec (cdr (assoc choice targets))))
+        (run-command--run command-spec)))))
 
 (defun run-command--helm ()
   (helm :buffer "*run-command*"
