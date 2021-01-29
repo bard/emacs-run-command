@@ -33,7 +33,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 ## Features
 
 - **Unopinionated**: run a command against a word, a file, a project, a service, anything.
-- **Minimal cognitive tax**: one key binding, one configuration variable, two sensible defaults.
+- **Minimal cognitive tax**: one key binding, one configuration variable.
 - **Flexible configuration**: hardcode commands, generate them dynamically based on context, or anything in between.
 
 ## Installing
