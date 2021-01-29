@@ -47,20 +47,33 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 ```emacs-lisp
 (defun run-command-recipe-local ()
   (list
+   ;; Arbitrary command
    (list :command-name "say-hello"
          :command-line "echo Hello, World!")
 
+   ;; Do something with current directory
    (list :command-name "serve-http-dir"
-         :command-line "python3 -m http.server 8000")
+         :command-line "python3 -m http.server 8000"
+         :display "Serve current directory over HTTP")
 
+   ;; Do something with current file if it's a README
+   ;; (uses https://github.com/joeyespo/grip)
    (when (equal (buffer-name) "README.md")
      (list :command-name "preview-github-readme"
-           ;; uses https://github.com/joeyespo/grip
-           :command-line "grip --browser --norefresh"))
+           :command-line "grip --browser --norefresh"
+           :display "Preview GitHub README"))
 
+   ;; Do something with current file if it's executable
+   (when-let* ((buffer-file (buffer-file-name))
+               (executable-p (and buffer-file (file-executable-p buffer-file))))
+     (list :command-name "run-buffer-file"
+           :command-line buffer-file
+           :display "Run this buffer's file"))
+
+   ;; Do something with current word
+   ;; (uses https://wordnet.princeton.edu/documentation/wn1wn)
    (when-let ((word (thing-at-point 'word t)))
      (list :command-name "wordnet-synonyms"
-           ;; uses https://wordnet.princeton.edu/documentation/wn1wn
            :command-line (format "wn '%s' -synsn -synsv -synsa -synsr" word)
            :display (format "Look up '%s' synonyms in wordnet" word)))))
 ```
