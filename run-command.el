@@ -36,7 +36,7 @@
 (declare-function ivy-read "ext:ivy")
 (defvar helm-current-prefix-arg)
 
-;; Customization
+;;; Customization
 
 (defgroup run-command nil
   "Run an external command from a context-dependent list."
@@ -49,8 +49,7 @@
   "Completion framework to use to select a command."
   :type '(choice (const :tag "Autodetect" auto)
                  (const :tag "Helm" helm)
-                 (const :tag "Ivy" ivy)
-                 (const :tag "completing-read" completing-read)))
+                 (const :tag "Ivy" ivy)))
 
 (defcustom run-command-run-method
   'compile
@@ -93,7 +92,13 @@ command will be run in `default-directory'."
   :type '(repeat function)
   :group'run-command)
 
-;; Entry point
+;;; Feature flags (test & dev only)
+(defvar run-command--temporarily-enable-completing-read nil
+  "Feature flag for testing only. Will be removed.
+
+Enable to use `completing-read' for completions.")
+
+;;; User interface
 
 (defun run-command ()
   "Pick a command from a context-dependent list, and run it.
@@ -104,34 +109,18 @@ The command list is produced by the functions configured in
 `run-command-recipes' (see that for the format expected from
 said functions)."
   (interactive)
-  (pcase run-command-completion-method
-    ('auto
-     (if (featurep 'ivy)
-         (run-command--ivy)
-       (run-command--helm)))
-    ('helm (run-command--helm))
-    ('ivy (run-command--ivy))
-    ('completing-read (run-command--completing-read))))
+  (if run-command--temporarily-enable-completing-read
+      (run-command--completing-read)
+    (pcase run-command-completion-method
+      ('auto
+       (if (featurep 'ivy)
+           (run-command--ivy)
+         (run-command--helm)))
+      ('helm (run-command--helm))
+      ('ivy (run-command--ivy))
+      ('completing-read (run-command--completing-read)))))
 
-;; Utilities
-
-(defun run-command--completing-read ()
-  (let* ((targets (run-command--ivy-targets))
-         (choice (completing-read "Command Name: " targets)))
-    (when choice
-      (let ((command-spec (cdr (assoc choice targets))))
-        (run-command--run command-spec)))))
-
-(defun run-command--helm ()
-  (helm :buffer "*run-command*"
-        :prompt "Command Name: "
-        :sources (run-command--helm-sources)))
-
-(defun run-command--ivy ()
-  (unless (window-minibuffer-p)
-    (ivy-read "Command Name: "
-              (run-command--ivy-targets)
-              :action 'run-command--ivy-action)))
+;;; Utilities
 
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
@@ -207,7 +196,12 @@ said functions)."
            (setq-local run-command-command-spec command-spec)
            (display-buffer (current-buffer))))))))
 
-;; Helm integration
+;;; Helm integration
+
+(defun run-command--helm ()
+  (helm :buffer "*run-command*"
+        :prompt "Command Name: "
+        :sources (run-command--helm-sources)))
 
 (defun run-command--helm-sources ()
   "Create Helm sources from all active recipes."
@@ -235,7 +229,13 @@ said functions)."
                                  :command-line
                                  final-command-line))))
 
-;; Ivy integration
+;;; Ivy integration
+
+(defun run-command--ivy ()
+  (unless (window-minibuffer-p)
+    (ivy-read "Command Name: "
+              (run-command--ivy-targets)
+              :action 'run-command--ivy-action)))
 
 (defun run-command--ivy-targets ()
   "Create Ivy targets from all recipes."
@@ -256,6 +256,15 @@ said functions)."
   "Execute `SELECTION' from Ivy."
   (let ((command-spec (cdr selection)))
     (run-command--run command-spec)))
+
+;;; completing-read integration
+
+(defun run-command--completing-read ()
+  (let* ((targets (run-command--ivy-targets))
+         (choice (completing-read "Command Name: " targets)))
+    (when choice
+      (let ((command-spec (cdr (assoc choice targets))))
+        (run-command--run command-spec)))))
 
 (provide 'run-command)
 
