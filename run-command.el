@@ -169,32 +169,34 @@ said functions)."
   (cl-destructuring-bind
       (&key command-name command-line scope-name working-dir &allow-other-keys)
       command-spec
-    (let* ((buffer-name-base (format "%s[%s]" command-name scope-name))
-           (buffer-name (format "*%s*" buffer-name-base))
-           (default-directory working-dir))
-      (pcase run-command-run-method
-        ('compile
-         (let ((compilation-buffer-name-function (lambda (_name-of-mode) buffer-name)))
-           (compile command-line)))
-        ('term
-         (when (get-buffer buffer-name)
-           (let ((proc (get-buffer-process buffer-name)))
-             (when (and proc
-                        (yes-or-no-p "A process is running; kill it?"))
-               (condition-case ()
-                   (progn
-                     (interrupt-process proc)
-                     (sit-for 1)
-                     (delete-process proc))
-                 (error nil))))
-           (with-current-buffer (get-buffer buffer-name)
-             (erase-buffer)))
-         (with-current-buffer
-             (make-term buffer-name-base shell-file-name nil "-c" command-line)
-           (compilation-minor-mode)
-           (run-command-term-minor-mode)
-           (setq-local run-command-command-spec command-spec)
-           (display-buffer (current-buffer))))))))
+    (if (functionp command-line)
+        (funcall command-line)
+      (let* ((buffer-name-base (format "%s[%s]" command-name scope-name))
+             (buffer-name (format "*%s*" buffer-name-base))
+             (default-directory working-dir))
+        (pcase run-command-run-method
+          ('compile
+           (let ((compilation-buffer-name-function (lambda (_name-of-mode) buffer-name)))
+             (compile command-line)))
+          ('term
+           (when (get-buffer buffer-name)
+             (let ((proc (get-buffer-process buffer-name)))
+               (when (and proc
+                          (yes-or-no-p "A process is running; kill it?"))
+                 (condition-case ()
+                     (progn
+                       (interrupt-process proc)
+                       (sit-for 1)
+                       (delete-process proc))
+                   (error nil))))
+             (with-current-buffer (get-buffer buffer-name)
+               (erase-buffer)))
+           (with-current-buffer
+               (make-term buffer-name-base shell-file-name nil "-c" command-line)
+             (compilation-minor-mode)
+             (run-command-term-minor-mode)
+             (setq-local run-command-command-spec command-spec)
+             (display-buffer (current-buffer)))))))))
 
 ;;; Helm integration
 
