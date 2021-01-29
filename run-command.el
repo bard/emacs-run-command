@@ -120,21 +120,6 @@ said functions)."
 
 ;;; Utilities
 
-(defun run-command--helm ()
-  "Complete command with helm and run it."
-  (helm :buffer "*run-command*"
-        :prompt "Command Name: "
-        :sources (run-command--helm-sources)))
-
-(defun run-command--ivy ()
-  "Complete command with ivy and run it."
-  (unless (window-minibuffer-p)
-    (ivy-read "Command Name: "
-              (run-command--ivy-targets)
-              :action '(1
-                        ("o" run-command--ivy-action "Run command")
-                        ("e" run-command--ivy-edit-action "Edit and run command")))))
-
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs (funcall command-recipe)))
