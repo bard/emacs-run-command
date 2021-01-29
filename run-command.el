@@ -198,6 +198,7 @@ said functions)."
 ;;; Helm integration
 
 (defun run-command--helm ()
+  "Complete command with helm and run it."
   (helm :buffer "*run-command*"
         :prompt "Command Name: "
         :sources (run-command--helm-sources)))
@@ -231,6 +232,7 @@ said functions)."
 ;;; Ivy integration
 
 (defun run-command--ivy ()
+  "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
     (ivy-read "Command Name: "
               (run-command--ivy-targets)
@@ -247,7 +249,8 @@ said functions)."
                         (cons (concat
                                (propertize (concat recipe-name "/")
                                            'face 'shadow)
-                               (plist-get command-spec :display)) command-spec))
+                               (plist-get command-spec :display))
+                              command-spec))
                       command-specs)))
           run-command-recipes))
 
@@ -269,6 +272,7 @@ said functions)."
 ;;; completing-read integration
 
 (defun run-command--completing-read ()
+  "Complete command with `completing-read' and run it."
   (let* ((targets (run-command--ivy-targets))
          (choice (completing-read "Command Name: " targets)))
     (when choice
