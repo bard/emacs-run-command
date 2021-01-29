@@ -47,9 +47,10 @@
 (defcustom run-command-completion-method
   'auto
   "Completion framework to use to select a command."
-  :type '(choice (const :tag "Autodetect" auto)
-                 (const :tag "Helm" helm)
-                 (const :tag "Ivy" ivy)))
+  :type '(choice (const :tag "autodetect" auto)
+                 (const :tag "helm" helm)
+                 (const :tag "ivy" ivy)
+                 (const :tag "completing-read" completing-read)))
 
 (defcustom run-command-run-method
   'compile
@@ -92,12 +93,6 @@ command will be run in `default-directory'."
   :type '(repeat function)
   :group'run-command)
 
-;;; Feature flags (test & dev only)
-(defvar run-command--temporarily-enable-completing-read nil
-  "Feature flag for testing only. Will be removed.
-
-Enable to use `completing-read' for completions.")
-
 ;;; User interface
 
 (defun run-command ()
@@ -109,16 +104,17 @@ The command list is produced by the functions configured in
 `run-command-recipes' (see that for the format expected from
 said functions)."
   (interactive)
-  (if run-command--temporarily-enable-completing-read
-      (run-command--completing-read)
-    (pcase run-command-completion-method
-      ('auto
-       (if (featurep 'ivy)
-           (run-command--ivy)
-         (run-command--helm)))
-      ('helm (run-command--helm))
-      ('ivy (run-command--ivy))
-      ('completing-read (run-command--completing-read)))))
+  (pcase run-command-completion-method
+    ('auto
+     (cond
+      ((featurep 'helm) (run-command--helm))
+      ((featurep 'ivy) (run-command--ivy))
+      (t (run-command--completing-read))))
+    ('helm (run-command--helm))
+    ('ivy (run-command--ivy))
+    ('completing-read (run-command--completing-read))
+    (_ (error "Unrecognized completion method: %s"
+              run-command-completion-method))))
 
 ;;; Utilities
 
