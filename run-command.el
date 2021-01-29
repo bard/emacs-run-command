@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 ;;
-;; Leave Emacs less. Relocate those frequent shell commands to configurable,
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
 ;; dynamic, context-sensitive lists, and run them at a fraction of the
 ;; keystrokes via Helm or Ivy.
 
@@ -33,8 +33,10 @@
 
 (declare-function helm "ext:helm")
 (declare-function helm-build-sync-source "ext:helm")
-(declare-function ivy-read "ext:ivy")
 (defvar helm-current-prefix-arg)
+
+(declare-function ivy-read "ext:ivy")
+(defvar ivy-current-prefix-arg)
 
 ;;; Customization
 
@@ -118,6 +120,21 @@ said functions)."
 
 ;;; Utilities
 
+(defun run-command--helm ()
+  "Complete command with helm and run it."
+  (helm :buffer "*run-command*"
+        :prompt "Command Name: "
+        :sources (run-command--helm-sources)))
+
+(defun run-command--ivy ()
+  "Complete command with ivy and run it."
+  (unless (window-minibuffer-p)
+    (ivy-read "Command Name: "
+              (run-command--ivy-targets)
+              :action '(1
+                        ("o" run-command--ivy-action "Run command")
+                        ("e" run-command--ivy-edit-action "Edit and run command")))))
+
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs (funcall command-recipe)))
@@ -183,10 +200,11 @@ said functions)."
                      (interrupt-process proc)
                      (sit-for 1)
                      (delete-process proc))
-                 (error nil)))))
+                 (error nil))))
+           (with-current-buffer (get-buffer buffer-name)
+             (erase-buffer)))
          (with-current-buffer
              (make-term buffer-name-base shell-file-name nil "-c" command-line)
-           (erase-buffer)
            (compilation-minor-mode)
            (run-command-term-minor-mode)
            (setq-local run-command-command-spec command-spec)
@@ -250,8 +268,18 @@ said functions)."
 
 (defun run-command--ivy-action (selection)
   "Execute `SELECTION' from Ivy."
-  (let ((command-spec (cdr selection)))
-    (run-command--run command-spec)))
+  (let* ((command-spec (cdr selection))
+         (command-line (plist-get command-spec :command-line))
+         (final-command-line (if ivy-current-prefix-arg
+                                 (read-string "> " (concat command-line " "))
+                               command-line)))
+    (run-command--run (plist-put command-spec
+                                 :command-line final-command-line))))
+
+(defun run-command--ivy-edit-action (selection)
+  "Edit `SELECTION' then execute from Ivy."
+  (let ((ivy-current-prefix-arg t))
+    (run-command--ivy-action selection)))
 
 ;;; completing-read integration
 
