@@ -97,6 +97,7 @@ command will be run in `default-directory'."
 
 ;;; User interface
 
+;;;###autoload
 (defun run-command ()
   "Pick a command from a context-dependent list, and run it.
 
