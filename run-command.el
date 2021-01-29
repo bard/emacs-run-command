@@ -108,10 +108,11 @@ said functions)."
   (interactive)
   (pcase run-command-completion-method
     ('auto
-     (cond
-      ((featurep 'helm) (run-command--helm))
-      ((featurep 'ivy) (run-command--ivy))
-      (t (run-command--completing-read))))
+     (cond ((and (boundp 'helm-mode) helm-mode)
+            (run-command--helm))
+           ((and (boundp 'ivy-mode) ivy-mode)
+            (run-command--ivy))
+           (t (run-command--completing-read))))
     ('helm (run-command--helm))
     ('ivy (run-command--ivy))
     ('completing-read (run-command--completing-read))
