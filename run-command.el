@@ -38,7 +38,7 @@
 (declare-function ivy-read "ext:ivy")
 (defvar ivy-current-prefix-arg)
 
-;; Customization
+;;; Customization
 
 (defgroup run-command nil
   "Run an external command from a context-dependent list."
@@ -49,9 +49,10 @@
 (defcustom run-command-completion-method
   'auto
   "Completion framework to use to select a command."
-  :type '(choice (const :tag "Autodetect" auto)
-                 (const :tag "Helm" helm)
-                 (const :tag "Ivy" ivy)))
+  :type '(choice (const :tag "autodetect" auto)
+                 (const :tag "helm" helm)
+                 (const :tag "ivy" ivy)
+                 (const :tag "completing-read" completing-read)))
 
 (defcustom run-command-run-method
   'compile
@@ -94,7 +95,7 @@ command will be run in `default-directory'."
   :type '(repeat function)
   :group'run-command)
 
-;; Entry point
+;;; User interface
 
 (defun run-command ()
   "Pick a command from a context-dependent list, and run it.
@@ -107,28 +108,18 @@ said functions)."
   (interactive)
   (pcase run-command-completion-method
     ('auto
-     (if (featurep 'ivy)
-         (run-command--ivy)
-       (run-command--helm)))
+     (cond ((and (boundp 'helm-mode) helm-mode)
+            (run-command--helm))
+           ((and (boundp 'ivy-mode) ivy-mode)
+            (run-command--ivy))
+           (t (run-command--completing-read))))
     ('helm (run-command--helm))
-    ('ivy (run-command--ivy))))
+    ('ivy (run-command--ivy))
+    ('completing-read (run-command--completing-read))
+    (_ (error "Unrecognized completion method: %s"
+              run-command-completion-method))))
 
-;; Utilities
-
-(defun run-command--helm ()
-  "Complete command with helm and run it."
-  (helm :buffer "*run-command*"
-        :prompt "Command Name: "
-        :sources (run-command--helm-sources)))
-
-(defun run-command--ivy ()
-  "Complete command with ivy and run it."
-  (unless (window-minibuffer-p)
-    (ivy-read "Command Name: "
-              (run-command--ivy-targets)
-              :action '(1
-                        ("o" run-command--ivy-action "Run command")
-                        ("e" run-command--ivy-edit-action "Edit and run command")))))
+;;; Utilities
 
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
@@ -205,7 +196,13 @@ said functions)."
            (setq-local run-command-command-spec command-spec)
            (display-buffer (current-buffer))))))))
 
-;; Helm integration
+;;; Helm integration
+
+(defun run-command--helm ()
+  "Complete command with helm and run it."
+  (helm :buffer "*run-command*"
+        :prompt "Command Name: "
+        :sources (run-command--helm-sources)))
 
 (defun run-command--helm-sources ()
   "Create Helm sources from all active recipes."
@@ -233,7 +230,14 @@ said functions)."
                                  :command-line
                                  final-command-line))))
 
-;; Ivy integration
+;;; Ivy integration
+
+(defun run-command--ivy ()
+  "Complete command with ivy and run it."
+  (unless (window-minibuffer-p)
+    (ivy-read "Command Name: "
+              (run-command--ivy-targets)
+              :action 'run-command--ivy-action)))
 
 (defun run-command--ivy-targets ()
   "Create Ivy targets from all recipes."
@@ -246,7 +250,8 @@ said functions)."
                         (cons (concat
                                (propertize (concat recipe-name "/")
                                            'face 'shadow)
-                               (plist-get command-spec :display)) command-spec))
+                               (plist-get command-spec :display))
+                              command-spec))
                       command-specs)))
           run-command-recipes))
 
@@ -264,6 +269,16 @@ said functions)."
   "Edit `SELECTION' then execute from Ivy."
   (let ((ivy-current-prefix-arg t))
     (run-command--ivy-action selection)))
+
+;;; completing-read integration
+
+(defun run-command--completing-read ()
+  "Complete command with `completing-read' and run it."
+  (let* ((targets (run-command--ivy-targets))
+         (choice (completing-read "Command Name: " targets)))
+    (when choice
+      (let ((command-spec (cdr (assoc choice targets))))
+        (run-command--run command-spec)))))
 
 (provide 'run-command)
 
