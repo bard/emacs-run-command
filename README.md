@@ -86,11 +86,11 @@ Or:
   :bind ("C-c c" . run-command)
 ```
 
-You can edit a command before running it by typing `C-u RET` instead of `RET`.
+When completing via Helm or Ivy, you can edit a command before running it by typing `C-u RET` instead of `RET`.
 
 ## Optional configuration
 
-By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. Alternatively (and experimentally), commands can be run in `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
+By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. An alternative method (and probably future default) is `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 
 The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
