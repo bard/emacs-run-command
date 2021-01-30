@@ -233,11 +233,16 @@ said functions)."
 
 ;;; Ivy integration
 
+(defvar run-command--ivy-history nil
+  "History for `run-command--ivy'.")
+
 (defun run-command--ivy ()
   "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
     (ivy-read "Command Name: "
               (run-command--ivy-targets)
+              :caller 'run-command--ivy
+              :history 'run-command--ivy-history
               :action 'run-command--ivy-action)))
 
 (defun run-command--ivy-targets ()
