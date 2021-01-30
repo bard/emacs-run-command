@@ -32,7 +32,7 @@
 ;;; Code:
 
 (declare-function helm "ext:helm")
-(declare-function helm-build-sync-source "ext:helm")
+(declare-function helm-make-source "ext:helm")
 (defvar helm-current-prefix-arg)
 
 (declare-function ivy-read "ext:ivy")
@@ -216,7 +216,8 @@ said functions)."
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
-    (helm-build-sync-source (run-command--shorter-recipe-name-maybe command-recipe)
+    (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
+        'helm-source-sync
       :action 'run-command--helm-action
       :candidates candidates
       :filtered-candidate-transformer '(helm-adaptive-sort))))
