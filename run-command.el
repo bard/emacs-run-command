@@ -225,8 +225,7 @@ said functions)."
     (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
         'helm-source-sync
       :action 'run-command--helm-action
-      :candidates candidates
-      :filtered-candidate-transformer '(helm-adaptive-sort))))
+      :candidates candidates)))
 
 (defun run-command--helm-action (command-spec)
   "Execute `COMMAND-SPEC' from Helm."
