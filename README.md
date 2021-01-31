@@ -8,14 +8,14 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
-Table of Contents:
+**Table of Contents**
 
 - [Demo](#demo)
 - [Features](#features)
-- [Installing](#installing)
+- [Installation](#installation)
 - [Quickstart](#quickstart)
-- [Invoking](#invoking)
-- [Optional configuration](#optional-configuration)
+- [Invocation](#invocation)
+- [Configuration](#configuration)
 - [Tutorial: adding commands](#tutorial-adding-commands)
   - [Readable command names](#readable-command-names)
   - [Specifying the working directory](#specifying-the-working-directory)
@@ -36,7 +36,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 - **Minimal cognitive tax**: one key binding, one configuration variable.
 - **Flexible configuration**: hardcode commands, generate them dynamically based on context, or anything in between.
 
-## Installing
+## Installation
 
 [Available from MELPA](https://melpa.org/#/run-command).
 
@@ -84,7 +84,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 
 Read more about [invocation](#invoking), [configuration](#optional-configuration), and [how to add commands](#tutorial-adding-commands), or check out some [recipe examples](./examples).
 
-## Invoking
+## Invocation
 
 Type `M-x run-command` or bind `run-command` to a key:
 
@@ -101,7 +101,9 @@ Or:
 
 When completing via Helm or Ivy, you can edit a command before running it by typing `C-u RET` instead of `RET`.
 
-## Optional configuration
+## Configuration
+
+Customize `run-command-recipes` and add the recipe functions to the list. That is the only strictly necessary configuration.
 
 By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. An alternative method (and probably future default) is `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 

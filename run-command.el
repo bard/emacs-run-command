@@ -107,18 +107,20 @@ The command list is produced by the functions configured in
 `run-command-recipes' (see that for the format expected from
 said functions)."
   (interactive)
-  (pcase run-command-completion-method
-    ('auto
-     (cond ((and (boundp 'helm-mode) helm-mode)
-            (run-command--helm))
-           ((and (boundp 'ivy-mode) ivy-mode)
-            (run-command--ivy))
-           (t (run-command--completing-read))))
-    ('helm (run-command--helm))
-    ('ivy (run-command--ivy))
-    ('completing-read (run-command--completing-read))
-    (_ (error "Unrecognized completion method: %s"
-              run-command-completion-method))))
+  (if run-command-recipes
+      (pcase run-command-completion-method
+        ('auto
+         (cond ((and (boundp 'helm-mode) helm-mode)
+                (run-command--helm))
+               ((and (boundp 'ivy-mode) ivy-mode)
+                (run-command--ivy))
+               (t (run-command--completing-read))))
+        ('helm (run-command--helm))
+        ('ivy (run-command--ivy))
+        ('completing-read (run-command--completing-read))
+        (_ (error "Unrecognized completion method: %s"
+                  run-command-completion-method)))
+    (error "Please customize `run-command-recipes' in order to use `run-command'")))
 
 ;;; Utilities
 
