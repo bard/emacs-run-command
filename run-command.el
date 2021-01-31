@@ -92,7 +92,7 @@ in place of :command-name.
 
     (string, optional) Directory path to run the command in.  If not given,
 command will be run in `default-directory'."
-  :type '(repeat (choice function symbol))
+  :type '(repeat symbol)
   :group 'run-command)
 
 ;;; User interface
@@ -124,12 +124,18 @@ said functions)."
 
 ;;; Utilities
 
+(defvar run-command--experiment-allow-static-recipes nil
+  "For internal use only.")
+
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs
          (cond
-          ((fboundp command-recipe) (funcall command-recipe))
-          ((boundp command-recipe) (symbol-value command-recipe))
+          ((fboundp command-recipe)
+           (funcall command-recipe))
+          ((and run-command--experiment-allow-static-recipes
+                (boundp command-recipe))
+           (symbol-value command-recipe))
           (t (error "Invalid command recipe: %s" command-recipe)))))
     (mapcar #'run-command--normalize-command-spec
             (delq nil command-specs))))
@@ -304,5 +310,19 @@ said functions)."
         (run-command--run command-spec)))))
 
 (provide 'run-command)
+
+;;; Experiments
+
+(defun run-command--enable-experiments (requested-experiments)
+  "Opt in to a set of experiments."
+  ;; Static recipes
+  (setq run-command--experiment-allow-static-recipes
+        (member 'static-recipes requested-experiments))
+  ;; Example deprecated experiment
+  (when (member 'foo requested-experiments)
+    (message "Experiment `foo' is deprecated, please update your config."))
+  ;; Example retired experiment
+  (when (member 'bar requested-experiments)
+    (error "Experiment `bar' is no longer available, please update your config.")))
 
 ;;; run-command.el ends here
