@@ -92,8 +92,8 @@ in place of :command-name.
 
     (string, optional) Directory path to run the command in.  If not given,
 command will be run in `default-directory'."
-  :type '(repeat function)
-  :group'run-command)
+  :type '(repeat (choice function symbol))
+  :group 'run-command)
 
 ;;; User interface
 
@@ -126,7 +126,11 @@ said functions)."
 
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
-  (let ((command-specs (funcall command-recipe)))
+  (let ((command-specs
+         (cond
+          ((fboundp command-recipe) (funcall command-recipe))
+          ((boundp command-recipe) (symbol-value command-recipe))
+          (t (error "Invalid command recipe: %s" command-recipe)))))
     (mapcar #'run-command--normalize-command-spec
             (delq nil command-specs))))
 
