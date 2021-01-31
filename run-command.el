@@ -159,51 +159,62 @@ said functions)."
         (match-string 1 recipe-name)
       recipe-name)))
 
-(defvar-local run-command-command-spec nil
-  "Holds command spec for command run via `run-command'.")
+(defun run-command--run (command-spec)
+  "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
+  (cl-destructuring-bind
+      (&key command-name command-line scope-name working-dir &allow-other-keys)
+      command-spec
+    (setq-local run-command-command-spec command-spec)
+    (let* ((buffer-base-name (format "%s[%s]" command-name scope-name))
+           (default-directory working-dir))
+      (pcase run-command-run-method
+        ('compile (run-command--run-compile command-line buffer-base-name))
+        ('term (run-command--run-term command-line buffer-base-name))))))
+
+;;; Run method `compile'
+
+(defun run-command--run-compile (command-line buffer-base-name)
+  "Command execution backend for when run method is `compile'."
+  (let ((compilation-buffer-name-function
+         (lambda (_name-of-mode) buffer-base-name)))
+    (compile command-line)))
+
+;;; Run method `term'
+
+(defun run-command--run-term (command-line buffer-base-name)
+  "Command execution backend for when run method is `term'."
+  (let ((buffer-name (concat "*" buffer-base-name "*")))
+    (when (get-buffer buffer-name)
+      (let ((proc (get-buffer-process buffer-name)))
+        (when (and proc
+                   (yes-or-no-p "A process is running; kill it?"))
+          (condition-case ()
+              (progn
+                (interrupt-process proc)
+                (sit-for 1)
+                (delete-process proc))
+            (error nil))))
+      (with-current-buffer (get-buffer buffer-name)
+        (erase-buffer)))
+    (with-current-buffer
+        (make-term buffer-base-name shell-file-name nil "-c" command-line)
+      (compilation-minor-mode)
+      (run-command-term-minor-mode)
+      (display-buffer (current-buffer)))))
 
 (define-minor-mode run-command-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
   :keymap '(("g" .  run-command-term-recompile)))
+
+(defvar-local run-command-command-spec nil
+  "Holds command spec for command run via `run-command'.")
 
 (defun run-command-term-recompile ()
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
   (run-command--run run-command-command-spec))
 
-(defun run-command--run (command-spec)
-  "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
-  (cl-destructuring-bind
-      (&key command-name command-line scope-name working-dir &allow-other-keys)
-      command-spec
-    (let* ((buffer-name-base (format "%s[%s]" command-name scope-name))
-           (buffer-name (format "*%s*" buffer-name-base))
-           (default-directory working-dir))
-      (pcase run-command-run-method
-        ('compile
-         (let ((compilation-buffer-name-function (lambda (_name-of-mode) buffer-name)))
-           (compile command-line)))
-        ('term
-         (when (get-buffer buffer-name)
-           (let ((proc (get-buffer-process buffer-name)))
-             (when (and proc
-                        (yes-or-no-p "A process is running; kill it?"))
-               (condition-case ()
-                   (progn
-                     (interrupt-process proc)
-                     (sit-for 1)
-                     (delete-process proc))
-                 (error nil))))
-           (with-current-buffer (get-buffer buffer-name)
-             (erase-buffer)))
-         (with-current-buffer
-             (make-term buffer-name-base shell-file-name nil "-c" command-line)
-           (compilation-minor-mode)
-           (run-command-term-minor-mode)
-           (setq-local run-command-command-spec command-spec)
-           (display-buffer (current-buffer))))))))
-
-;;; Helm integration
+;;; Completion via helm
 
 (defun run-command--helm ()
   "Complete command with helm and run it."
@@ -237,7 +248,7 @@ said functions)."
                                  :command-line
                                  final-command-line))))
 
-;;; Ivy integration
+;;; Completion via ivy
 
 (defvar run-command--ivy-history nil
   "History for `run-command--ivy'.")
@@ -282,7 +293,7 @@ said functions)."
   (let ((ivy-current-prefix-arg t))
     (run-command--ivy-action selection)))
 
-;;; completing-read integration
+;;; Completion via completing-read
 
 (defun run-command--completing-read ()
   "Complete command with `completing-read' and run it."
