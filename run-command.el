@@ -32,7 +32,7 @@
 ;;; Code:
 
 (declare-function helm "ext:helm")
-(declare-function helm-build-sync-source "ext:helm")
+(declare-function helm-make-source "ext:helm")
 (defvar helm-current-prefix-arg)
 
 (declare-function ivy-read "ext:ivy")
@@ -97,6 +97,7 @@ command will be run in `default-directory'."
 
 ;;; User interface
 
+;;;###autoload
 (defun run-command ()
   "Pick a command from a context-dependent list, and run it.
 
@@ -217,7 +218,8 @@ said functions)."
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
                              command-specs)))
-    (helm-build-sync-source (run-command--shorter-recipe-name-maybe command-recipe)
+    (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
+        'helm-source-sync
       :action 'run-command--helm-action
       :candidates candidates
       :filtered-candidate-transformer '(helm-adaptive-sort))))
@@ -234,11 +236,16 @@ said functions)."
 
 ;;; Ivy integration
 
+(defvar run-command--ivy-history nil
+  "History for `run-command--ivy'.")
+
 (defun run-command--ivy ()
   "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
     (ivy-read "Command Name: "
               (run-command--ivy-targets)
+              :caller 'run-command--ivy
+              :history 'run-command--ivy-history
               :action 'run-command--ivy-action)))
 
 (defun run-command--ivy-targets ()
