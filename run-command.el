@@ -154,12 +154,12 @@ said functions)."
   (append command-spec
           (unless (plist-get command-spec :display)
             (list :display (plist-get command-spec :command-name)))
-          (unless  (plist-get command-spec :working-dir)
+          (unless (plist-get command-spec :working-dir)
             (list :working-dir default-directory))
-          (unless  (plist-get command-spec :scope-name)
+          (unless (plist-get command-spec :scope-name)
             (list :scope-name (abbreviate-file-name
                                (or (plist-get command-spec :working-dir)
-                                   default-directory ))))))
+                                   default-directory))))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
   "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
@@ -173,16 +173,17 @@ said functions)."
   (cl-destructuring-bind
       (&key command-name command-line scope-name working-dir &allow-other-keys)
       command-spec
-    (setq-local run-command-command-spec command-spec)
     (let* ((buffer-base-name (format "%s[%s]" command-name scope-name))
            (default-directory working-dir))
-      (cond
-       ((eq run-command--experiment-vterm-run-method t)
-        (run-command--run-vterm command-line buffer-base-name))
-       ((eq run-command-run-method 'compile)
-        (run-command--run-compile command-line buffer-base-name))
-       ((eq run-command-run-method 'term)
-        (run-command--run-term command-line buffer-base-name))))))
+      (with-current-buffer
+          (cond
+           ((eq run-command--experiment-vterm-run-method t)
+            (run-command--run-vterm command-line buffer-base-name))
+           ((eq run-command-run-method 'compile)
+            (run-command--run-compile command-line buffer-base-name))
+           ((eq run-command-run-method 'term)
+            (run-command--run-term command-line buffer-base-name)))
+        (setq-local run-command-command-spec command-spec)))))
 
 ;;; Run method `compile'
 
@@ -212,12 +213,16 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
                 (delete-process proc))
             (error nil))))
       (with-current-buffer (get-buffer buffer-name)
+        (run-command-term-minor-mode -1)
+        (compilation-minor-mode -1)
         (erase-buffer)))
     (with-current-buffer
         (make-term buffer-base-name shell-file-name nil "-c" command-line)
+      (term-mode)
       (compilation-minor-mode)
       (run-command-term-minor-mode)
-      (display-buffer (current-buffer)))))
+      (display-buffer (current-buffer))
+      (current-buffer))))
 
 (define-minor-mode run-command-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
@@ -258,7 +263,8 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
         ;; Display buffer before enabling vterm mode, so that vterm can
         ;; read the column number accurately.
         (display-buffer (current-buffer))
-        (vterm-mode)))))
+        (vterm-mode))
+      (current-buffer))))
 
 ;;; Completion via helm
 
