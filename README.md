@@ -20,7 +20,8 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
   - [Readable command names](#readable-command-names)
   - [Specifying the working directory](#specifying-the-working-directory)
   - [Enabling and disabling depending on context](#enabling-and-disabling-depending-on-context)
-  - [Generating commands on the fly](#generating-commands-on-the-fly)
+  - [Choosing a recipe name](#choosing-a-recipe-name)
+- [Generating commands on the fly](#generating-commands-on-the-fly)
 
 <!-- markdown-toc end -->
 
@@ -45,7 +46,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 1. Add a "command recipe" to your init file, for example:
 
 ```emacs-lisp
-(defun run-command-recipe-local ()
+(defun run-command-recipe-example ()
   (list
    ;; Arbitrary command
    (list :command-name "say-hello"
@@ -78,7 +79,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
            :display (format "Look up '%s' synonyms in wordnet" word)))))
 ```
 
-2. Customize `run-command-recipes` and add `run-command-recipe-local` to the list.
+2. Customize `run-command-recipes` and add `run-command-recipe-example` to the list.
 
 3. Type `M-x run-command RET`.
 
@@ -103,7 +104,7 @@ When completing via Helm or Ivy, you can edit a command before running it by typ
 
 ## Configuration
 
-Customize `run-command-recipes` and add the recipe functions to the list. That is the only strictly necessary configuration.
+Write recipe functions into your init file as described in the [quickstart](#quickstart) and the [tutorial](#tutorial-adding-commands), then add them via `M-x customize` to the `run-command-recipes` variable. This is the only required configuration.
 
 By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. An alternative method (and probably future default) is `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 
@@ -116,7 +117,7 @@ The auto-completion framework is automatically detected. It can be set manually 
 To provide a more user-friendly name for a command, use the `:display` property:
 
 ```emacs-lisp
-(defun run-command-recipe-local ()
+(defun run-command-recipe-example ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
@@ -130,7 +131,7 @@ A command runs by default in the current buffer's directory. You can make it run
 For example, you want to serve the current directory via HTTP, unless you're visiting a file that is somewhere below a `public_html` directory, in which case you want to serve `public_html` instead:
 
 ```emacs-lisp
-(defun run-command-recipe-local ()
+(defun run-command-recipe-example ()
   (list
    (list :command-name "serve-http-dir"
          :command-line "python3 -m http.server 8000"
@@ -151,7 +152,7 @@ To disable a command in certain circumstances, return `nil` in its place.
 For example, you want to enable a command only when the current buffer is visiting an executable file:
 
 ```emacs-lisp
-(defun run-command-recipe-local ()
+(defun run-command-recipe-example ()
   (let ((buffer-file (buffer-file-name)))
     (list
      (when (and buffer-file (file-executable-p buffer-file))
@@ -164,6 +165,17 @@ For example, you want to enable a command only when the current buffer is visiti
 See the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.
 
 See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that switches off entirely when you're not in a Hugo project.
+
+### Choosing a recipe name
+
+You can name a recipe function anything. If the name begins with `run-command-recipe-`, that will be removed when displaying commands.
+
+For example:
+
+```emacs-lisp
+(defun run-command-recipe-example ()) ;; displays as "example"
+(defun my-command-recipe ())          ;; displays as "my-command-recipe"
+```
 
 ### Generating commands on the fly
 
