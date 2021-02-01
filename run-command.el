@@ -180,7 +180,9 @@ said functions)."
 ;;; Run method `compile'
 
 (defun run-command--run-compile (command-line buffer-base-name)
-  "Command execution backend for when run method is `compile'."
+  "Command execution backend for when run method is `compile'.
+
+Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   (let ((compilation-buffer-name-function
          (lambda (_name-of-mode) buffer-base-name)))
     (compile command-line)))
@@ -188,7 +190,9 @@ said functions)."
 ;;; Run method `term'
 
 (defun run-command--run-term (command-line buffer-base-name)
-  "Command execution backend for when run method is `term'."
+  "Command execution backend for when run method is `term'.
+
+Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   (let ((buffer-name (concat "*" buffer-base-name "*")))
     (when (get-buffer buffer-name)
       (let ((proc (get-buffer-process buffer-name)))
@@ -314,7 +318,7 @@ said functions)."
 ;;; Experiments
 
 (defun run-command--enable-experiments (requested-experiments)
-  "Opt in to a set of experiments."
+  "Opt in to a set of experiments defined by REQUESTED-EXPERIMENTS."
   ;; Static recipes
   (setq run-command--experiment-allow-static-recipes
         (member 'static-recipes requested-experiments))
@@ -323,6 +327,6 @@ said functions)."
     (message "Experiment `foo' is deprecated, please update your config."))
   ;; Example retired experiment
   (when (member 'bar requested-experiments)
-    (error "Experiment `bar' is no longer available, please update your config.")))
+    (error "Experiment `bar' is no longer available, please update your config")))
 
 ;;; run-command.el ends here
