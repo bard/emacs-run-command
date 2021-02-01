@@ -124,7 +124,10 @@ said functions)."
 
 ;;; Utilities
 
-(defvar run-command--experiment-allow-static-recipes nil
+(defvar run-command--experiment-static-recipes nil
+  "For internal use only.")
+
+(defvar run-command--experiment-vterm-run-method nil
   "For internal use only.")
 
 (defun run-command--generate-command-specs (command-recipe)
@@ -133,7 +136,7 @@ said functions)."
          (cond
           ((fboundp command-recipe)
            (funcall command-recipe))
-          ((and run-command--experiment-allow-static-recipes
+          ((and run-command--experiment-static-recipes
                 (boundp command-recipe))
            (symbol-value command-recipe))
           (t (error "Invalid command recipe: %s" command-recipe)))))
@@ -173,9 +176,13 @@ said functions)."
     (setq-local run-command-command-spec command-spec)
     (let* ((buffer-base-name (format "%s[%s]" command-name scope-name))
            (default-directory working-dir))
-      (pcase run-command-run-method
-        ('compile (run-command--run-compile command-line buffer-base-name))
-        ('term (run-command--run-term command-line buffer-base-name))))))
+      (cond
+       ((eq run-command--experiment-vterm-run-method t)
+        (run-command--run-vterm command-line buffer-base-name))
+       ((eq run-command-run-method 'compile)
+        (run-command--run-compile command-line buffer-base-name))
+       ((eq run-command-run-method 'term)
+        (run-command--run-term command-line buffer-base-name))))))
 
 ;;; Run method `compile'
 
@@ -223,6 +230,35 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
   (run-command--run run-command-command-spec))
+
+;;; Run method `vterm' (experimental)
+
+(defvar vterm-shell)
+
+(defun run-command--run-vterm (command-line buffer-base-name)
+  "Command execution backend for `vterm' experiment.
+
+Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
+  (let ((buffer-name (concat "*" buffer-base-name "*")))
+    (when (get-buffer buffer-name)
+      (let ((proc (get-buffer-process buffer-name)))
+        (when (and proc
+                   (yes-or-no-p "A process is running; kill it?"))
+          (condition-case ()
+              (progn
+                (interrupt-process proc)
+                (sit-for 0.5)
+                (delete-process proc))
+            (error nil))))
+      (kill-buffer buffer-name))
+    (with-current-buffer (get-buffer-create buffer-name)
+      ;; XXX needs escaping or commands containing quotes will cause trouble
+      (let ((vterm-shell (format "%s -c '%s'" vterm-shell command-line))
+            (vterm-kill-buffer-on-exit nil))
+        ;; Display buffer before enabling vterm mode, so that vterm can
+        ;; read the column number accurately.
+        (display-buffer (current-buffer))
+        (vterm-mode)))))
 
 ;;; Completion via helm
 
@@ -319,14 +355,39 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 
 (defun run-command--enable-experiments (requested-experiments)
   "Opt in to a set of experiments defined by REQUESTED-EXPERIMENTS."
-  ;; Static recipes
-  (setq run-command--experiment-allow-static-recipes
-        (member 'static-recipes requested-experiments))
-  ;; Example deprecated experiment
-  (when (member 'foo requested-experiments)
-    (message "Experiment `foo' is deprecated, please update your config."))
-  ;; Example retired experiment
-  (when (member 'bar requested-experiments)
-    (error "Experiment `bar' is no longer available, please update your config")))
+  (let ((experiments
+         '((:name static-recipes
+                  :status active
+                  :toggle run-command--experiment-static-recipes)
+           (:name vterm-run-method
+                  :status active
+                  :toggle run-command--experiment-vterm-run-method)
+           (:name example-retired
+                  :status retired)
+           (:name example-deprecated
+                  :status deprecated))))
+    (mapc (lambda (experiment)
+            (cl-destructuring-bind
+                (&key name status toggle)
+                experiment
+              (pcase status
+                ('retired
+                 (when (member name requested-experiments)
+                   (error "Experiment `%S' was retired" name)))
+                ('deprecated
+                 (when (member name requested-experiments)
+                   (message "Experiment `%S' is deprecated, please update your configuration" name)))
+                ('active
+                 (set toggle (and (member name requested-experiments) t)))
+                (_
+                 (error "Experiment `%S' malformed: bad :status" name)))))
+          experiments)
+    (let ((experiment-names (mapcar (lambda (experiment)
+                                      (plist-get experiment :name))
+                                    experiments)))
+      (mapc (lambda (requested-experiment)
+              (or (member requested-experiment experiment-names)
+                  (error "Experiment `%S' does not exist" requested-experiment)))
+            requested-experiments))))
 
 ;;; run-command.el ends here
