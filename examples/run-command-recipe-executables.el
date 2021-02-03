@@ -15,7 +15,7 @@
      (when executable-p
        (list
         :command-name "run-buffer-file-watch"
-        :command-line (format "echo %s | entr -c /_" buffer-file)
+        :command-line (format "echo %s | entr -r -c /_" buffer-file)
         :display "Run this buffer's file (re-run on each save)")))))
 
 
