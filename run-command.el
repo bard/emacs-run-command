@@ -141,22 +141,25 @@ said functions)."
            (symbol-value command-recipe))
           (t (error "Invalid command recipe: %s" command-recipe)))))
     (mapcar #'run-command--normalize-command-spec
-            (delq nil command-specs))))
+            (cl-remove-if (lambda (spec)
+                            (or (eq spec nil)
+                                (eq (plist-get spec :command-line) nil)))
+                          command-specs))))
 
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
-  (unless (plist-get command-spec :command-name)
-    (error "[run-command] `:command-name' item missing from command spec: %S"
+  (unless (stringp (plist-get command-spec :command-name))
+    (error "[run-command] invalid `:command-name' in command spec: %S"
            command-spec))
-  (unless (plist-get command-spec :command-line)
-    (error "[run-command] `:command-line' item missing from command spec: %S"
+  (unless (stringp (plist-get command-spec :command-line))
+    (error "[run-command] invalid `:command-line' in command spec: %S"
            command-spec))
   (append command-spec
-          (unless (plist-get command-spec :display)
+          (unless (plist-member command-spec :display)
             (list :display (plist-get command-spec :command-name)))
-          (unless (plist-get command-spec :working-dir)
+          (unless (plist-member command-spec :working-dir)
             (list :working-dir default-directory))
-          (unless (plist-get command-spec :scope-name)
+          (unless (plist-member command-spec :scope-name)
             (list :scope-name (abbreviate-file-name
                                (or (plist-get command-spec :working-dir)
                                    default-directory))))))
