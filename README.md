@@ -287,9 +287,7 @@ See also:
 
 ## Experimental features
 
-Some features are work-in-progress or it's undecided whether they will make it to the official release. If you'd like to have a peek and help testing them, you can enable them individually.
-
-To enable or disable them, customize `run-command-experiments`.
+Some features are work-in-progress or it's undecided whether they will make it to the official release. If you'd like to have a peek and help testing them, you can enable them individually with `(setq run-command-experiments '(experiment-1 experiment-2))`.
 
 | name               | description                                                                                                                                                      | status  |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
