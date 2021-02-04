@@ -88,7 +88,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
            :display (format "Look up '%s' synonyms in wordnet" word)))))
 ```
 
-2. Type `M-x run-command-recipes` and add `run-command-recipe-example` to the list.
+2. Type `M-x customize RET run-command-recipes RET` and add `run-command-recipe-example` to the list.
 
 3. Type `M-x run-command RET`.
 
@@ -106,7 +106,7 @@ Or:
 
 ```emacs-lisp
 (use-package run-command
-  :bind ("C-c c" . run-command)
+  :bind ("C-c c" . run-command))
 ```
 
 When completing via Helm or Ivy, you can edit a command before running it by typing `C-u RET` instead of `RET`.
@@ -120,6 +120,17 @@ By default, commands run in `compilation-mode`. See [Lightweight external comman
 The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
 ## Examples
+
+### Create a project from a boilerplate
+
+Demonstrates: running commands that are independent of context other than the current directory. Requires: git.
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (list :command-name "create-webdev-project"
+        :command-line "git clone https://github.com/h5bp/html5-boilerplate webdev-project"
+        :display "Create a web project from HTML5 boilerplate"))
+```
 
 ### Count lines of code in the current buffer
 
