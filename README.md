@@ -280,7 +280,7 @@ Some features are work-in-progress or it's undecided whether they will make it t
 
 To enable or disable them, customize `run-command-experiments`.
 
-| name               | description                                                                | status  |
-| ------------------ | -------------------------------------------------------------------------- | ------- |
-| `vterm-run-method` | Run commands in a [vterm](https://github.com/akermu/emacs-libvterm) buffer | active  |
-| `static-recipes`   | ~Allow recipes to be defined by variables in addition to functions~        | retired |
+| name               | description                                                                                                                                                      | status  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `vterm-run-method` | Run commands in a [vterm](https://github.com/akermu/emacs-libvterm) buffer                                                                                       | active  |
+| `static-recipes`   | ~Allow recipes to be defined by variables in addition to functions~. See this [example](examples/run-command-recipe-dir-locals.el) for equivalent functionality. | retired |
