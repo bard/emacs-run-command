@@ -98,7 +98,7 @@ in place of :command-name.
 
     (string, optional) Directory path to run the command in.  If not given,
 command will be run in `default-directory'."
-  :type '(repeat symbol)
+  :type '(repeat function)
   :group 'run-command)
 
 ;;; User interface
