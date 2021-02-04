@@ -38,6 +38,12 @@
 (declare-function ivy-read "ext:ivy")
 (defvar ivy-current-prefix-arg)
 
+(declare-function vterm-mode "ext:vterm")
+(defvar vterm-kill-buffer-on-exit)
+(defvar vterm-shell)
+
+(declare-function term-mode "ext:term")
+
 ;;; Customization
 
 (defgroup run-command nil
@@ -235,8 +241,6 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   (run-command--run run-command-command-spec))
 
 ;;; Run method `vterm' (experimental)
-
-(defvar vterm-shell)
 
 (defun run-command--run-vterm (command-line buffer-base-name)
   "Command execution backend for `vterm' experiment.
