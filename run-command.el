@@ -107,6 +107,7 @@ The command list is produced by the functions configured in
 `run-command-recipes' (see that for the format expected from
 said functions)."
   (interactive)
+  (run-command--check-experiments)
   (if run-command-recipes
       (pcase run-command-completion-method
         ('auto
@@ -124,19 +125,13 @@ said functions)."
 
 ;;; Utilities
 
-(defvar run-command--experiment-static-recipes nil
-  "For internal use only.")
-
-(defvar run-command--experiment-vterm-run-method nil
-  "For internal use only.")
-
 (defun run-command--generate-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs
          (cond
           ((fboundp command-recipe)
            (funcall command-recipe))
-          ((and run-command--experiment-static-recipes
+          ((and (run-command--experiment-p 'static-recipes)
                 (boundp command-recipe))
            (symbol-value command-recipe))
           (t (error "Invalid command recipe: %s" command-recipe)))))
@@ -180,7 +175,7 @@ said functions)."
            (default-directory working-dir))
       (with-current-buffer
           (cond
-           ((eq run-command--experiment-vterm-run-method t)
+           ((run-command--experiment-p 'vterm-run-method)
             (run-command--run-vterm command-line buffer-base-name))
            ((eq run-command-run-method 'compile)
             (run-command--run-compile command-line buffer-base-name))
@@ -362,41 +357,45 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 
 ;;; Experiments
 
-(defun run-command--enable-experiments (requested-experiments)
-  "Opt in to a set of experiments defined by REQUESTED-EXPERIMENTS."
-  (let ((experiments
-         '((:name static-recipes
-                  :status active
-                  :toggle run-command--experiment-static-recipes)
-           (:name vterm-run-method
-                  :status active
-                  :toggle run-command--experiment-vterm-run-method)
-           (:name example-retired
-                  :status retired)
-           (:name example-deprecated
-                  :status deprecated))))
-    (mapc (lambda (experiment)
-            (cl-destructuring-bind
-                (&key name status toggle)
-                experiment
-              (pcase status
-                ('retired
-                 (when (member name requested-experiments)
-                   (error "Experiment `%S' was retired" name)))
-                ('deprecated
-                 (when (member name requested-experiments)
-                   (message "Experiment `%S' is deprecated, please update your configuration" name)))
-                ('active
-                 (set toggle (and (member name requested-experiments) t)))
-                (_
-                 (error "Experiment `%S' malformed: bad :status" name)))))
-          experiments)
-    (let ((experiment-names (mapcar (lambda (experiment)
-                                      (plist-get experiment :name))
-                                    experiments)))
-      (mapc (lambda (requested-experiment)
-              (or (member requested-experiment experiment-names)
-                  (error "Experiment `%S' does not exist" requested-experiment)))
-            requested-experiments))))
+(defvar run-command-experiments nil)
+
+(defvar run-command--deprecated-experiment-warning t)
+
+(defun run-command--experiment-p (name)
+  "Return t if experiment `NAME' is enabled, nil otherwise."
+  (member name run-command-experiments))
+
+(defun run-command--check-experiments ()
+  "Sanity-check the configured experiments.
+
+If experiment is active, do nothing.  If experiment is retired or unknown,
+signal error.  If deprecated, print a warning and allow muting further warnings
+for the rest of the session."
+  (let ((experiments '((static-recipes . retired)
+                       (vterm-run-method . active)
+                       (example-retired .  retired)
+                       (example-deprecated . deprecated))))
+    (mapc (lambda (experiment-name)
+            (let ((experiment (seq-find (lambda (e)
+                                          (eq (car e) experiment-name))
+                                        experiments)))
+              (if experiment
+                  (let ((name (car experiment))
+                        (status (cdr experiment)))
+                    (pcase status
+                      ('retired
+                       (error "Error: run-command: experiment `%S' was \
+retired, please remove from `run-command-experiments'" name))
+                      ('deprecated
+                       (when run-command--deprecated-experiment-warning
+                         (setq run-command--deprecated-experiment-warning
+                               (not (yes-or-no-p
+                                     (format "Warning: run-command: experiment \
+ `%S' is deprecated, please update your configuration. Disable reminder for \
+this session?" name))))))
+                      ('active nil)))
+                (error "Error: run-command: experiment `%S' does not exist, \
+please remove from `run-command-experiments'" experiment-name))))
+          run-command-experiments)))
 
 ;;; run-command.el ends here
