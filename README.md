@@ -2,7 +2,7 @@
 
 # run-command
 
-Emacs, the text editor where you can read mail and play Tetris, is often cast in opposition to the Unix philosophy of "do one thing well" and "combine programs". It's a false dichotomy. Emacs can do a lot on its own _and_ can be combined usefully with other programs.
+Emacs, the text editor where you can read mail and play Tetris, is often cast in opposition to the Unix philosophy of "do one thing well" and "combine programs". It's a false dichotomy. Emacs can do a lot on its own _and_ be combined usefully with other programs.
 
 `run-command` makes the combination convenient through a simple configuration format and an interaction flow that stays out of your way. Where you'd usually reach for a shell or look for a specialized major mode, with `run-command` you can write a short recipe and get a command that is easy to bring up, invoke, and keep track of, without leaving Emacs.
 
@@ -23,12 +23,13 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
   - [Live-preview PDF from markdown](#live-preview-pdf-from-markdown)
   - [Make all executables from a directory available as commands](#make-all-executables-from-a-directory-available-as-commands)
   - [Advanced examples](#advanced-examples)
-- [Tutorial: adding commands](#tutorial-adding-commands)
+- [Tutorial: Adding commands](#tutorial-adding-commands)
   - [Display readable command names](#display-readable-command-names)
   - [Specify the working directory](#specify-the-working-directory)
   - [Toggle depending on context](#toggle-depending-on-context)
   - [Choose a recipe name](#choose-a-recipe-name)
   - [Generate commands on the fly](#generate-commands-on-the-fly)
+- [Experimental features](#experimental-features)
 
 <!-- markdown-toc end -->
 
@@ -194,7 +195,7 @@ Demonstrates: generating command specs dynamically. Requires: a `scripts` direct
 
 See the [examples](examples) directory.
 
-## Tutorial: adding commands
+## Tutorial: Adding commands
 
 ### Display readable command names
 
@@ -272,3 +273,14 @@ See also:
 
 - the [NPM project recipe](examples/run-command-recipe-package-json.el) generates commands from a project's `package.json` file
 - the [Make project recipe](examples/run-command-recipe-make.el) generates commands from a project's `Makefile` (courtesy of [helm-make](https://github.com/abo-abo/helm-make))
+
+## Experimental features
+
+Some features are work-in-progress or it's undecided whether they will make it to the official release. If you'd like to have a peek and help testing them, you can enable them individually.
+
+To enable or disable them, customize `run-command-experiments`.
+
+| name               | description                                                                | status  |
+| ------------------ | -------------------------------------------------------------------------- | ------- |
+| `vterm-run-method` | Run commands in a [vterm](https://github.com/akermu/emacs-libvterm) buffer | active  |
+| `static-recipes`   | ~Allow recipes to be defined by variables in addition to functions~        | retired |
