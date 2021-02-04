@@ -16,12 +16,19 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
 - [Quickstart](#quickstart)
 - [Invocation](#invocation)
 - [Configuration](#configuration)
+- [Examples](#examples)
+  - [Count lines of code in the current buffer](#count-lines-of-code-in-the-current-buffer)
+  - [Look up synonyms for the word at point](#look-up-synonyms-for-the-word-at-point)
+  - [Launch make](#launch-make)
+  - [Live-preview PDF from markdown](#live-preview-pdf-from-markdown)
+  - [Make all executables from a directory available as commands](#make-all-executables-from-a-directory-available-as-commands)
+  - [Advanced examples](#advanced-examples)
 - [Tutorial: adding commands](#tutorial-adding-commands)
-  - [Readable command names](#readable-command-names)
-  - [Specifying the working directory](#specifying-the-working-directory)
-  - [Enabling and disabling depending on context](#enabling-and-disabling-depending-on-context)
-  - [Choosing a recipe name](#choosing-a-recipe-name)
-- [Generating commands on the fly](#generating-commands-on-the-fly)
+  - [Display readable command names](#display-readable-command-names)
+  - [Specify the working directory](#specify-the-working-directory)
+  - [Toggle depending on context](#toggle-depending-on-context)
+  - [Choose a recipe name](#choose-a-recipe-name)
+  - [Generate commands on the fly](#generate-commands-on-the-fly)
 
 <!-- markdown-toc end -->
 
@@ -65,11 +72,12 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
            :display "Preview GitHub README"))
 
    ;; Do something with current file if it's executable
-   (when-let* ((buffer-file (buffer-file-name))
-               (executable-p (and buffer-file (file-executable-p buffer-file))))
-     (list :command-name "run-buffer-file"
-           :command-line buffer-file
-           :display "Run this buffer's file"))
+   (let ((buffer-file (buffer-file-name)))
+     (when (and buffer-file
+                (file-executable-p buffer-file))
+       (list :command-name "run-buffer-file"
+             :command-line buffer-file
+             :display "Run this buffer's file")))
 
    ;; Do something with current word
    ;; (uses https://wordnet.princeton.edu/documentation/wn1wn)
@@ -79,11 +87,11 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
            :display (format "Look up '%s' synonyms in wordnet" word)))))
 ```
 
-2. Customize `run-command-recipes` and add `run-command-recipe-example` to the list.
+2. Type `M-x run-command-recipes` and add `run-command-recipe-example` to the list.
 
 3. Type `M-x run-command RET`.
 
-Read more about [invocation](#invoking), [configuration](#optional-configuration), and [how to add commands](#tutorial-adding-commands), or check out some [recipe examples](./examples).
+Read more about [invocation](#invocation), [configuration](#configuration), check out some [examples](#examples), or dive into [adding commands](#tutorial-adding-commands).
 
 ## Invocation
 
@@ -106,13 +114,89 @@ When completing via Helm or Ivy, you can edit a command before running it by typ
 
 Write recipe functions into your init file as described in the [quickstart](#quickstart) and the [tutorial](#tutorial-adding-commands), then add them via `M-x customize` to the `run-command-recipes` variable. This is the only required configuration.
 
-By default, commands are run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of `compilation-mode`. An alternative method (and probably future default) is `term-mode` plus `compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode` functionality. Set `run-command-run-method` to `term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
+By default, commands run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of it. An alternative method (and probably future default) is `term-mode`plus`compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode`functionality. Set`run-command-run-method`to`term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 
 The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
 
+## Examples
+
+### Count lines of code in the current buffer
+
+Demonstrates: running a command on the current buffer's file.
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (list
+   (when-let ((buffer-file (buffer-file-name)))
+     (list :command-name "count-lines-of-code"
+           :command-line (format "sloccount '%s'" buffer-file)
+           :display "Count lines of code"))))
+```
+
+### Look up synonyms for the word at point
+
+Demonstrates: running command with a text object from the current buffer. Requires: [wordnet](https://wordnet.princeton.edu/documentation/wn1wn).
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (list
+   (when-let ((word (thing-at-point 'word t)))
+     (list :command-name "wordnet-synonyms"
+           :command-line (format "wn '%s' -synsn -synsv -synsa -synsr" word)
+           :display (format "Look for '%s' synonyms in wordnet" word)))))
+```
+
+### Launch make
+
+Demonstrates: running command in arbitrary working directory. Requires: make.
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (list
+   (when-let ((project-dir (locate-dominating-file default-directory "Makefile")))
+     (list :command-name "make-default"
+           :command-line "make"
+           :display "Run make with default target"
+           :working-dir project-dir))))
+```
+
+### Live-preview PDF from markdown
+
+Demonstrates: running command on every save. Requires: [entr](http://entrproject.org/), pandoc, mupdf.
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (list
+   (when-let ((buffer-file (buffer-file-name)))
+     (list :command-name "live-pdf-preview"
+           :command-line
+           (format "echo %s | entr -s 'pandoc %s -t ms -o /tmp/preview.pdf && pkill -HUP mupdf || mupdf /tmp/preview.pdf &'"
+                   buffer-file buffer-file)
+           :display "Live PDF preview"))))
+```
+
+### Make all executables from a directory available as commands
+
+Demonstrates: generating command specs dynamically. Requires: a `scripts` directory with some executables in it.
+
+```emacs-lisp
+(defun run-command-recipe-example ()
+  (when-let ((file-accessible-directory-p "scripts"))
+    (mapcar (lambda (script-name)
+              (let ((file (expand-file-name script-name "scripts")))
+                (when (and (file-regular-p file) (file-executable-p file))
+                  (list :command-line file
+                        :command-name script-name))))
+            (directory-files "scripts"))))
+```
+
+### Advanced examples
+
+See the [examples](examples) directory.
+
 ## Tutorial: adding commands
 
-### Readable command names
+### Display readable command names
 
 To provide a more user-friendly name for a command, use the `:display` property:
 
@@ -124,7 +208,7 @@ To provide a more user-friendly name for a command, use the `:display` property:
          :display "Serve directory over HTTP port 8000")))
 ```
 
-### Specifying the working directory
+### Specify the working directory
 
 A command runs by default in the current buffer's directory. You can make it run in a different directory by setting `:working-dir`.
 
@@ -143,9 +227,11 @@ For example, you want to serve the current directory via HTTP, unless you're vis
                           default-directory)))))
 ```
 
-See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that uses the project's directory for all commands.
+See also:
 
-### Enabling and disabling depending on context
+- the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that uses the project's directory for all commands.
+
+### Toggle depending on context
 
 To disable a command in certain circumstances, return `nil` in its place.
 
@@ -153,8 +239,8 @@ For example, you want to enable a command only when the current buffer is visiti
 
 ```emacs-lisp
 (defun run-command-recipe-example ()
-  (let ((buffer-file (buffer-file-name)))
-    (list
+  (list
+   (let ((buffer-file (buffer-file-name)))
      (when (and buffer-file (file-executable-p buffer-file))
        (list
         :command-name "run-buffer-file"
@@ -162,11 +248,12 @@ For example, you want to enable a command only when the current buffer is visiti
         :display "Run this buffer's file")))))
 ```
 
-See the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.
+See also:
 
-See the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that switches off entirely when you're not in a Hugo project.
+- the [executable file recipe](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save.
+- the [Hugo project recipe](examples/run-command-recipe-hugo.el) for a recipe that switches off entirely when you're not in a Hugo project.
 
-### Choosing a recipe name
+### Choose a recipe name
 
 You can name a recipe function anything. If the name begins with `run-command-recipe-`, that will be removed when displaying commands.
 
@@ -177,8 +264,11 @@ For example:
 (defun my-command-recipe ())          ;; displays as "my-command-recipe"
 ```
 
-### Generating commands on the fly
+### Generate commands on the fly
 
-Recipes are plain old Lisp functions, so they generate commands based on e.g. project setup.
+Recipes are plain old Lisp functions, so they can generate commands based on e.g. project setup.
 
-See the [NPM project recipe](examples/run-command-recipe-package-json.el), which uses a JavaScript's project `package.json` file to generate commands, and the [Make project recipe](examples/run-command-recipe-make.el), which does the same for `Makefile` projects.
+See also:
+
+- the [NPM project recipe](examples/run-command-recipe-package-json.el) generates commands from a project's `package.json` file
+- the [Make project recipe](examples/run-command-recipe-make.el) generates commands from a project's `Makefile` (courtesy of [helm-make](https://github.com/abo-abo/helm-make))
