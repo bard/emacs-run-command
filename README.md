@@ -16,6 +16,7 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
 - [Quickstart](#quickstart)
 - [Invocation](#invocation)
 - [Configuration](#configuration)
+- [Examples](#examples)
 - [Cookbook](#cookbook)
   - [Choose a recipe name](#choose-a-recipe-name)
   - [Display readable command names](#display-readable-command-names)
@@ -88,7 +89,7 @@ The screencast below shows using `run-command` to 1) clone a project from a boil
 
 3. Type `M-x run-command RET`.
 
-Read more about [invocation](#invocation), [configuration](#configuration), or start writing your own commands by following the [cookbook](#cookbook).
+Read more about [invocation](#invocation), [configuration](#configuration), look at some advanced [examples](#examples), or start writing your own commands by following the [cookbook](#cookbook).
 
 ## Invocation
 
@@ -114,6 +115,14 @@ Write recipe functions into your init file as described in the [quickstart](#qui
 By default, commands run in `compilation-mode`. See [Lightweight external command integration in Emacs via compilation mode](https://massimilianomirra.com/notes/lightweight-external-command-integration-in-emacs-via-compilation-mode/) for some notes on how to make the most of it. An alternative method (and probably future default) is `term-mode`plus`compilation-minor-mode`, especially useful for commands with rich output such as colors, progress bars, and screen refreshes, while preserving `compilation-mode`functionality. Set`run-command-run-method`to`term` and please comment on [issue #2](https://github.com/bard/emacs-run-command/issues/2) if you find issues.
 
 The auto-completion framework is automatically detected. It can be set manually by customizing `run-command-completion-method`.
+
+## Examples
+
+- [Define and run per-directory commands](examples/run-command-recipe-dir-locals.el)
+- [Run current buffer's file](examples/run-command-recipe-executables.el), optionally re-running on save
+- [Run package.json scripts](examples/run-command-recipe-package-json.el)
+- [Run Makefile targets](examples/run-command-recipe-make.el)
+- [Run commands to manage a Hugo blog](examples/run-command-recipe-hugo.el) (also shows how to support `.env` files)
 
 ## Cookbook
 
@@ -188,7 +197,7 @@ Commands run by default in the current buffer's directory. Specify a different d
            :working-dir project-dir))))
 ```
 
-See also the [Hugo example](examples/run-command-recipe-hugo.el) for a recipe that uses the project's directory for all commands.
+The [Hugo example](examples/run-command-recipe-hugo.el) shovws how to use a project's directory for all commands. commands.
 
 ### Toggle a command depending on context
 
@@ -205,7 +214,7 @@ Disable a command in certain circumstances by returning `nil` in its place (as i
         :display "Run this buffer's file")))))
 ```
 
-See also the [executable file example](examples/run-command-recipe-executables.el) for a variant that also re-runs the file on each save, and the [Hugo example](examples/run-command-recipe-hugo.el) for a recipe that switches off entirely when you're not in a Hugo project.
+The [executable file example](examples/run-command-recipe-executables.el) also re-runs the file on each save, and the [Hugo example](examples/run-command-recipe-hugo.el) switches off entirely when you're not in a Hugo project.
 
 ### Launch long-lived commands that re-run on file changes
 
@@ -238,7 +247,7 @@ Read project settings (such as Makefiles) or directory contents (such as executa
             (directory-files "scripts"))))
 ```
 
-See also the [NPM example](examples/run-command-recipe-package-json.el) for a recipe that generates commands from a project's `package.json` file, and the [Make example](examples/run-command-recipe-make.el) that generates commands from a project's `Makefile` (courtesy of [helm-make](https://github.com/abo-abo/helm-make)).
+The [NPM example](examples/run-command-recipe-package-json.el) generates commands from a project's `package.json` file, and the [Make example](examples/run-command-recipe-make.el) generates commands from a project's `Makefile` (courtesy of [helm-make](https://github.com/abo-abo/helm-make)).
 
 ## Experimental features
 
