@@ -1,35 +1,35 @@
 
-;; This example describes per-directory commands. Useful for simple
-;; cases where you don't want to bring in a build tool or task runner
-;; such as Make or NPM.
+;; Light-weight solution for dir-local commands, for when you don't want
+;; bring in a tool such as Make or NPM.
 
-;; 1. In your init file, define a variable that will hold
-;; per-directory commands, and a recipe function that will return
-;; those commands when available:
+;; 1. In your init file, define a global placeholder variable that
+;; will hold the per-directory recipe, and a global recipe function
+;; that will call the local recipe when defined:
 
-(defvar run-command-recipe-dir-locals-command-specs '())
+(defvar run-command-recipe-dir-locals-fn nil)
 
 (defun run-command-recipe-dir-locals ()
-  run-command-recipe-dir-locals-command-specs)
+  (when run-command-recipe-dir-locals-fn
+    (funcall run-command-recipe-dir-locals-fn)))
 
-;; 2. Customize `run-command-recipes' to include
-;; `run-command-recipe-dir-locals'.
+;; 2. Type `M-x run-command-recipes RET' and add
+;; `run-command-recipe-dir-locals' to the listn.
 
 ;; 3. In the directory where you want some commands activated, create
 ;; a `.dir-locals.el' file and add definitions such as (note the
 ;; leading periods):
 
-((nil
-  . ((run-command-recipe-dir-locals-command-specs
-      . (( :command-name "say-hello"
-           :command-line "echo hello, world!"))))))
+((nil . ((run-command-recipe-dir-locals-fn
+          . (lambda ()
+              (list
+               (list :command-name "say-hello"
+                     :command-line "echo Hello, world!")
+               (list :command-name "deploy"
+                     :command-line "scripts/deploy.sh"
+                     :working-dir (locate-dominating-file
+                                   default-directory
+                                   ".git"))))))))
 
-;; This is currently limited to static recipes, i.e. recipes that
-;; don't need to toggle or modify commands dynamically. Commands will
-;; run in the directory of the buffer from which they are called. More
-;; sophisticated behavior (such as substituing variable or selecting
-;; the working directory) can be attained by pre-processing commands
-;; inside the `run-command-recipe-dir-locals' function.  More about
-;; per-directory local variables:
+;; More about per-directory local variables:
 ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
 
