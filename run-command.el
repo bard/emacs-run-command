@@ -187,7 +187,7 @@ said functions)."
           (run-command--run-compile command-line buffer-base-name))
          ((eq run-command-run-method 'term)
           (run-command--run-term command-line buffer-base-name)))
-      (setq-local run-command-command-spec command-spec)))) 
+      (setq-local run-command-command-spec command-spec))))
 
 ;;; Run method `compile'
 
