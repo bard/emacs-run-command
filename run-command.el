@@ -174,20 +174,20 @@ said functions)."
 
 (defun run-command--run (command-spec)
   "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
-  (cl-destructuring-bind
-      (&key command-name command-line scope-name working-dir &allow-other-keys)
-      command-spec
-    (let* ((buffer-base-name (format "%s[%s]" command-name scope-name))
-           (default-directory working-dir))
-      (with-current-buffer
-          (cond
-           ((run-command--experiment-p 'vterm-run-method)
-            (run-command--run-vterm command-line buffer-base-name))
-           ((eq run-command-run-method 'compile)
-            (run-command--run-compile command-line buffer-base-name))
-           ((eq run-command-run-method 'term)
-            (run-command--run-term command-line buffer-base-name)))
-        (setq-local run-command-command-spec command-spec)))))
+  (let* ((command-name (plist-get command-spec :command-name))
+         (command-line (plist-get command-spec :command-line))
+         (scope-name (plist-get command-spec :scope-name))
+         (default-directory (plist-get command-spec :working-dir))
+         (buffer-base-name (format "%s[%s]" command-name scope-name)))
+    (with-current-buffer
+        (cond
+         ((run-command--experiment-p 'vterm-run-method)
+          (run-command--run-vterm command-line buffer-base-name))
+         ((eq run-command-run-method 'compile)
+          (run-command--run-compile command-line buffer-base-name))
+         ((eq run-command-run-method 'term)
+          (run-command--run-term command-line buffer-base-name)))
+      (setq-local run-command-command-spec command-spec)))) 
 
 ;;; Run method `compile'
 
