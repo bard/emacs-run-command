@@ -5,11 +5,10 @@
   "Extract NPM scripts from `package-json-file'."
   (with-temp-buffer
     (insert-file-contents package-json-file)
-    (let* ((json-data (json-parse-buffer))
-           (script-hash (gethash "scripts" json-data))
-           (scripts '()))
-      (maphash (lambda (key _value) (push key scripts)) script-hash)
-      scripts)))
+    (when-let ((script-hash (gethash "scripts" (json-parse-buffer))))
+      (let (scripts '())
+        (maphash (lambda (key _value) (push key scripts)) script-hash)
+        scripts))))
 
 (defun run-command-recipe-package-json ()
   (when-let* ((project-dir
