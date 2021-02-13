@@ -1,64 +1,37 @@
-
-;; This example demonstrates the use of Elisp for the :command-line argument of
-;; a run-command recipe.
-;; 
-;; Specifically, this recipe creates a temporary org buffer and insert some
-;; headings and some links in it and prompts the user to select one org heading
-;; and then open all links under that heading:
-
-(require 'cl-lib)
+;; This example demonstrates the feature of executing an Elisp lambda in the
+;; :command-line argument of a run-command recipe.
 
 (defun run-command-recipe-org-links ()
-  "Prompt the user to select a heading and then open all org links between that
-heading and the next one. If there is no next heading then the search for org
-links will extend to the end of the buffer."
+  "Prompt the user to select a heading and then open all org links in the
+section the cursor is in (in other words, in the region delimited by point at
+`org-back-to-heading-or-point-min' and point `outline-next-heading')."
   (list
    ;; only enable this command in an org buffer:
    (when (derived-mode-p 'org-mode)
-     (list :command-name "open heading's link"
+     (list :command-name "open"
+           :display "Open links from current section"
            :command-line
            (lambda ()
-             ;; select a heading:
-             (let ((heading
-                    (completing-read "Select heading: "
-                                     (save-excursion
-                                       ;; begin at the beginning of the buffer
-                                       (goto-char (point-min))
-                                       ;; go to the first heading (if point has
-                                       ;; not yet been already at one):
-                                       (or (outline-on-heading-p t)
-                                           (outline-next-heading))
-                                       (cl-loop
-                                        while (and
-                                               ;; keep looping until reaching the end of buffer:
-                                               (not (eq (point) (point-max)))
-                                               ;; and do the following once reaching a heading:
-                                               (outline-on-heading-p t))
-                                        ;; collect the heading at point:
-                                        collect (prog1 (buffer-substring-no-properties
-                                                        (line-beginning-position)
-                                                        (line-end-position))
-                                                  ;; update cursor position:
-                                                  (outline-next-heading)))))))
-               ;; now collect the org links:
-               (save-excursion
-                 ;; search for the heading from the beginning of the buffer
-                 (goto-char (point-min))
-                 ;; set the boundaries for the search of org links (from the
-                 ;; selected heading to the next heading, or if there is no next
-                 ;; heading then search until the end of the buffer):
-                 (let* ((heading-start (re-search-forward (format "^%s" (regexp-quote heading))))
-                        (heading-end (progn (outline-next-heading)
-                                            (point)))
-                        (last-point (1- heading-start)) ; used for tracking the
-                                                        ; last link in this
-                                                        ; heading
-                        )
-                   ;; now search for each org link under the heading, begin at the heading:
-                   (goto-char heading-start)
-                   (while (and (org-next-link)
-                               (< (point) heading-end)
-                               (not (eq (point) last-point)))
-                     (org-open-at-point)
-                     (setq last-point (point)))))))))))
+             ;; the cursor will move to each link in order to operate on them,
+             ;; so `save-excursion' is used below to preserve the original
+             ;; cursor position in the org buffer:
+             (save-excursion
+               (let* ((search-start ; the start position to search for links
+                               (if (outline-on-heading-p)
+                                   (line-end-position)
+                                 (org-back-to-heading-or-point-min t)))
+                      (search-end ; the end position to search for links
+                               (or (outline-next-heading)
+                                   (point-max)))
+                      (last-point  ; used for tracking the position of the most
+                                   ; recent link
+                               (1- search-start)))
+                 ;; get back to the beginning of the search
+                 (goto-char search-start)
+                 ;; now search for each org link and open it:
+                 (while (and (org-next-link)
+                             (< (point) search-end)
+                             (not (eq (point) last-point)))
+                   (org-open-at-point)
+                   (setq last-point (point))))))))))
 
