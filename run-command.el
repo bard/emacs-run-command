@@ -273,7 +273,7 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 (defun run-command--helm ()
   "Complete command with helm and run it."
   (helm :buffer "*run-command*"
-        :prompt "Command Name: "
+        :prompt "Command: "
         :sources (run-command--helm-sources)))
 
 (defun run-command--helm-sources ()
@@ -310,7 +310,7 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 (defun run-command--ivy ()
   "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
-    (ivy-read "Command Name: "
+    (ivy-read "Command: "
               (run-command--ivy-targets)
               :caller 'run-command--ivy
               :history 'run-command--ivy-history
@@ -352,7 +352,7 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 (defun run-command--completing-read ()
   "Complete command with `completing-read' and run it."
   (let* ((targets (run-command--ivy-targets))
-         (choice (completing-read "Command Name: " targets)))
+         (choice (completing-read "Command: " targets)))
     (when choice
       (let ((command-spec (cdr (assoc choice targets))))
         (run-command--run command-spec)))))
