@@ -70,28 +70,28 @@
   'compile
   "Run strategy.
 
-- `compilation' (default): display command output in a `compilation-mode' buffer
-- `terminal': display command output in a `term-mode' buffer"
+- `compile' (default): display command output in a `compilation-mode' buffer
+- `term': display command output in a `term-mode' buffer"
   :type '(choice (const :tag "Terminal Mode" term)
                  (const :tag "Compilation Mode" compile)))
 
 (defcustom run-command-recipes nil
-  "List of functions that will produce runnable commands.
+  "List of functions that will produce command lists.
 
-Each function will be called without arguments and is expected
-to return a list-of-plists, where each plist represents a
-runnable command and has the following format:
+Each function is called without arguments and must return a list of property
+lists, where each property list represents a command and has the following
+format:
 
 - `:command-name' (string, required): A name for the command, used
-  internally as well as (if :display is not provided) shown to
-  the user.
-- `:command-line' (string, required): The command line that will be
-  executed.  It will be passed to `compile'.
-- `:display' (string, optional): A descriptive name for the command
-  that will be shown in place of :command-name.
-- `:working-dir' (string, optional): Directory path to run the
-  command in.  If not given, command will be run in
-  `default-directory'."
+  to generate the output buffer name, as well as a fallback in case
+  `:display' isn't provided
+- `:command-line' (string or function, required): The command
+  line that will be executed.  Can be a function to e.g. further
+  query the user, and should return a string.
+- `:display' (string, optional): A descriptive name that will
+  be displayed to the user.
+- `:working-dir' (string, optional): Directory to run the command
+  in.  If not given, defaults to `default-directory'."
   
   :type '(repeat function)
   :group 'run-command)
