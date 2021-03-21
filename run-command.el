@@ -218,7 +218,8 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   "Command execution backend for when run method is `term'.
 
 Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
-  (let ((buffer-name (concat "*" buffer-base-name "*")))
+  (let ((buffer-name (concat "*" buffer-base-name "*"))
+        (term-set-terminal-size t))
     (when (get-buffer buffer-name)
       (let ((proc (get-buffer-process buffer-name)))
         (when (and proc
