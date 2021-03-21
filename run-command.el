@@ -44,6 +44,8 @@
 
 (declare-function term-mode "ext:term")
 
+(eval-when-compile (require 'cl-lib))
+
 ;;; Customization
 
 (defgroup run-command nil
@@ -232,8 +234,20 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
         (compilation-minor-mode -1)
         (erase-buffer)))
     (with-current-buffer
+        ;; Implicitly puts buffer in term-mode
         (make-term buffer-base-name shell-file-name nil "-c" command-line)
-      (term-mode)
+
+      ;; Override the process-filter set by `term-exec' in order to
+      ;; work around a bug in `term-emulate-terminal' where buffer
+      ;; narrowing while in line-mode leads to mangled output in some
+      ;; circumstances (e.g. `yarn install') that involve lots of cursor
+      ;; movement and line clearing.
+      (set-process-filter (get-buffer-process (current-buffer))
+                          (lambda (proc str)
+                            (cl-letf (((symbol-function 'narrow-to-region)
+                                       (lambda (&rest _) nil)))
+                              (term-emulate-terminal proc str))))
+
       (compilation-minor-mode)
       (run-command-term-minor-mode)
       (display-buffer (current-buffer))
