@@ -43,6 +43,8 @@
 (defvar vterm-shell)
 
 (declare-function term-mode "ext:term")
+(declare-function term-emulate-terminal "ext:term")
+(defvar term-set-terminal-size)
 
 (eval-when-compile (require 'cl-lib))
 
