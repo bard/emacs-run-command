@@ -40,7 +40,7 @@
    (:wait 1.5)
    (:assert (length= (window-list) 3))
    (:type "say")
-   (:wait 2)
+   (:wait 1.5)
    (:type [return])
    (:wait 2)
    (:type "\M-x")
@@ -49,7 +49,7 @@
    (:wait 1.5)
    (:assert (length= (window-list) 3))
    (:type "http")
-   (:wait 2)
+   (:wait 1.5)
    (:type [return])
    (:wait 4))
  :delay-between-steps 0.1

@@ -33,9 +33,11 @@ Emacs, the text editor where you can read mail and play Tetris, is often cast in
 
 ## Demo
 
-The screencast below shows using `run-command` to 1) clone a project from a boilerplate, 2) execute a file on every save, and 3) start the test runner.
+The screencast demonstrates creating two simple commands and executing them via the Helm front end.
 
 <p align="center"><img alt="demo" src="./demo.gif"></p>
+
+[Demo generated with [emacs-director](https://github.com/bard/emacs-director).]
 
 ## Features
 
