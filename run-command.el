@@ -311,6 +311,7 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
 
 (defun run-command--helm-source-from-recipe (command-recipe)
   "Create a Helm source from `COMMAND-RECIPE'."
+  (require 'helm-adaptive)
   (let* ((command-specs (run-command--generate-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
                                (cons (plist-get command-spec :display) command-spec))
@@ -318,7 +319,8 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
     (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
         'helm-source-sync
       :action 'run-command--helm-action
-      :candidates candidates)))
+      :candidates candidates
+      :filtered-candidate-transformer 'helm-adaptive-sort)))
 
 (defun run-command--helm-action (command-spec)
   "Execute `COMMAND-SPEC' from Helm."
