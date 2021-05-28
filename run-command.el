@@ -45,6 +45,7 @@
 (declare-function term-mode "ext:term")
 (declare-function term-emulate-terminal "ext:term")
 (defvar term-set-terminal-size)
+(defvar term-raw-map)
 
 (eval-when-compile (require 'cl-lib))
 
@@ -237,20 +238,8 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
         (compilation-minor-mode -1)
         (erase-buffer)))
     (with-current-buffer
-        ;; Implicitly puts buffer in term-mode
-        (make-term buffer-base-name shell-file-name nil "-c" command-line)
-
-      ;; Override the process-filter set by `term-exec' in order to
-      ;; work around a bug in `term-emulate-terminal' where buffer
-      ;; narrowing while in line-mode leads to mangled output in some
-      ;; circumstances (e.g. `yarn install') that involve lots of cursor
-      ;; movement and line clearing.
-      (set-process-filter (get-buffer-process (current-buffer))
-                          (lambda (proc str)
-                            (cl-letf (((symbol-function 'narrow-to-region)
-                                       (lambda (&rest _) nil)))
-                              (term-emulate-terminal proc str))))
-
+        (let ((term-set-terminal-size t))
+          (run-command-term--run-with-patched-emulator buffer-base-name command-line))
       (compilation-minor-mode)
       (run-command-term-minor-mode)
       (display-buffer (current-buffer))
@@ -267,6 +256,26 @@ Executes COMMAND-LINE in buffer BUFFER-BASE-NAME."
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
   (run-command--run run-command--command-spec))
+
+(defun run-command-term--run-with-patched-emulator (buffer-base-name command-line)
+  "Run `COMMAND-LINE' in a term buffer, working around a bug in `term-mode'.
+
+The bug causes spurious output when term in is line mode, and the
+process clears the screen or part of it repeatedly (e.g. test
+runners, installers).  Since it does not happen in char mode, we
+trick the process filter into thinking it is in char mode.  See
+https://debbugs.gnu.org/cgi/bugreport.cgi?bug=48716
+
+`BUFFER-BASE-NAME' and `COMMAND-LINE' are passed to `make-term'."
+  (let ((process-buffer (make-term buffer-base-name
+                                   shell-file-name nil
+                                   "-c" command-line)))
+    (set-process-filter (get-buffer-process process-buffer)
+                        (lambda (proc str)
+                          (cl-letf (((symbol-function 'current-local-map)
+                                     (lambda () term-raw-map)))
+                            (term-emulate-terminal proc str))))
+    process-buffer))
 
 ;;; Run method `vterm' (experimental)
 
