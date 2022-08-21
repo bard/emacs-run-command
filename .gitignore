@@ -1,2 +1,5 @@
 *.elc
 _*
+/test/snapshots
+/.dir-locals.el
+
