@@ -437,7 +437,7 @@ retired, please remove from `run-command-experiments'" name))
                          (setq run-command--deprecated-experiment-warning
                                (not (yes-or-no-p
                                      (format "Warning: run-command: experiment \
- `%S' is deprecated, please update your configuration. Disable reminder for \
+ `%S' is deprecated, please update your configuration.  Disable reminder for \
 this session?" name))))))
                       ('active nil)))
                 (error "[run-command] Experiment `%S' does not exist, \
