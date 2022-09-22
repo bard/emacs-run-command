@@ -16,7 +16,10 @@
               (scripts
                (run-command-recipe-package-json--get-scripts (concat project-dir "package.json")))
               (script-runner
-               (if (file-exists-p (concat project-dir "yarn.lock")) "yarn" "npm")))
+               (cond
+                ((file-exists-p (concat project-dir "pnpm-lock.yaml")) "pnpm")
+                ((file-exists-p (concat project-dir "yarn.lock")) "yarn")
+                (t "npm"))))
     (mapcar (lambda (script)
               (list :command-name script
                     :command-line (concat script-runner " run " script)
