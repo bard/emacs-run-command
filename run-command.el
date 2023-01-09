@@ -1,6 +1,6 @@
 ;;; run-command.el --- Run an external command from a context-dependent list -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020-2021 Massimiliano Mirra
+;; Copyright (C) 2020-2023 Massimiliano Mirra
 
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command

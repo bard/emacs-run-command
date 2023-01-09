@@ -1,6 +1,6 @@
 ;;; run-command-selector-helm.el --- Helm frontend to run-command -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020-2021 Massimiliano Mirra
+;; Copyright (C) 2020-2023 Massimiliano Mirra
 
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
