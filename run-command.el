@@ -38,6 +38,7 @@
 (require 'run-command-runner-term)
 (require 'run-command-runner-compile)
 (require 'run-command-runner-vterm)
+(require 'run-command-runner-eat)
 
 ;; Entry point
 
