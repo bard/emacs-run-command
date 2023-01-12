@@ -54,16 +54,6 @@
                  (const :tag "ivy" ivy)
                  (const :tag "completing-read" completing-read)))
 
-;; XXX TODO replace with function
-(defcustom run-command-run-method
-  'compile
-  "Run strategy.
-
-- `compile' (default): display command output in a `compilation-mode' buffer
-- `term': display command output in a `term-mode' buffer"
-  :type '(choice (const :tag "Terminal Mode" term)
-                 (const :tag "Compilation Mode" compile)))
-
 (defcustom run-command-recipes nil
   "List of functions that will produce command lists.
 
@@ -84,9 +74,6 @@
 
   :type '(repeat function)
   :group 'run-command)
-
-(defvar run-command-default-runner nil
-  "Command runner to use when recipe does not specify any.")
 
 ;; Utilities
 
