@@ -86,9 +86,6 @@
          (cond
           ((fboundp command-recipe)
            (funcall command-recipe))
-          ((and (run-command--experiment--active-p 'static-recipes)
-                (boundp command-recipe))
-           (symbol-value command-recipe))
           (t (error "[run-command] Invalid command recipe: %s" command-recipe)))))
     (mapcar #'run-command--normalize-command-spec
             (seq-filter (lambda (spec)
