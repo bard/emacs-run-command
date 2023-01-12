@@ -40,12 +40,34 @@
 
 Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'."
   (with-current-buffer output-buffer
-    (let ((term-set-terminal-size t))
-      (run-command-runner-term--run-with-patched-emulator buffer-base-name command-line)
-      ;; (setq term-scroll-show-maximum-output t) ; XXX experimental
-      (compilation-minor-mode)      
-      (run-command-runner-term-minor-mode)
-      (setq-local run-command--buffer-p t))))
+    (run-command-runner-term--run-in-current-buffer command-line buffer-base-name)
+    (term-char-mode)))
+
+(defun run-command-runner-term/noninteractive (command-line buffer-base-name output-buffer)
+  "Command execution backend for when run method is `term'.
+
+Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'."
+  (with-current-buffer output-buffer
+    (run-command-runner-term--run-in-current-buffer command-line buffer-base-name)
+    ;; Work around term.el bug causing spurious output when term in
+    ;; is line mode, and the process clears the screen or part of it
+    ;; repeatedly (e.g. test runners, installers).  Since it does
+    ;; not happen in char mode, we trick the process filter into
+    ;; thinking it is in char mode.  See
+    ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=48716
+    (set-process-filter (get-buffer-process (current-buffer))
+                        (lambda (proc str)
+                          (cl-letf (((symbol-function 'current-local-map)
+                                     (lambda () term-raw-map)))
+                            (term-emulate-terminal proc str))))
+    (run-command-runner-term-minor-mode)))
+
+(defun run-command-runner-term--run-in-current-buffer (command-line buffer-base-name)
+  (let ((term-set-terminal-size t))
+    (term-mode)
+    (term-exec (current-buffer) buffer-base-name
+               shell-file-name nil (list "-c" command-line))
+    (setq-local run-command--buffer-p t)))
 
 (define-minor-mode run-command-runner-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
@@ -60,32 +82,12 @@ previous runs is left in scrollback."
   (if (and run-command--buffer-p
            (eq kind 2))
       (delete-region (point-min) (point-max))
-    (funcall original-term-erase-in-display kind))))
+    (funcall original-term-erase-in-display kind)))
 
 (defun run-command-runner-term--recompile ()
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
   (run-command--run run-command--command-spec))
-
-(defun run-command-runner-term--run-with-patched-emulator (buffer-base-name command-line)
-  "Run `COMMAND-LINE' in a term buffer, working around a bug in `term-mode'.
-
-The bug causes spurious output when term in is line mode, and the
-process clears the screen or part of it repeatedly (e.g. test
-runners, installers).  Since it does not happen in char mode, we
-trick the process filter into thinking it is in char mode.  See
-https://debbugs.gnu.org/cgi/bugreport.cgi?bug=48716
-
-`BUFFER-BASE-NAME' and `COMMAND-LINE' are passed to `make-term'."
-  (let ((process-buffer (make-term buffer-base-name
-                                   shell-file-name nil
-                                   "-c" command-line)))
-    (set-process-filter (get-buffer-process process-buffer)
-                        (lambda (proc str)
-                          (cl-letf (((symbol-function 'current-local-map)
-                                     (lambda () term-raw-map)))
-                            (term-emulate-terminal proc str))))
-    process-buffer))
 
 ;;; Meta
 
