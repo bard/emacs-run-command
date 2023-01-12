@@ -31,30 +31,34 @@
 (declare-function helm-make-source "ext:helm")
 (defvar helm-current-prefix-arg)
 
-(defun run-command-selector-helm (command-recipes)
+(defun run-command-selector-helm (command-recipes default-command-runner)
   "Complete command with helm and run it."
   (helm :buffer "*run-command*"
         :prompt "Command: "
-        :sources (run-command--helm-sources command-recipes)))
+        :sources (run-command--helm-sources command-recipes default-command-runner)))
 
-(defun run-command--helm-sources (command-recipes)
+(defun run-command--helm-sources (command-recipes default-command-runner)
   "Create Helm sources from `RECIPES'."
-  (mapcar #'run-command--helm-source-from-recipe command-recipes))
+  (mapcar (lambda (command-recipe)
+            (run-command--helm-source-from-recipe command-recipe default-command-runner))
+          command-recipes))
 
-(defun run-command--helm-source-from-recipe (command-recipe)
+(defun run-command--helm-source-from-recipe (command-recipe default-command-runner)
   "Create a Helm source from `COMMAND-RECIPE'."
   (require 'helm-adaptive)
   (let* ((command-specs (run-command--generate-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
-                               (cons (plist-get command-spec :display) command-spec))
+                               (cons (plist-get command-spec :display)
+                                     command-spec))
                              command-specs)))
     (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
         'helm-source-sync
-      :action 'run-command--helm-action
+      :action (lambda (command-spec)
+                (run-command--helm-action command-spec default-command-runner))
       :candidates candidates
       :filtered-candidate-transformer 'helm-adaptive-sort)))
 
-(defun run-command--helm-action (command-spec)
+(defun run-command--helm-action (command-spec default-command-runner)
   "Execute `COMMAND-SPEC' from Helm."
   (let* ((command-line (plist-get command-spec :command-line))
          (final-command-line (if helm-current-prefix-arg
@@ -62,7 +66,8 @@
                                command-line)))
     (run-command--run (plist-put command-spec
                                  :command-line
-                                 final-command-line))))
+                                 final-command-line)
+                      default-command-runner)))
 
 (provide 'run-command-selector-helm)
 

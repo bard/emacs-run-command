@@ -27,13 +27,13 @@
 
 (require 'run-command-core)
 
-(defun run-command-selector-completing-read (command-recipes)
+(defun run-command-selector-completing-read (command-recipes default-command-runner)
   "Complete command with `completing-read' and run it."
   (let* ((targets (run-command--completing-read-targets command-recipes))
          (choice (completing-read "Command: " targets)))
     (when choice
       (let ((command-spec (cdr (assoc choice targets))))
-        (run-command--run command-spec)))))
+        (run-command--run command-spec default-command-runner)))))
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create completion-read targets from all recipes."

@@ -143,20 +143,21 @@
         (match-string 1 recipe-name)
       recipe-name)))
 
-(defun run-command--run (command-spec)
+(defun run-command--run (command-spec default-command-runner)
   "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
   (let* ((command-name (plist-get command-spec :command-name))
          (command-line (if (functionp (plist-get command-spec :command-line))
                            (funcall (plist-get command-spec :command-line))
                          (plist-get command-spec :command-line)))
+         (command-runner (or (plist-get command-spec :runner)
+                             default-command-runner))
          (scope-name (plist-get command-spec :scope-name))
          (working-directory (or (plist-get command-spec :working-dir)
                                 default-directory))
          (buffer-base-name (format "%s[%s]" command-name scope-name))
          (lisp-function (and (run-command--experiment--active-p
                               'run-command-experiment-lisp-commands)
-                             (plist-get command-spec :lisp-function)))
-         (command-runner run-command-default-runner))
+                             (plist-get command-spec :lisp-function))))
     (if lisp-function
         (funcall lisp-function)
       (with-current-buffer (run-command--create-and-display-execution-buffer buffer-base-name)

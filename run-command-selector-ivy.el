@@ -33,14 +33,15 @@
 (defvar run-command--ivy-history nil
   "History for `run-command-selector-ivy'.")
 
-(defun run-command-selector-ivy (command-recipes)
+(defun run-command-selector-ivy (command-recipes default-command-runner)
   "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
     (ivy-read "Command: "
               (run-command--ivy-targets command-recipes)
               :caller 'run-command-selector-ivy
               :history 'run-command--ivy-history
-              :action 'run-command--ivy-action)))
+              :action (lambda (command-spec)
+                        (run-command--ivy-action command-spec default-command-runner)))))
 
 (defun run-command--ivy-targets (command-recipes)
   "Create Ivy targets from all recipes."
@@ -58,7 +59,7 @@
                       command-specs)))
           command-recipes))
 
-(defun run-command--ivy-action (selection)
+(defun run-command--ivy-action (selection default-command-runner)
   "Execute `SELECTION' from Ivy."
   (let* ((command-spec (cdr selection))
          (command-line (plist-get command-spec :command-line))
@@ -66,7 +67,8 @@
                                  (read-string "> " (concat command-line " "))
                                command-line)))
     (run-command--run (plist-put command-spec
-                                 :command-line final-command-line))))
+                                 :command-line final-command-line)
+                      default-command-runner)))
 
 (defun run-command--ivy-edit-action (selection)
   "Edit `SELECTION' then execute from Ivy."
