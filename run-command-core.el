@@ -189,8 +189,8 @@ If experiment is active, do nothing.  If experiment is retired or unknown,
 signal error.  If deprecated, print a warning and allow muting further warnings
 for the rest of the session."
   (let ((experiments '((static-recipes . retired)
-                       (vterm-run-method . active)
-                       (run-command-experiment-vterm-run-method . active)
+                       (vterm-run-method . retired)
+                       (run-command-experiment-vterm-run-method . retired)
                        (run-command-experiment-function-command-lines . retired)
                        (run-command-experiment-lisp-commands . active)
                        (example-retired .  retired)
