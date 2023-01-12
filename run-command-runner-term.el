@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'run-command-core)
+(require 'nadvice)
 
 (declare-function term-mode "ext:term")
 (declare-function term-emulate-terminal "ext:term")
@@ -42,12 +43,24 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
     (let ((term-set-terminal-size t))
       (run-command-runner-term--run-with-patched-emulator buffer-base-name command-line)
       ;; (setq term-scroll-show-maximum-output t) ; XXX experimental
-      (compilation-minor-mode)
-      (run-command-runner-term-minor-mode))))
+      (compilation-minor-mode)      
+      (run-command-runner-term-minor-mode)
+      (setq-local run-command--buffer-p t))))
 
 (define-minor-mode run-command-runner-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
   :keymap '(("g" .  run-command-runner-term--recompile)))
+
+(define-advice term-erase-in-display (:around
+                                      (original-term-erase-in-display kind)
+                                      run-command-runner-term-erase-advice)
+  "When running command asks for screen clear, force erasure of entire
+buffer rather than from home position to bottom, so no output from
+previous runs is left in scrollback."
+  (if (and run-command--buffer-p
+           (eq kind 2))
+      (delete-region (point-min) (point-max))
+    (funcall original-term-erase-in-display kind))))
 
 (defun run-command-runner-term--recompile ()
   "Provide `recompile' in term buffers with command run via `run-command'."
