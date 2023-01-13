@@ -25,6 +25,7 @@
 
 ;;; Code:
 
+(require 'map)
 (require 'run-command-core)
 
 (declare-function helm "ext:helm")
@@ -48,7 +49,7 @@
   (require 'helm-adaptive)
   (let* ((command-specs (run-command--generate-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
-                               (cons (plist-get command-spec :display)
+                               (cons (map-elt command-spec :display)
                                      command-spec))
                              command-specs)))
     (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
@@ -60,14 +61,12 @@
 
 (defun run-command--helm-action (command-spec default-command-runner)
   "Execute `COMMAND-SPEC' from Helm."
-  (let* ((command-line (plist-get command-spec :command-line))
+  (let* ((command-line (map-elt command-spec :command-line))
          (final-command-line (if helm-current-prefix-arg
                                  (read-string "> " (concat command-line " "))
                                command-line)))
-    (run-command--run (plist-put command-spec
-                                 :command-line
-                                 final-command-line)
-                      default-command-runner)))
+    (map-put! command-spec :command-line final-command-line)
+    (run-command--run command-spec default-command-runner)))
 
 (provide 'run-command-selector-helm)
 

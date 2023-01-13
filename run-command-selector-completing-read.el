@@ -25,6 +25,7 @@
 
 ;;; Code:
 
+(require 'map)
 (require 'run-command-core)
 
 (defun run-command-selector-completing-read (command-recipes default-command-runner)
@@ -46,7 +47,7 @@
                         (cons (concat
                                (propertize (concat recipe-name "/")
                                            'face 'shadow)
-                               (plist-get command-spec :display))
+                               (map-elt command-spec :display))
                               command-spec))
                       command-specs)))
           command-recipes))

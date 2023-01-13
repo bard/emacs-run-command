@@ -25,6 +25,7 @@
 
 ;;; Code:
 
+(require 'map)
 (require 'run-command-core)
 
 (declare-function ivy-read "ext:ivy")
@@ -54,7 +55,7 @@
                         (cons (concat
                                (propertize (concat recipe-name "/")
                                            'face 'shadow)
-                               (plist-get command-spec :display))
+                               (map-elt command-spec :display))
                               command-spec))
                       command-specs)))
           command-recipes))
@@ -62,13 +63,12 @@
 (defun run-command--ivy-action (selection default-command-runner)
   "Execute `SELECTION' from Ivy."
   (let* ((command-spec (cdr selection))
-         (command-line (plist-get command-spec :command-line))
+         (command-line (map-elt command-spec :command-line))
          (final-command-line (if ivy-current-prefix-arg
                                  (read-string "> " (concat command-line " "))
                                command-line)))
-    (run-command--run (plist-put command-spec
-                                 :command-line final-command-line)
-                      default-command-runner)))
+    (map-put! command-spec :command-line final-command-line)
+    (run-command--run command-spec default-command-runner)))
 
 (defun run-command--ivy-edit-action (selection)
   "Edit `SELECTION' then execute from Ivy."

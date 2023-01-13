@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'map)
+
 ;; Customization
 
 (defgroup run-command nil
@@ -94,21 +96,21 @@
 
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
-  (unless (stringp (plist-get command-spec :command-name))
+  (unless (stringp (map-elt command-spec :command-name))
     (error "[run-command] Invalid `:command-name' in command spec: %S"
            command-spec))
-  (unless (or (stringp (plist-get command-spec :command-line))
-              (functionp (plist-get command-spec :command-line)))
+  (unless (or (stringp (map-elt command-spec :command-line))
+              (functionp (map-elt command-spec :command-line)))
     (error "[run-command] Invalid `:command-line' in command spec: %S"
            command-spec))
   (append command-spec
-          (unless (plist-member command-spec :display)
-            (list :display (plist-get command-spec :command-name)))
-          (unless (plist-member command-spec :working-dir)
+          (unless (map-contains-key command-spec :display)
+            (list :display (map-elt command-spec :command-name)))
+          (unless (map-contains-key command-spec :working-dir)
             (list :working-dir default-directory))
-          (unless (plist-member command-spec :scope-name)
+          (unless (map-contains-key command-spec :scope-name)
             (list :scope-name (abbreviate-file-name
-                               (or (plist-get command-spec :working-dir)
+                               (or (map-elt command-spec :working-dir)
                                    default-directory))))))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
@@ -120,14 +122,14 @@
 
 (defun run-command--run (command-spec default-command-runner)
   "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
-  (let* ((command-name (plist-get command-spec :command-name))
-         (command-line (if (functionp (plist-get command-spec :command-line))
-                           (funcall (plist-get command-spec :command-line))
-                         (plist-get command-spec :command-line)))
-         (command-runner (or (plist-get command-spec :runner)
+  (let* ((command-name (map-elt command-spec :command-name))
+         (command-line (if (functionp (map-elt command-spec :command-line))
+                           (funcall (map-elt command-spec :command-line))
+                         (map-elt command-spec :command-line)))
+         (command-runner (or (map-elt command-spec :runner)
                              default-command-runner))
-         (scope-name (plist-get command-spec :scope-name))
-         (working-directory (or (plist-get command-spec :working-dir)
+         (scope-name (map-elt command-spec :scope-name))
+         (working-directory (or (map-elt command-spec :working-dir)
                                 default-directory))
          (buffer-base-name (format "%s[%s]" command-name scope-name)))
     (with-current-buffer (run-command--create-and-display-execution-buffer buffer-base-name)
