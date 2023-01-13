@@ -46,7 +46,7 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   "When running command asks for screen clear, force erasure of entire
 buffer rather than from home position to bottom, so no output from
 previous runs is left in scrollback."
-  (if (and run-command--buffer-p
+  (if (and (boundp 'run-command--buffer-p)
            (eq n 2))
       (funcall original-eat--t-erase-in-disp 3)
     (funcall original-eat--t-erase-in-disp n)))
