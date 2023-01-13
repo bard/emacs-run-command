@@ -131,34 +131,15 @@
          (scope-name (map-elt command-spec :scope-name))
          (working-directory (or (map-elt command-spec :working-dir)
                                 default-directory))
-         (buffer-base-name (format "%s[%s]" command-name scope-name)))
-    (with-current-buffer (run-command--create-and-display-execution-buffer buffer-base-name)
-      (let ((default-directory working-directory))
-        (funcall command-runner command-line buffer-base-name (current-buffer))
-        (setq-local run-command--command-spec command-spec)))))
-
-(defun run-command--create-and-display-execution-buffer (buffer-base-name)
-  (let ((buffer-name (concat "*" buffer-base-name "*"))
-        (existing-buffer-window nil))
-    (when (get-buffer buffer-name)
-      (setq existing-buffer-window (get-buffer-window buffer-name))
-      (let ((proc (get-buffer-process buffer-name)))
-        (when (and proc
-                   (yes-or-no-p "A process is running; kill it?"))
-  (condition-case ()
-      (progn
-        (interrupt-process proc)
-        (sit-for 1)
-        (delete-process proc))
-    (error nil))))
-      (kill-buffer buffer-name))
-    (with-current-buffer (get-buffer-create buffer-name)
-      ;; Display buffer before enabling vterm mode, so that vterm can
-      ;; read the column number accurately.
-      (if existing-buffer-window
-          (set-window-buffer existing-buffer-window (current-buffer))
-        (display-buffer (current-buffer)))
-      (current-buffer))))
+         (buffer-base-name (format "%s[%s]" command-name scope-name))
+         (buffer (get-buffer-create (concat "*" buffer-base-name "*"))))
+    (unless (get-buffer-process buffer)
+      (with-current-buffer buffer
+        (let ((default-directory working-directory))
+          (funcall command-runner command-line buffer-base-name (current-buffer))
+          (setq-local run-command--command-spec command-spec))))
+    (let ((display-buffer-alist '((".*" display-buffer-use-least-recent-window))))
+      (display-buffer buffer))))
 
 ;; Experiments
 
