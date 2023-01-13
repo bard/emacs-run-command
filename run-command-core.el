@@ -89,11 +89,7 @@
           (t (error "[run-command] Invalid command recipe: %s" command-recipe)))))
     (mapcar #'run-command--normalize-command-spec
             (seq-filter (lambda (spec)
-                          (and spec
-                               (or (map-elt spec :command-line)
-                                   (and (run-command--experiment--active-p
-                                         'run-command-experiment-lisp-commands)
-                                        (map-elt spec :lisp-function)))))
+                          (and spec (map-elt spec :command-line)))
                         command-specs))))
 
 (defun run-command--normalize-command-spec (command-spec)
@@ -101,15 +97,10 @@
   (unless (stringp (plist-get command-spec :command-name))
     (error "[run-command] Invalid `:command-name' in command spec: %S"
            command-spec))
-  (if (and (run-command--experiment--active-p 'run-command-experiment-lisp-commands)
-           (plist-get command-spec :lisp-function))
-      (unless (functionp (plist-get command-spec :lisp-function))
-        (error "[run-command] Invalid `:lisp-function' in command spec: %S"
-               command-spec))
-    (unless (or (stringp (plist-get command-spec :command-line))
-                (functionp (plist-get command-spec :command-line)))
-      (error "[run-command] Invalid `:command-line' in command spec: %S"
-             command-spec)))
+  (unless (or (stringp (plist-get command-spec :command-line))
+              (functionp (plist-get command-spec :command-line)))
+    (error "[run-command] Invalid `:command-line' in command spec: %S"
+           command-spec))
   (append command-spec
           (unless (plist-member command-spec :display)
             (list :display (plist-get command-spec :command-name)))
@@ -138,16 +129,11 @@
          (scope-name (plist-get command-spec :scope-name))
          (working-directory (or (plist-get command-spec :working-dir)
                                 default-directory))
-         (buffer-base-name (format "%s[%s]" command-name scope-name))
-         (lisp-function (and (run-command--experiment--active-p
-                              'run-command-experiment-lisp-commands)
-                             (plist-get command-spec :lisp-function))))
-    (if lisp-function
-        (funcall lisp-function)
-      (with-current-buffer (run-command--create-and-display-execution-buffer buffer-base-name)
-        (let ((default-directory working-directory))
-          (funcall command-runner command-line buffer-base-name (current-buffer))
-          (setq-local run-command--command-spec command-spec))))))
+         (buffer-base-name (format "%s[%s]" command-name scope-name)))
+    (with-current-buffer (run-command--create-and-display-execution-buffer buffer-base-name)
+      (let ((default-directory working-directory))
+        (funcall command-runner command-line buffer-base-name (current-buffer))
+        (setq-local run-command--command-spec command-spec)))))
 
 (defun run-command--create-and-display-execution-buffer (buffer-base-name)
   (let ((buffer-name (concat "*" buffer-base-name "*"))
@@ -192,7 +178,7 @@ for the rest of the session."
                        (vterm-run-method . retired)
                        (run-command-experiment-vterm-run-method . retired)
                        (run-command-experiment-function-command-lines . retired)
-                       (run-command-experiment-lisp-commands . active)
+                       (run-command-experiment-lisp-commands . retired)
                        (example-retired .  retired)
                        (example-deprecated . deprecated))))
     (mapc (lambda (experiment-name)
