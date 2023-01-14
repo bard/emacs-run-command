@@ -40,8 +40,7 @@
 
 Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'."
   (with-current-buffer output-buffer
-    (run-command-runner-term--run-in-current-buffer command-line buffer-base-name)
-    (term-char-mode)))
+    (run-command-runner-term--run-in-current-buffer command-line buffer-base-name)))
 
 (defun run-command-runner-term/noninteractive (command-line buffer-base-name output-buffer)
   "Command execution backend for when run method is `term'.
@@ -63,10 +62,21 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
     (run-command-runner-term-minor-mode)))
 
 (defun run-command-runner-term--run-in-current-buffer (command-line buffer-base-name)
-  (let ((term-set-terminal-size t))
+  (let ((term-set-terminal-size t)
+        (original-control-x-key (where-is-internal 'Control-X-prefix nil t)))
     (term-mode)
     (term-exec (current-buffer) buffer-base-name
                shell-file-name nil (list "-c" command-line))
+
+    ;; Since command being run is likely an ancillary process and not
+    ;; the main focus of the user's work, rebind the C-x prefix again
+    ;; so occasional operations in the command buffer can be done
+    ;; without a mindset switch from Emacs flow to terminal flow.
+    (let ((overriding-term-raw-map (make-sparse-keymap)))
+      (set-keymap-parent overriding-term-raw-map term-raw-map)
+      (define-key overriding-term-raw-map original-control-x-key 'Control-X-prefix)
+      (let ((term-raw-map overriding-term-raw-map))
+        (term-char-mode)))))
 
 (define-minor-mode run-command-runner-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
