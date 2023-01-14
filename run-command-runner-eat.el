@@ -36,7 +36,6 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   (require 'eat)
   (with-current-buffer output-buffer
     (eat-mode)
-    (setq-local run-command--buffer-p t)
     (eat-exec output-buffer buffer-base-name
               "/usr/bin/env" nil (list "sh" "-c" command-line))))
 
@@ -46,7 +45,7 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   "When running command asks for screen clear, force erasure of entire
 buffer rather than from home position to bottom, so no output from
 previous runs is left in scrollback."
-  (if (and (boundp 'run-command--buffer-p)
+  (if (and (boundp 'run-command--command-spec)
            (eq n 2))
       (funcall original-eat--t-erase-in-disp 3)
     (funcall original-eat--t-erase-in-disp n)))

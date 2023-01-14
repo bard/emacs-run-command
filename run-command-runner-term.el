@@ -67,7 +67,6 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
     (term-mode)
     (term-exec (current-buffer) buffer-base-name
                shell-file-name nil (list "-c" command-line))
-    (setq-local run-command--buffer-p t)))
 
 (define-minor-mode run-command-runner-term-minor-mode
   "Minor mode to re-run `run-command' commands started in term buffers."
@@ -79,7 +78,7 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
   "When running command asks for screen clear, force erasure of entire
 buffer rather than from home position to bottom, so no output from
 previous runs is left in scrollback."
-  (if (and (boundp 'run-command--buffer-p)
+  (if (and (boundp 'run-command--command-spec)
            (eq kind 2))
       (delete-region (point-min) (point-max))
     (funcall original-term-erase-in-display kind)))
