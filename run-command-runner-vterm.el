@@ -45,7 +45,7 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
       ;; (vterm-copy-mode)
       )))
 
-;;; Meta
+;;;; Meta
 
 (provide 'run-command-runner-vterm)
 

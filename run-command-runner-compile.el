@@ -37,7 +37,7 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
                        nil
                        (lambda (_name-of-mode) (concat "*" buffer-base-name "*")))))
 
-;;; Meta
+;;;; Meta
 
 (provide 'run-command-runner-compile)
 

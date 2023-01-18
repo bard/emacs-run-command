@@ -52,6 +52,8 @@
                       command-specs)))
           command-recipes))
 
+;;; Meta
+
 (provide 'run-command-selector-completing-read)
 
 ;;; run-command-selector-completing-read.el ends here

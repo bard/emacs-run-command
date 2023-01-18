@@ -23,61 +23,13 @@
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
 
-;;; Commentary:
-;;
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
-
 ;;; Code:
+
+;;;; Dependencies
 
 (require 'map)
 
-;; Customization
-
-(defgroup run-command nil
-  "Run an external command from a context-dependent list."
-  :group 'convenience
-  :prefix "run-command-"
-  :link '(url-link "https://github.com/bard/emacs-run-command"))
-
-;; XXX TODO replace with function
-(defcustom run-command-completion-method
-  'auto
-  "Completion framework to use to select a command.
-
-- `autodetect' (default): pick helm, ivy, or none, based on active
-  global completion mode
-- `helm': force use helm
-- `ivy': force use ivy
-- `completing-read': force use `completing-read'"
-  :type '(choice (const :tag "autodetect" auto)
-                 (const :tag "helm" helm)
-                 (const :tag "ivy" ivy)
-                 (const :tag "completing-read" completing-read)))
-
-(defcustom run-command-recipes nil
-  "List of functions that will produce command lists.
-
-  Each function is called without arguments and must return a list of property
-  lists, where each property list represents a command and has the following
-  format:
-
-  - `:command-name' (string, required): A name for the command, used
-  to generate the output buffer name, as well as a fallback in case
-  `:display' isn't provided
-  - `:command-line' (string or function, required): The command
-  line that will be executed.  Can be a function to e.g. further
-  query the user, and should return a string.
-  - `:display' (string, optional): A descriptive name that will
-  be displayed to the user.
-  - `:working-dir' (string, optional): Directory to run the command
-  in.  If not given, defaults to `default-directory'."
-
-  :type '(repeat function)
-  :group 'run-command)
-
-;; Utilities
+;;;; Utilities
 
 (defvar-local run-command--command-spec nil
   "Holds command spec for command run via `run-command'.")
@@ -141,7 +93,7 @@
     (let ((display-buffer-alist '((".*" display-buffer-use-least-recent-window))))
       (display-buffer buffer))))
 
-;; Experiments
+;;;; Experiments
 
 (defvar run-command-experiments nil)
 
@@ -187,7 +139,7 @@ this session?" name))))))
 please remove from `run-command-experiments'" experiment-name))))
           run-command-experiments)))
 
-;;; Meta
+;;;; Meta
 
 (provide 'run-command-core)
 

@@ -50,7 +50,7 @@ previous runs is left in scrollback."
       (funcall original-eat--t-erase-in-disp 3)
     (funcall original-eat--t-erase-in-disp n)))
 
-;;; Meta
+;;;; Meta
 
 (provide 'run-command-runner-eat)
 
