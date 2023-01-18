@@ -35,9 +35,10 @@
 Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   (require 'eat)
   (with-current-buffer output-buffer
-    (eat-mode)
-    (eat-exec output-buffer buffer-base-name
-              "/usr/bin/env" nil (list "sh" "-c" command-line))))
+    (let ((eat-semi-char-non-bound-keys '([C-next] [C-prior])))
+      (eat-mode)
+      (eat-exec output-buffer buffer-base-name
+                "/usr/bin/env" nil (list "sh" "-c" command-line)))))
 
 (define-advice eat--t-erase-in-disp (:around
                                      (original-eat--t-erase-in-disp n)
