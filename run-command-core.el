@@ -28,23 +28,44 @@
 ;;;; Dependencies
 
 (require 'map)
+(require 'subr-x)
 
-;;;; Utilities
+;;;; Public API
+
+(defun run-command--generate-command-specs (command-recipe)
+  "Execute `COMMAND-RECIPE' to generate command specs."
+  (let ((command-specs (if (fboundp command-recipe)
+                           (funcall command-recipe)
+                         (error "[run-command] Invalid command recipe: %s"
+                                command-recipe))))
+    (thread-last
+      command-specs
+      (seq-filter (lambda (spec) (and spec (map-elt spec :command-line))))
+      (seq-map #'run-command--normalize-command-spec))))
+
+(defun run-command--run (command-spec)
+  "Run `COMMAND-SPEC'."
+  (let* ((buffer-base-name (format "%s[%s]"
+                                   (map-elt command-spec :command-name)
+                                   (map-elt command-spec :scope-name)))
+         (buffer (get-buffer-create (concat "*" buffer-base-name "*"))))
+    (unless (get-buffer-process buffer)
+      (with-current-buffer buffer
+        (let ((default-directory (map-elt command-spec :working-dir)))
+          (funcall (map-elt command-spec :runner)
+                   (map-elt command-spec :command-line)
+                   buffer-base-name
+                   (current-buffer))
+          (setq-local run-command--command-spec command-spec))))
+    (let ((display-buffer-alist '((".*" display-buffer-use-least-recent-window))))
+      (display-buffer buffer))))
+
+;;;; Internals
 
 (defvar-local run-command--command-spec nil
   "Holds command spec for command run via `run-command'.")
 
-(defun run-command--generate-command-specs (command-recipe)
-  "Execute `COMMAND-RECIPE' to generate command specs."
-  (let ((command-specs
-         (cond
-          ((fboundp command-recipe)
-           (funcall command-recipe))
-          (t (error "[run-command] Invalid command recipe: %s" command-recipe)))))
-    (mapcar #'run-command--normalize-command-spec
-            (seq-filter (lambda (spec)
-                          (and spec (map-elt spec :command-line)))
-                        command-specs))))
+(defvar run-command-default-runner)
 
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
@@ -55,15 +76,20 @@
               (functionp (map-elt command-spec :command-line)))
     (error "[run-command] Invalid `:command-line' in command spec: %S"
            command-spec))
-  (append command-spec
-          (unless (map-contains-key command-spec :display)
-            (list :display (map-elt command-spec :command-name)))
-          (unless (map-contains-key command-spec :working-dir)
-            (list :working-dir default-directory))
-          (unless (map-contains-key command-spec :scope-name)
-            (list :scope-name (abbreviate-file-name
-                               (or (map-elt command-spec :working-dir)
-                                   default-directory))))))
+  (let ((cs (map-copy command-spec)))
+    (unless (map-contains-key cs :display)
+      (map-put! cs :display (map-elt cs :command-name)))
+    (unless (map-contains-key cs :working-dir)
+      (map-put! cs :working-dir default-directory))
+    (unless (map-contains-key cs :scope-name)
+      (map-put! cs :scope-name (abbreviate-file-name
+                                (or (map-elt cs :working-dir)
+                                    default-directory))))
+    (unless (map-contains-key cs :runner)
+      (map-put! cs :runner run-command-default-runner))
+    (when (functionp (map-elt cs :command-line))
+      (map-put! cs :command-line (funcall (map-elt cs :command-line))))
+    cs))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
   "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
@@ -71,27 +97,6 @@
     (if (string-match "^run-command-recipe-\\(.+\\)$" recipe-name)
         (match-string 1 recipe-name)
       recipe-name)))
-
-(defun run-command--run (command-spec default-command-runner)
-  "Run `COMMAND-SPEC'.  Back end for helm and ivy actions."
-  (let* ((command-name (map-elt command-spec :command-name))
-         (command-line (if (functionp (map-elt command-spec :command-line))
-                           (funcall (map-elt command-spec :command-line))
-                         (map-elt command-spec :command-line)))
-         (command-runner (or (map-elt command-spec :runner)
-                             default-command-runner))
-         (scope-name (map-elt command-spec :scope-name))
-         (working-directory (or (map-elt command-spec :working-dir)
-                                default-directory))
-         (buffer-base-name (format "%s[%s]" command-name scope-name))
-         (buffer (get-buffer-create (concat "*" buffer-base-name "*"))))
-    (unless (get-buffer-process buffer)
-      (with-current-buffer buffer
-        (let ((default-directory working-directory))
-          (funcall command-runner command-line buffer-base-name (current-buffer))
-          (setq-local run-command--command-spec command-spec))))
-    (let ((display-buffer-alist '((".*" display-buffer-use-least-recent-window))))
-      (display-buffer buffer))))
 
 ;;;; Experiments
 

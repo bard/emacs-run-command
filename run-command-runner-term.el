@@ -111,7 +111,7 @@ previous runs is left in scrollback."
 (defun run-command-runner-term--recompile ()
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
-  (run-command--run run-command--command-spec))
+  (run-command--run))
 
 ;;;; Meta
 
