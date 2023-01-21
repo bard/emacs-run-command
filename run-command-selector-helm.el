@@ -47,7 +47,7 @@
 (defun run-command--helm-source-from-recipe (command-recipe default-command-runner)
   "Create a Helm source from `COMMAND-RECIPE'."
   (require 'helm-adaptive)
-  (let* ((command-specs (run-command--generate-command-specs command-recipe))
+  (let* ((command-specs (run-command-get-command-specs command-recipe))
          (candidates (mapcar (lambda (command-spec)
                                (cons (map-elt command-spec :display)
                                      command-spec))
@@ -66,7 +66,7 @@
                                  (read-string "> " (concat command-line " "))
                                command-line)))
     (map-put! command-spec :command-line final-command-line)
-    (run-command--run command-spec)))
+    (run-command-run command-spec)))
 
 ;;;; Meta
 

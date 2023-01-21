@@ -34,13 +34,13 @@
          (choice (completing-read "Command: " targets)))
     (when choice
       (let ((command-spec (cdr (assoc choice targets))))
-        (run-command--run command-spec)))))
+        (run-command-run command-spec)))))
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create completion-read targets from all recipes."
   (mapcan (lambda (command-recipe)
             (let ((command-specs
-                   (run-command--generate-command-specs command-recipe))
+                   (run-command-get-command-specs command-recipe))
                   (recipe-name
                    (run-command--shorter-recipe-name-maybe command-recipe)))
               (mapcar (lambda (command-spec)

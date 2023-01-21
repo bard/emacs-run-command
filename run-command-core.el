@@ -32,7 +32,7 @@
 
 ;;;; Public API
 
-(defun run-command--generate-command-specs (command-recipe)
+(defun run-command-get-command-specs (command-recipe)
   "Execute `COMMAND-RECIPE' to generate command specs."
   (let ((command-specs (if (fboundp command-recipe)
                            (funcall command-recipe)
@@ -43,7 +43,7 @@
       (seq-filter (lambda (spec) (and spec (map-elt spec :command-line))))
       (seq-map #'run-command--normalize-command-spec))))
 
-(defun run-command--run (command-spec)
+(defun run-command-run (command-spec)
   "Run `COMMAND-SPEC'."
   (let* ((buffer-base-name (format "%s[%s]"
                                    (map-elt command-spec :command-name)

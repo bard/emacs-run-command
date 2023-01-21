@@ -48,7 +48,7 @@
   "Create Ivy targets from all recipes."
   (mapcan (lambda (command-recipe)
             (let ((command-specs
-                   (run-command--generate-command-specs command-recipe))
+                   (run-command-get-command-specs command-recipe))
                   (recipe-name
                    (run-command--shorter-recipe-name-maybe command-recipe)))
               (mapcar (lambda (command-spec)
@@ -68,7 +68,7 @@
                                  (read-string "> " (concat command-line " "))
                                command-line)))
     (map-put! command-spec :command-line final-command-line)
-    (run-command--run command-spec)))
+    (run-command-run command-spec)))
 
 (defun run-command--ivy-edit-action (selection)
   "Edit `SELECTION' then execute from Ivy."
