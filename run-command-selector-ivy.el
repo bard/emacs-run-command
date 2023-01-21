@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'map)
+(require 'seq)
 (require 'run-command-core)
 
 (declare-function ivy-read "ext:ivy")
@@ -46,19 +47,19 @@
 
 (defun run-command--ivy-targets (command-recipes)
   "Create Ivy targets from all recipes."
-  (mapcan (lambda (command-recipe)
-            (let ((command-specs
-                   (run-command-get-command-specs command-recipe))
-                  (recipe-name
-                   (run-command--shorter-recipe-name-maybe command-recipe)))
-              (mapcar (lambda (command-spec)
-                        (cons (concat
-                               (propertize (concat recipe-name "/")
-                                           'face 'shadow)
-                               (map-elt command-spec :display))
-                              command-spec))
-                      command-specs)))
-          command-recipes))
+  (seq-mapcat (lambda (command-recipe)
+                (let ((command-specs
+                       (run-command-get-command-specs command-recipe))
+                      (recipe-name
+                       (run-command--shorter-recipe-name-maybe command-recipe)))
+                  (seq-map (lambda (command-spec)
+                             (cons (concat
+                                    (propertize (concat recipe-name "/")
+                                                'face 'shadow)
+                                    (map-elt command-spec :display))
+                                   command-spec))
+                           command-specs)))
+              command-recipes))
 
 (defun run-command--ivy-action (selection default-command-runner)
   "Execute `SELECTION' from Ivy."

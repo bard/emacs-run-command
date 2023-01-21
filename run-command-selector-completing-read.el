@@ -38,19 +38,19 @@
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create completion-read targets from all recipes."
-  (mapcan (lambda (command-recipe)
-            (let ((command-specs
-                   (run-command-get-command-specs command-recipe))
-                  (recipe-name
-                   (run-command--shorter-recipe-name-maybe command-recipe)))
-              (mapcar (lambda (command-spec)
-                        (cons (concat
-                               (propertize (concat recipe-name "/")
-                                           'face 'shadow)
-                               (map-elt command-spec :display))
-                              command-spec))
-                      command-specs)))
-          command-recipes))
+  (seq-mapcat (lambda (command-recipe)
+                (let ((command-specs
+                       (run-command-get-command-specs command-recipe))
+                      (recipe-name
+                       (run-command--shorter-recipe-name-maybe command-recipe)))
+                  (seq-map (lambda (command-spec)
+                             (cons (concat
+                                    (propertize (concat recipe-name "/")
+                                                'face 'shadow)
+                                    (map-elt command-spec :display))
+                                   command-spec))
+                           command-specs)))
+              command-recipes))
 
 ;;; Meta
 

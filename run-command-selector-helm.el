@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'map)
+(require 'seq)
 (require 'run-command-core)
 
 (declare-function helm "ext:helm")
@@ -40,18 +41,18 @@
 
 (defun run-command--helm-sources (command-recipes default-command-runner)
   "Create Helm sources from `RECIPES'."
-  (mapcar (lambda (command-recipe)
-            (run-command--helm-source-from-recipe command-recipe default-command-runner))
-          command-recipes))
+  (seq-map (lambda (command-recipe)
+             (run-command--helm-source-from-recipe command-recipe default-command-runner))
+           command-recipes))
 
 (defun run-command--helm-source-from-recipe (command-recipe default-command-runner)
   "Create a Helm source from `COMMAND-RECIPE'."
   (require 'helm-adaptive)
   (let* ((command-specs (run-command-get-command-specs command-recipe))
-         (candidates (mapcar (lambda (command-spec)
-                               (cons (map-elt command-spec :display)
-                                     command-spec))
-                             command-specs)))
+         (candidates (seq-map (lambda (command-spec)
+                                (cons (map-elt command-spec :display)
+                                      command-spec))
+                              command-specs)))
     (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
         'helm-source-sync
       :action (lambda (command-spec)

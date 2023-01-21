@@ -28,6 +28,7 @@
 ;;;; Dependencies
 
 (require 'map)
+(require 'seq)
 (require 'subr-x)
 
 ;;;; Public API
@@ -121,28 +122,28 @@ for the rest of the session."
                        (run-command-experiment-lisp-commands . retired)
                        (example-retired .  retired)
                        (example-deprecated . deprecated))))
-    (mapc (lambda (experiment-name)
-            (let ((experiment (seq-find (lambda (e)
-                                          (eq (car e) experiment-name))
-                                        experiments)))
-              (if experiment
-                  (let ((name (car experiment))
-                        (status (cdr experiment)))
-                    (pcase status
-                      ('retired
-                       (error "[run-command] Experiment `%S' was \
+    (seq-do (lambda (experiment-name)
+              (let ((experiment (seq-find (lambda (e)
+                                            (eq (car e) experiment-name))
+                                          experiments)))
+                (if experiment
+                    (let ((name (car experiment))
+                          (status (cdr experiment)))
+                      (pcase status
+                        ('retired
+                         (error "[run-command] Experiment `%S' was \
 retired, please remove from `run-command-experiments'" name))
-                      ('deprecated
-                       (when run-command--deprecated-experiment-warning
-                         (setq run-command--deprecated-experiment-warning
-                               (not (yes-or-no-p
-                                     (format "Warning: run-command: experiment \
+                        ('deprecated
+                         (when run-command--deprecated-experiment-warning
+                           (setq run-command--deprecated-experiment-warning
+                                 (not (yes-or-no-p
+                                       (format "Warning: run-command: experiment \
  `%S' is deprecated, please update your configuration.  Disable reminder for \
 this session?" name))))))
-                      ('active nil)))
-                (error "[run-command] Experiment `%S' does not exist, \
+                        ('active nil)))
+                  (error "[run-command] Experiment `%S' does not exist, \
 please remove from `run-command-experiments'" experiment-name))))
-          run-command-experiments)))
+            run-command-experiments)))
 
 ;;;; Meta
 
