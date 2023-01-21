@@ -27,8 +27,9 @@
 
 (require 'map)
 (require 'run-command-core)
+(require 'run-command-util)
 
-(defun run-command-selector-completing-read (command-recipes default-command-runner)
+(defun run-command-selector-completing-read (command-recipes)
   "Complete command with `completing-read' and run it."
   (let* ((targets (run-command--completing-read-targets command-recipes))
          (choice (completing-read "Command: " targets)))
@@ -38,23 +39,16 @@
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create completion-read targets from all recipes."
-  (seq-mapcat (lambda (command-recipe)
-                (let ((command-specs
-                       (run-command-get-command-specs command-recipe))
-                      (recipe-name
-                       (run-command--shorter-recipe-name-maybe command-recipe)))
-                  (seq-map (lambda (command-spec)
-                             (cons (concat
-                                    (propertize (concat recipe-name "/")
-                                                'face 'shadow)
-                                    (map-elt command-spec :display))
-                                   command-spec))
-                           command-specs)))
-              command-recipes))
+  (seq-map (lambda (command-spec)
+             (cons (concat (run-command--shorter-recipe-name-maybe
+                            (map-elt command-spec :recipe))
+                           "/"
+                           (map-elt command-spec :display))
+                   command-spec))
+           (run-command-get-command-specs command-recipes)))
 
 ;;; Meta
 
 (provide 'run-command-selector-completing-read)
 
 ;;; run-command-selector-completing-read.el ends here
-

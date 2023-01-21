@@ -28,6 +28,7 @@
 (require 'map)
 (require 'seq)
 (require 'run-command-core)
+(require 'run-command-util)
 
 (declare-function ivy-read "ext:ivy")
 (defvar ivy-current-prefix-arg)
@@ -35,7 +36,7 @@
 (defvar run-command--ivy-history nil
   "History for `run-command-selector-ivy'.")
 
-(defun run-command-selector-ivy (command-recipes default-command-runner)
+(defun run-command-selector-ivy (command-recipes)
   "Complete command with ivy and run it."
   (unless (window-minibuffer-p)
     (ivy-read "Command: "
@@ -43,25 +44,21 @@
               :caller 'run-command-selector-ivy
               :history 'run-command--ivy-history
               :action (lambda (command-spec)
-                        (run-command--ivy-action command-spec default-command-runner)))))
+                        (run-command--ivy-action command-spec)))))
 
 (defun run-command--ivy-targets (command-recipes)
   "Create Ivy targets from all recipes."
-  (seq-mapcat (lambda (command-recipe)
-                (let ((command-specs
-                       (run-command-get-command-specs command-recipe))
-                      (recipe-name
-                       (run-command--shorter-recipe-name-maybe command-recipe)))
-                  (seq-map (lambda (command-spec)
-                             (cons (concat
-                                    (propertize (concat recipe-name "/")
-                                                'face 'shadow)
-                                    (map-elt command-spec :display))
-                                   command-spec))
-                           command-specs)))
-              command-recipes))
+  (seq-map (lambda (command-spec)
+             (cons (concat
+                    (propertize (concat (run-command--shorter-recipe-name-maybe
+                                         (map-elt command-spec :recipe))
+                                        "/")
+                                'face 'shadow)
+                    (map-elt command-spec :display))
+                   command-spec))
+           (run-command-get-command-specs command-recipes)))
 
-(defun run-command--ivy-action (selection default-command-runner)
+(defun run-command--ivy-action (selection)
   "Execute `SELECTION' from Ivy."
   (let* ((command-spec (cdr selection))
          (command-line (map-elt command-spec :command-line))
@@ -81,4 +78,3 @@
 (provide 'run-command-selector-ivy)
 
 ;;; run-command-selector-ivy.el ends here
-

@@ -28,39 +28,39 @@
 (require 'map)
 (require 'seq)
 (require 'run-command-core)
+(require 'run-command-util)
 
 (declare-function helm "ext:helm")
 (declare-function helm-make-source "ext:helm")
 (defvar helm-current-prefix-arg)
 
-(defun run-command-selector-helm (command-recipes default-command-runner)
+(defun run-command-selector-helm (command-recipes)
   "Complete command with helm and run it."
   (helm :buffer "*run-command*"
         :prompt "Command: "
-        :sources (run-command--helm-sources command-recipes default-command-runner)))
+        :sources (run-command--helm-sources command-recipes)))
 
-(defun run-command--helm-sources (command-recipes default-command-runner)
+(defun run-command--helm-sources (command-recipes)
   "Create Helm sources from `RECIPES'."
-  (seq-map (lambda (command-recipe)
-             (run-command--helm-source-from-recipe command-recipe default-command-runner))
-           command-recipes))
-
-(defun run-command--helm-source-from-recipe (command-recipe default-command-runner)
-  "Create a Helm source from `COMMAND-RECIPE'."
   (require 'helm-adaptive)
-  (let* ((command-specs (run-command-get-command-specs command-recipe))
-         (candidates (seq-map (lambda (command-spec)
-                                (cons (map-elt command-spec :display)
-                                      command-spec))
-                              command-specs)))
-    (helm-make-source (run-command--shorter-recipe-name-maybe command-recipe)
-        'helm-source-sync
-      :action (lambda (command-spec)
-                (run-command--helm-action command-spec default-command-runner))
-      :candidates candidates
-      :filtered-candidate-transformer 'helm-adaptive-sort)))
+  (thread-last
+    command-recipes
+    (run-command-get-command-specs)
+    (seq-group-by (lambda (spec)
+                    (map-elt spec :recipe)))
+    (seq-map (lambda (recipe-specs-pair)
+               (pcase-let ((`(,recipe . ,specs) recipe-specs-pair))
+                 (helm-make-source (run-command--shorter-recipe-name-maybe recipe)
+                     'helm-source-sync
+                   :action (lambda (spec)
+                             (run-command--helm-action spec))
+                   :candidates (seq-map (lambda (spec)
+                                          (cons (map-elt spec :display)
+                                                spec))
+                                        specs)
+                   :filtered-candidate-transformer 'helm-adaptive-sort))))))
 
-(defun run-command--helm-action (command-spec default-command-runner)
+(defun run-command--helm-action (command-spec)
   "Execute `COMMAND-SPEC' from Helm."
   (let* ((command-line (map-elt command-spec :command-line))
          (final-command-line (if helm-current-prefix-arg
@@ -74,4 +74,3 @@
 (provide 'run-command-selector-helm)
 
 ;;; run-command-selector-helm.el ends here
-

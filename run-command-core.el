@@ -33,28 +33,37 @@
 
 ;;;; Public API
 
-(defun run-command-get-command-specs (command-recipe)
+(defun run-command-get-command-specs (command-recipes)
   "Execute `COMMAND-RECIPE' to generate command specs."
-  (let ((command-specs (if (fboundp command-recipe)
-                           (funcall command-recipe)
-                         (error "[run-command] Invalid command recipe: %s"
-                                command-recipe))))
-    (thread-last
-      command-specs
-      (seq-filter (lambda (spec) (and spec (map-elt spec :command-line))))
-      (seq-map #'run-command--normalize-command-spec))))
+  (seq-mapcat (lambda (command-recipe)
+                (when (not (fboundp command-recipe))
+                  (error "[run-command] Invalid command recipe: %s"
+                         command-recipe))
+                (thread-last
+                  command-recipe
+                  (funcall)
+                  (seq-filter (lambda (spec)
+                                (and spec
+                                     (map-elt spec :command-line))))
+                  (seq-map (lambda (spec)
+                             (map-insert spec :recipe command-recipe)))
+                  (seq-map #'run-command--normalize-command-spec)))
+              command-recipes))
 
 (defun run-command-run (command-spec)
   "Run `COMMAND-SPEC'."
   (let* ((buffer-base-name (format "%s[%s]"
                                    (map-elt command-spec :command-name)
                                    (map-elt command-spec :scope-name)))
-         (buffer (get-buffer-create (concat "*" buffer-base-name "*"))))
+         (buffer (get-buffer-create (concat "*" buffer-base-name "*")))
+         (command-line (map-elt command-spec :command-line)))
     (unless (get-buffer-process buffer)
       (with-current-buffer buffer
         (let ((default-directory (map-elt command-spec :working-dir)))
           (funcall (map-elt command-spec :runner)
-                   (map-elt command-spec :command-line)
+                   (if (functionp command-line)
+                       (funcall command-line)
+                     command-line)
                    buffer-base-name
                    (current-buffer))
           (setq-local run-command--command-spec command-spec))))
@@ -67,6 +76,7 @@
   "Holds command spec for command run via `run-command'.")
 
 (defvar run-command-default-runner)
+(defvar run-command-run-method)
 
 (defun run-command--normalize-command-spec (command-spec)
   "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
@@ -87,9 +97,12 @@
                                 (or (map-elt cs :working-dir)
                                     default-directory))))
     (unless (map-contains-key cs :runner)
-      (map-put! cs :runner run-command-default-runner))
-    (when (functionp (map-elt cs :command-line))
-      (map-put! cs :command-line (funcall (map-elt cs :command-line))))
+      (map-put! cs :runner (or run-command-default-runner
+                               (pcase run-command-run-method
+                                 ('compile 'run-command-runner-compile)
+                                 ('term 'run-command-runner-term)
+                                 ('vterm 'run-command-runner-vterm))
+                               'run-command-runner-term)))
     cs))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
