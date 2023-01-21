@@ -89,16 +89,31 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
 buffer rather than from home position to bottom, so no output from
 previous runs is left in scrollback."
   (if (and (boundp 'run-command--command-spec)
-           (eq kind 2))
-      (delete-region (point-min) (point-max))
+           (or (eq kind 2)
+               (eq kind 3)))
+      (run-command-runner-term--patched-term-erase-in-display)
     (funcall original-term-erase-in-display kind)))
+
+(defun run-command-runner-term--patched-term-erase-in-display ()
+  "A local version of `term-erase-in-display' that clears entire buffer."
+  (let ((row (term-current-row))
+	(col (term-horizontal-column))
+	(start-region (point-min))
+	(end-region (if (eq kind 1) (point) (point-max))))
+    (delete-region start-region end-region)
+    (term-unwrap-line)
+    (when (eq kind 1)
+      (term-insert-char ?\n row))
+    (setq term-current-column nil)
+    (setq term-current-row nil)
+    (term-goto row col)))
 
 (defun run-command-runner-term--recompile ()
   "Provide `recompile' in term buffers with command run via `run-command'."
   (interactive)
   (run-command--run run-command--command-spec))
 
-;;; Meta
+;;;; Meta
 
 (provide 'run-command-runner-term)
 
