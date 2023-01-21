@@ -2,4 +2,7 @@
 _*
 /test/snapshots
 /.dir-locals.el
+.next
+node_modules
+docs/out
 
