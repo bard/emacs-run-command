@@ -59,6 +59,7 @@
          (command-line (map-elt command-spec :command-line)))
     (unless (get-buffer-process buffer)
       (with-current-buffer buffer
+        (buffer-disable-undo)
         (let ((default-directory (map-elt command-spec :working-dir)))
           (funcall (map-elt command-spec :runner)
                    (if (functionp command-line)
