@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "next"
   },
@@ -10,11 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@silvenon/remark-smartypants": "^1.0.0",
     "next": "^13.1.4",
     "nextra": "^2.2.10",
     "nextra-theme-docs": "^2.2.10",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "remark-smartypants": "^2.0.0"
   }
 }

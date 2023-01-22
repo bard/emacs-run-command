@@ -1,5 +1,7 @@
-const remarkSmartypants = require("@silvenon/remark-smartypants");
-const withNextra = require("nextra")({
+import remarkSmartypants from "remark-smartypants";
+import nextra from "nextra";
+
+const withNextra = nextra({
   theme: "nextra-theme-docs",
   themeConfig: "./theme.config.jsx",
   mdxOptions: {
@@ -17,7 +19,7 @@ if (process.env.GITHUB_ACTIONS) {
   basePath = "";
 }
 
-module.exports = withNextra({
+export default withNextra({
   assetPrefix,
   basePath,
   images: {
