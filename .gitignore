@@ -1,8 +1,8 @@
 *.elc
-_*
-/test/snapshots
+/_*
 /.dir-locals.el
-.next
-node_modules
-docs/out
+/test/snapshots
+/docs/node_modules
+/docs/out
+/docs/.next
 

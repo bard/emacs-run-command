@@ -18,7 +18,7 @@ By default, commands run in `term-mode`. You can modify this by executing `M-x c
 
 A runner can also be specified per-command when writing a recipe. See [Writing Recipes](./writing-recipes#specifying-the-runner-per-command).
 
-New runners can be added easily. See [Extending](./extending).
+New runners can be added easily, see [Extending](./extending).
 
 ## Selector
 
@@ -30,4 +30,4 @@ By default, the selector is automatically detected. You can modify this by execu
 
 When completing via Helm or Ivy, you can edit a command before running it by typing `C-u RET` instead of `RET`.
 
-New selectors can be added easily. See [Extending](./extending).
+New selectors can be added easily, see [Extending](./extending).

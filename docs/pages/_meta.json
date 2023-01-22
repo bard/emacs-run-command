@@ -1,0 +1,27 @@
+{
+  "index": { "title": "Introduction", "theme": { "breadcrumb": false } },
+  "features": { "title": "Features", "theme": { "breadcrumb": false } },
+  "demo": { "title": "Demo", "theme": { "breadcrumb": false } },
+  "quickstart": { "title": "Quickstart", "theme": { "breadcrumb": false } },
+  "configuration": {
+    "title": "Configuration",
+    "theme": { "breadcrumb": false }
+  },
+  "cookbook": { "title": "Cookbook", "theme": { "breadcrumb": false } },
+  "writing-recipes": {
+    "title": "Writing Recipes",
+    "theme": { "breadcrumb": false }
+  },
+  "api-reference": {
+    "title": "API",
+    "theme": { "breadcrumb": false }
+  },
+  "extending": {
+    "title": "Extending",
+    "theme": { "breadcrumb": false }
+  },
+  "experiments": {
+    "title": "Experiments",
+    "theme": { "breadcrumb": false }
+  }
+}

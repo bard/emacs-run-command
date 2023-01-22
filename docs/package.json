@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@silvenon/remark-smartypants": "^1.0.0",
     "next": "^13.1.4",
     "nextra": "^2.2.10",
     "nextra-theme-docs": "^2.2.10",

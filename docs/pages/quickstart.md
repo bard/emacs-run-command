@@ -31,7 +31,7 @@ Add a key binding:
 
 ## Your first recipe
 
-Add a command recipe to your init file; alternatively, copy or load recipes from the [cookbook](./cookbook):
+Add a command recipe to your init file. Alternatively, copy or load recipes from the [cookbook](./cookbook):
 
 For example:
 
@@ -75,6 +75,6 @@ To run a command from the recipe, execute `M-x run-command RET` (or the key bind
 
 ## What next?
 
-- learn how to [configure](./configuration) `run-command`
-- browse the [included recipes](./cookbook)
-- [write your own recipes](./writing-recipes)
+- Learn how to [configure](./configuration) `run-command`.
+- Browse the [included recipes](./cookbook).
+- [Write your own recipes](./writing-recipes).
