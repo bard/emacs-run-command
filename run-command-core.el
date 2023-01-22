@@ -98,12 +98,19 @@
                                 (or (map-elt cs :working-dir)
                                     default-directory))))
     (unless (map-contains-key cs :runner)
-      (map-put! cs :runner (or run-command-default-runner
-                               (pcase run-command-run-method
-                                 ('compile 'run-command-runner-compile)
-                                 ('term 'run-command-runner-term)
-                                 ('vterm 'run-command-runner-vterm))
-                               'run-command-runner-term)))
+      (map-put! cs
+                :runner
+                (cond (run-command-default-runner
+                       run-command-default-runner)
+                      (run-command-run-method
+                       (pcase run-command-run-method
+                         ('compile 'run-command-runner-compile)
+                         ('term 'run-command-runner-term)
+                         ('vterm 'run-command-runner-vterm)))
+                      ((eq system-type 'windows-nt)
+                       'run-command-runner-compile)
+                      (t
+                       'run-command-runner-term))))
     cs))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
