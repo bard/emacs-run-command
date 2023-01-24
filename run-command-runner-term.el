@@ -62,25 +62,21 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
     (run-command-runner-term-minor-mode)))
 
 (defun run-command-runner-term--run-in-current-buffer (command-line buffer-base-name)
-  (let ((term-set-terminal-size t)
-        (original-control-x-key (where-is-internal 'Control-X-prefix nil t)))
+  (let ((term-set-terminal-size t))
     (term-mode)
     (term-exec (current-buffer) buffer-base-name
                shell-file-name nil (list "-c" command-line))
-
-    ;; Since command being run is likely an ancillary process and not
-    ;; the main focus of the user's work, rebind the C-x prefix again
-    ;; so occasional operations in the command buffer can be done
-    ;; without a mindset switch from Emacs flow to terminal flow.
-    (let ((overriding-term-raw-map (make-sparse-keymap)))
-      (set-keymap-parent overriding-term-raw-map term-raw-map)
-      (define-key overriding-term-raw-map original-control-x-key 'Control-X-prefix)
-      (let ((term-raw-map overriding-term-raw-map))
-        (term-char-mode)))))
+    (term-char-mode)
+    (run-command-runner-term-minor-mode)))
 
 (define-minor-mode run-command-runner-term-minor-mode
-  "Minor mode to re-run `run-command' commands started in term buffers."
-  :keymap '(("g" .  run-command-runner-term--recompile)))
+  "Minor mode to re-enable `C-x' prefix in run-command term buffers.
+
+Since command being run is likely an ancillary process and not
+the main focus of the user's work, rebind the `C-x' prefix back to
+its usual location, so that occasional operations in the command buffer
+don't require mentally switching to a different keybinding scheme."
+  :keymap '(([?\C-x] . Control-X-prefix)))
 
 (define-advice term-erase-in-display (:around
                                       (original-term-erase-in-display kind)
@@ -97,21 +93,14 @@ previous runs is left in scrollback."
 (defun run-command-runner-term--patched-term-erase-in-display ()
   "A local version of `term-erase-in-display' that clears entire buffer."
   (let ((row (term-current-row))
-	(col (term-horizontal-column))
-	(start-region (point-min))
-	(end-region (if (eq kind 1) (point) (point-max))))
+        (col (term-horizontal-column))
+        (start-region (point-min))
+        (end-region (point-max)))
     (delete-region start-region end-region)
     (term-unwrap-line)
-    (when (eq kind 1)
-      (term-insert-char ?\n row))
     (setq term-current-column nil)
     (setq term-current-row nil)
     (term-goto row col)))
-
-(defun run-command-runner-term--recompile ()
-  "Provide `recompile' in term buffers with command run via `run-command'."
-  (interactive)
-  (run-command-run run-command--command-spec))
 
 ;;;; Meta
 
