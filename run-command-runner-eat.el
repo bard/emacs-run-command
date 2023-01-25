@@ -42,12 +42,17 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   (with-current-buffer output-buffer
     (let ((eat-semi-char-non-bound-keys '([C-next] [C-prior])))
       (eat-mode)
-      (eat-exec output-buffer buffer-base-name
-                "/usr/bin/env" nil (list "sh" "-c" command-line)))))
+      (eat-exec
+       output-buffer
+       buffer-base-name
+       "/usr/bin/env"
+       nil
+       (list "sh" "-c" command-line)))))
 
-(define-advice eat--t-erase-in-disp (:around
-                                     (original-eat--t-erase-in-disp n)
-                                     run-command-runner-eat-erase-advice)
+(define-advice eat--t-erase-in-disp
+    (:around
+     (original-eat--t-erase-in-disp n)
+     run-command-runner-eat-erase-advice)
   "Advice to force clearing scrollback.
 
 Commands in watch mode often ask the terminal to erase from home
@@ -56,8 +61,7 @@ scrollback untouched.  This makes it hard to scroll up and find
 the beginning of last run's output.  Hence we force clearing
 scrollback, so user only has to scroll to beginning of buffer to
 find the beginning of last run's output."
-  (if (and (boundp 'run-command--command-spec)
-           (eq n 2))
+  (if (and (boundp 'run-command--command-spec) (eq n 2))
       (funcall original-eat--t-erase-in-disp 3)
     (funcall original-eat--t-erase-in-disp n)))
 

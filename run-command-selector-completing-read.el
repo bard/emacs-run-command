@@ -44,13 +44,15 @@
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create `completing-read' targets from `COMMAND-RECIPES'."
-  (seq-map (lambda (command-spec)
-             (cons (concat (run-command--shorter-recipe-name-maybe
-                            (map-elt command-spec :recipe))
-                           "/"
-                           (map-elt command-spec :display))
-                   command-spec))
-           (run-command-core-get-command-specs command-recipes)))
+  (seq-map
+   (lambda (command-spec)
+     (cons
+      (concat
+       (run-command--shorter-recipe-name-maybe
+        (map-elt command-spec :recipe))
+       "/" (map-elt command-spec :display))
+      command-spec))
+   (run-command-core-get-command-specs command-recipes)))
 
 ;;; Meta
 

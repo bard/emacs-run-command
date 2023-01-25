@@ -44,32 +44,36 @@
 (defun run-command-selector-ivy (command-recipes)
   "Select and run a command from `COMMAND-RECIPES' using Ivy."
   (unless (window-minibuffer-p)
-    (ivy-read "Command: "
-              (run-command--ivy-targets command-recipes)
-              :caller 'run-command-selector-ivy
-              :history 'run-command--ivy-history
-              :action (lambda (command-spec)
-                        (run-command--ivy-action command-spec)))))
+    (ivy-read
+     "Command: "
+     (run-command--ivy-targets command-recipes)
+     :caller 'run-command-selector-ivy
+     :history 'run-command--ivy-history
+     :action (lambda (command-spec) (run-command--ivy-action command-spec)))))
 
 (defun run-command--ivy-targets (command-recipes)
   "Create Helm sources from `COMMAND-RECIPES'."
-  (seq-map (lambda (command-spec)
-             (cons (concat
-                    (propertize (concat (run-command--shorter-recipe-name-maybe
-                                         (map-elt command-spec :recipe))
-                                        "/")
-                                'face 'shadow)
-                    (map-elt command-spec :display))
-                   command-spec))
-           (run-command-core-get-command-specs command-recipes)))
+  (seq-map
+   (lambda (command-spec)
+     (cons
+      (concat
+       (propertize (concat
+                    (run-command--shorter-recipe-name-maybe
+                     (map-elt command-spec :recipe))
+                    "/")
+                   'face 'shadow)
+       (map-elt command-spec :display))
+      command-spec))
+   (run-command-core-get-command-specs command-recipes)))
 
 (defun run-command--ivy-action (selection)
   "Execute `SELECTION' from Ivy."
   (let* ((command-spec (cdr selection))
          (command-line (map-elt command-spec :command-line))
-         (final-command-line (if ivy-current-prefix-arg
-                                 (read-string "> " (concat command-line " "))
-                               command-line)))
+         (final-command-line
+          (if ivy-current-prefix-arg
+              (read-string "> " (concat command-line " "))
+            command-line)))
     (map-put! command-spec :command-line final-command-line)
     (run-command-run command-spec)))
 

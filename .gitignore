@@ -1,6 +1,5 @@
 *.elc
 /_*
-/.dir-locals.el
 /test/snapshots
 /docs/node_modules
 /docs/out

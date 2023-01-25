@@ -41,36 +41,40 @@
 
 (defun run-command-selector-helm (command-recipes)
   "Select and run a command from `COMMAND-RECIPES' using Helm."
-  (helm :buffer "*run-command*"
-        :prompt "Command: "
-        :sources (run-command--helm-sources command-recipes)))
+  (helm
+   :buffer "*run-command*"
+   :prompt "Command: "
+   :sources (run-command--helm-sources command-recipes)))
 
 (defun run-command--helm-sources (command-recipes)
   "Create Helm sources from `COMMAND-RECIPES'."
   (require 'helm-adaptive)
   (thread-last
-    command-recipes
-    (run-command-core-get-command-specs)
-    (seq-group-by (lambda (spec)
-                    (map-elt spec :recipe)))
-    (seq-map (lambda (recipe-specs-pair)
-               (pcase-let ((`(,recipe . ,specs) recipe-specs-pair))
-                 (helm-make-source (run-command--shorter-recipe-name-maybe recipe)
-                     'helm-source-sync
-                   :action (lambda (spec)
-                             (run-command--helm-action spec))
-                   :candidates (seq-map (lambda (spec)
-                                          (cons (map-elt spec :display)
-                                                spec))
-                                        specs)
-                   :filtered-candidate-transformer 'helm-adaptive-sort))))))
+   command-recipes
+   (run-command-core-get-command-specs)
+   (seq-group-by (lambda (spec) (map-elt spec :recipe)))
+   (seq-map
+    (lambda (recipe-specs-pair)
+      (pcase-let ((`(,recipe . ,specs) recipe-specs-pair))
+        (helm-make-source
+         (run-command--shorter-recipe-name-maybe recipe)
+         'helm-source-sync
+         :action (lambda (spec) (run-command--helm-action spec))
+         :candidates
+         (seq-map
+          (lambda (spec)
+            (cons
+             (map-elt spec :display) spec))
+          specs)
+         :filtered-candidate-transformer 'helm-adaptive-sort))))))
 
 (defun run-command--helm-action (command-spec)
   "Execute `COMMAND-SPEC' from Helm."
   (let* ((command-line (map-elt command-spec :command-line))
-         (final-command-line (if helm-current-prefix-arg
-                                 (read-string "> " (concat command-line " "))
-                               command-line)))
+         (final-command-line
+          (if helm-current-prefix-arg
+              (read-string "> " (concat command-line " "))
+            command-line)))
     (map-put! command-spec :command-line final-command-line)
     (run-command-run command-spec)))
 

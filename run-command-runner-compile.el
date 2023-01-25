@@ -38,9 +38,10 @@
 Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
   (with-current-buffer output-buffer
     (compilation-mode)
-    (compilation-start command-line
-                       nil
-                       (lambda (_name-of-mode) (concat "*" buffer-base-name "*")))))
+    (compilation-start
+     command-line nil
+     (lambda (_name-of-mode)
+       (concat "*" buffer-base-name "*")))))
 
 ;;;; Meta
 
