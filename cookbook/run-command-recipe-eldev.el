@@ -8,4 +8,9 @@
            :command-name "test:watch"
            :command-line "watchexec --ignore 'flycheck_*' eldev test"
            :display "test:watch"
+           :working-dir project-dir)
+          (list
+           :command-name "lint"
+           :command-line "eldev lint"
+           :display "lint"
            :working-dir project-dir))))
