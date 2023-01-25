@@ -5,7 +5,6 @@
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: processes
 
 ;; This file is not part of GNU Emacs
@@ -23,6 +22,12 @@
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
+;; dynamic, context-sensitive lists, and run them at a fraction of the
+;; keystrokes with autocompletion.
+
 ;;; Code:
 
 (require 'map)
@@ -37,7 +42,7 @@
   "History for `run-command-selector-ivy'.")
 
 (defun run-command-selector-ivy (command-recipes)
-  "Complete command with ivy and run it."
+  "Select and run a command from `COMMAND-RECIPES' using Ivy."
   (unless (window-minibuffer-p)
     (ivy-read "Command: "
               (run-command--ivy-targets command-recipes)
@@ -47,7 +52,7 @@
                         (run-command--ivy-action command-spec)))))
 
 (defun run-command--ivy-targets (command-recipes)
-  "Create Ivy targets from all recipes."
+  "Create Helm sources from `COMMAND-RECIPES'."
   (seq-map (lambda (command-spec)
              (cons (concat
                     (propertize (concat (run-command--shorter-recipe-name-maybe
@@ -56,7 +61,7 @@
                                 'face 'shadow)
                     (map-elt command-spec :display))
                    command-spec))
-           (run-command-get-command-specs command-recipes)))
+           (run-command-core-get-command-specs command-recipes)))
 
 (defun run-command--ivy-action (selection)
   "Execute `SELECTION' from Ivy."

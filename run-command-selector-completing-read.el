@@ -5,7 +5,6 @@
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: processes
 
 ;; This file is not part of GNU Emacs
@@ -23,6 +22,12 @@
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
+;; dynamic, context-sensitive lists, and run them at a fraction of the
+;; keystrokes with autocompletion.
+
 ;;; Code:
 
 (require 'map)
@@ -30,7 +35,7 @@
 (require 'run-command-util)
 
 (defun run-command-selector-completing-read (command-recipes)
-  "Complete command with `completing-read' and run it."
+  "Select and run a command from `COMMAND-RECIPES' using `completing-read'."
   (let* ((targets (run-command--completing-read-targets command-recipes))
          (choice (completing-read "Command: " targets)))
     (when choice
@@ -38,14 +43,14 @@
         (run-command-run command-spec)))))
 
 (defun run-command--completing-read-targets (command-recipes)
-  "Create completion-read targets from all recipes."
+  "Create `completing-read' targets from `COMMAND-RECIPES'."
   (seq-map (lambda (command-spec)
              (cons (concat (run-command--shorter-recipe-name-maybe
                             (map-elt command-spec :recipe))
                            "/"
                            (map-elt command-spec :display))
                    command-spec))
-           (run-command-get-command-specs command-recipes)))
+           (run-command-core-get-command-specs command-recipes)))
 
 ;;; Meta
 

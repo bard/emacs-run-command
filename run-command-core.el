@@ -1,11 +1,10 @@
-;;; run-command-core.el --- run-command core -*- lexical-binding: t -*-
+;;; run-command-core.el --- Core functionality -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2020-2023 Massimiliano Mirra
 
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: processes
 
 ;; This file is not part of GNU Emacs
@@ -23,6 +22,12 @@
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
+;; dynamic, context-sensitive lists, and run them at a fraction of the
+;; keystrokes with autocompletion.
+
 ;;; Code:
 
 ;;;; Dependencies
@@ -33,8 +38,8 @@
 
 ;;;; Public API
 
-(defun run-command-get-command-specs (command-recipes)
-  "Execute `COMMAND-RECIPE' to generate command specs."
+(defun run-command-core-get-command-specs (command-recipes)
+  "Execute `COMMAND-RECIPES' to generate command specs."
   (seq-mapcat (lambda (command-recipe)
                 (when (not (fboundp command-recipe))
                   (error "[run-command] Invalid command recipe: %s"

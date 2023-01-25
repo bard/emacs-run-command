@@ -5,7 +5,6 @@
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: processes
 
 ;; This file is not part of GNU Emacs
@@ -23,6 +22,12 @@
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
+;; dynamic, context-sensitive lists, and run them at a fraction of the
+;; keystrokes with autocompletion.
+
 ;;; Code:
 
 (require 'map)
@@ -35,17 +40,17 @@
 (defvar helm-current-prefix-arg)
 
 (defun run-command-selector-helm (command-recipes)
-  "Complete command with helm and run it."
+  "Select and run a command from `COMMAND-RECIPES' using Helm."
   (helm :buffer "*run-command*"
         :prompt "Command: "
         :sources (run-command--helm-sources command-recipes)))
 
 (defun run-command--helm-sources (command-recipes)
-  "Create Helm sources from `RECIPES'."
+  "Create Helm sources from `COMMAND-RECIPES'."
   (require 'helm-adaptive)
   (thread-last
     command-recipes
-    (run-command-get-command-specs)
+    (run-command-core-get-command-specs)
     (seq-group-by (lambda (spec)
                     (map-elt spec :recipe)))
     (seq-map (lambda (recipe-specs-pair)

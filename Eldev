@@ -6,3 +6,5 @@
 (eldev-use-package-archive 'melpa)
 
 (eldev-use-plugin 'autoloads)
+(setq eldev-project-main-file "run-command.el")
+

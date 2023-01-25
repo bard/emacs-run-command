@@ -5,7 +5,6 @@
 ;; Author: Massimiliano Mirra <hyperstruct@gmail.com>
 ;; URL: https://github.com/bard/emacs-run-command
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: processes
 
 ;; This file is not part of GNU Emacs
@@ -22,6 +21,12 @@
 
 ;; For a full copy of the GNU General Public License
 ;; see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
+;; dynamic, context-sensitive lists, and run them at a fraction of the
+;; keystrokes with autocompletion.
 
 ;;; Code:
 
@@ -62,6 +67,10 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
     (run-command-runner-term-minor-mode)))
 
 (defun run-command-runner-term--run-in-current-buffer (command-line buffer-base-name)
+  "Run given command in a term mode buffer.
+
+Command is specified by `COMMAND-LINE' and resulting process is
+named `BUFFER-BASE-NAME'."
   (let ((term-set-terminal-size t))
     (term-mode)
     (term-exec (current-buffer) buffer-base-name
@@ -81,9 +90,14 @@ don't require mentally switching to a different keybinding scheme."
 (define-advice term-erase-in-display (:around
                                       (original-term-erase-in-display kind)
                                       run-command-runner-term-erase-advice)
-  "When running command asks for screen clear, force erasure of entire
-buffer rather than from home position to bottom, so no output from
-previous runs is left in scrollback."
+  "Advice to force clearing scrollback.
+
+Commands in watch mode often ask the terminal to erase from home
+position (first row, first column) to end of display, leaving
+scrollback untouched.  This makes it hard to scroll up and find
+the beginning of last run's output.  Hence we force clearing
+scrollback, so user only has to scroll to beginning of buffer to
+find the beginning of last run's output."
   (if (and (boundp 'run-command--command-spec)
            (or (eq kind 2)
                (eq kind 3)))
