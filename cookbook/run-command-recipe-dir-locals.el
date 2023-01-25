@@ -1,3 +1,11 @@
+;;; run-command-recipe-dir-locals.el --- Generate recipe from .dir-locals.el -*- lexical-binding: t -*-
+
+;;; Commentary:
+
+;; Generate recipe from .dir-locals.el.
+
+;;; Code:
+
 (defvar run-command-recipe-dir-locals-fn nil)
 
 (defun run-command-recipe-dir-locals ()
@@ -24,3 +32,6 @@ More about per-directory local variables:
 https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html"
   (when run-command-recipe-dir-locals-fn
     (funcall run-command-recipe-dir-locals-fn)))
+
+(provide 'run-command-recipe-dir-locals)
+;;; run-command-recipe-dir-locals.el ends here
