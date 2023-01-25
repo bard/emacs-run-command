@@ -6,3 +6,6 @@
 /docs/out
 /docs/.next
 
+# Added automatically by ‘eldev init’.
+/.eldev
+/Eldev-local
