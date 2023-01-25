@@ -28,7 +28,7 @@ something like the following (note the leading periods):
                                      default-directory
                                      \".git\"))))))))
 
-More about per-directory local variables:
+More about per-directory variables:
 https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html"
   (when run-command-recipe-dir-locals-fn
     (funcall run-command-recipe-dir-locals-fn)))
