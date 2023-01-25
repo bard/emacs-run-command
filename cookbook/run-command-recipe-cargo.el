@@ -7,7 +7,7 @@
   (when-let* ((project-dir 
                (locate-dominating-file default-directory "Cargo.toml")))
     `(( :command-name "test:watch"
-        :command-line "cargo watch --clear -x test"
+        :command-line "cargo watch --watch src --watch Cargo.toml --clear -x test"
         :display "test:watch"
         :working-dir ,project-dir)
       ( :command-name "build"
@@ -15,7 +15,7 @@
         :display "build"
         :working-dir ,project-dir)
       ( :command-name "build:watch"
-        :command-line "cargo watch --clear -x build"
+        :command-line "cargo watch --watch src --watch Cargo.toml --clear -x build"
         :display "build:watch"
         :working-dir ,project-dir)
       ( :command-name "run"
@@ -23,7 +23,7 @@
         :display "run"
         :working-dir ,project-dir)
       ( :command-name "run:watch"
-        :command-line "cargo watch -x run"
+        :command-line "cargo watch --watch src --watch Cargo.toml --clear -x run"
         :display "run:watch"
         :working-dir ,project-dir)
       ( :command-name "lint"
