@@ -50,29 +50,6 @@ Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'.
      command-line
      buffer-base-name)))
 
-(defun run-command-runner-term/noninteractive
-    (command-line buffer-base-name output-buffer)
-  "Command execution backend for when run method is `term'.
-
-Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'."
-  (with-current-buffer output-buffer
-    (run-command-runner-term--run-in-current-buffer
-     command-line
-     buffer-base-name)
-    ;; Work around term.el bug causing spurious output when term in
-    ;; is line mode, and the process clears the screen or part of it
-    ;; repeatedly (e.g. test runners, installers).  Since it does
-    ;; not happen in char mode, we trick the process filter into
-    ;; thinking it is in char mode.  See
-    ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=48716
-    (set-process-filter
-     (get-buffer-process (current-buffer))
-     (lambda (proc str)
-       (cl-letf (((symbol-function 'current-local-map)
-                  (lambda () term-raw-map)))
-         (term-emulate-terminal proc str))))
-    (run-command-runner-term-minor-mode)))
-
 (defun run-command-runner-term--run-in-current-buffer
     (command-line buffer-base-name)
   "Run given command in a term mode buffer.
