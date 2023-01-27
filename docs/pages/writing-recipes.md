@@ -2,14 +2,14 @@
 
 ## Choosing the name for a recipe
 
-If the name begins with the `run-command-recipe-` prefix, the prefix is removed when displaying commands, otherwise the entire function same is used:
+If the name begins with `run-command-recipe-`, the prefix is removed when displaying commands, otherwise the entire function name is used:
 
 ```lisp
 (defun run-command-recipe-boilerplates ()) ;; shows up as "boilerplates"
 (defun my-command-recipe ())               ;; shows up as "my-command-recipe"
 ```
 
-## Displaying readable command names
+## Readable command names
 
 You can provide a user-friendly name via the `:display` property:
 
@@ -163,4 +163,23 @@ For example:
    (list :command-name "htop"
          :command-line "htop"
          :runner 'run-command-runner-vterm)))
+```
+
+## Hooks
+
+To execute Lisp code just after the command has been launched, assign a function to the `:hook` property, either in the form of a symbol naming a function, or as a lambda.
+
+For example, to enable `compilation-minor-mode`:
+
+```lisp
+  (defun run-command-recipe-example ()
+    (when-let* ((project-dir
+                 (locate-dominating-file default-directory "Eldev")))
+      (list (list
+             :command-name "lint"
+             :command-line "eldev lint"
+             :display "lint"
+             :runner 'run-command-runner-term
+             :hook 'compilation-minor-mode
+             :working-dir project-dir))))
 ```

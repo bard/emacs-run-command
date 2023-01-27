@@ -70,7 +70,9 @@
                        (funcall command-line)
                      command-line)
                    buffer-base-name (current-buffer))
-          (setq-local run-command--command-spec command-spec))))
+          (setq-local run-command--command-spec command-spec)
+          (when (map-contains-key command-spec :hook)
+            (funcall (map-elt command-spec :hook))))))
     (let ((display-buffer-alist
            '((".*" display-buffer-use-least-recent-window))))
       (display-buffer buffer))))
