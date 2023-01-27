@@ -88,7 +88,11 @@ scrollback untouched.  This makes it hard to scroll up and find
 the beginning of last run's output.  Hence we force clearing
 scrollback, so user only has to scroll to beginning of buffer to
 find the beginning of last run's output."
-  (if (and (boundp 'run-command--command-spec) (or (eq kind 2) (eq kind 3)))
+  (if (and (boundp 'run-command--command-spec)
+           (or (eq kind 2)
+               (eq kind 3)
+               (eq kind 0) ; used by `cargo watch'
+               ))
       (run-command-runner-term--patched-term-erase-in-display)
     (funcall original-term-erase-in-display kind)))
 
