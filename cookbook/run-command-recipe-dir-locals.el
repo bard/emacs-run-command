@@ -6,7 +6,8 @@
 
 ;;; Code:
 
-(defvar run-command-recipe-dir-locals-fn nil)
+(defvar-local run-command-recipe-dir-locals-fn nil
+  "Variable to hold dir-local recipes.")
 
 (defun run-command-recipe-dir-locals ()
   "Provide dir-local commands, when the dir-local recipe is defined.

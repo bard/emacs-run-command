@@ -134,7 +134,8 @@
 
 ;;;; Experiments
 
-(defvar run-command-experiments nil)
+(defvar run-command-experiments nil
+  "Currently active experiments.")
 
 (defvar run-command--deprecated-experiment-warning t)
 
