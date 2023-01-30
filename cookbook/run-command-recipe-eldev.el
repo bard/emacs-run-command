@@ -13,14 +13,25 @@
   (when-let* ((project-dir (locate-dominating-file default-directory "Eldev")))
     (list
      (list
+      :command-name "test"
+      :command-line "eldev test"
+      :display "test"
+      :working-dir project-dir)
+     (list
       :command-name "test:watch"
-      :command-line "watchexec --ignore 'flycheck_*' eldev test"
+      :command-line "watchexec --clear --ignore 'flycheck_*' -- eldev test"
       :display "test:watch"
       :working-dir project-dir)
      (list
       :command-name "lint"
       :command-line "eldev lint"
       :display "lint"
+      :working-dir project-dir)
+     (list
+      :command-name "lint:watch"
+      :command-line "watchexec --clear --ignore 'flycheck_*' eldev lint"
+      :display "lint:watch"
+      :hook 'compilation-minor-mode
       :working-dir project-dir))))
 
 (provide 'run-command-recipe-eldev)
