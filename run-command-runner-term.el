@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Runner for `run-command' based on `term-mode'.
 
 ;;; Code:
 
@@ -42,38 +40,29 @@
   (require 'cl-lib))
 
 (defun run-command-runner-term (command-line buffer-base-name output-buffer)
-  "Command execution backend for when run method is `term'.
+  "Command runner based on `term-mode'.
 
-Executes `COMMAND-LINE' in buffer `OUTPUT-BUFFER', naming it `BUFFER-BASE-NAME'."
+Executes COMMAND-LINE in buffer OUTPUT-BUFFER.  Name the process BUFFER-BASE-NAME."
   (with-current-buffer output-buffer
-    (run-command-runner-term--run-in-current-buffer
-     command-line
-     buffer-base-name)))
-
-(defun run-command-runner-term--run-in-current-buffer
-    (command-line buffer-base-name)
-  "Run given command in a term mode buffer.
-
-Command is specified by `COMMAND-LINE' and resulting process is
-named `BUFFER-BASE-NAME'."
-  (let ((term-set-terminal-size t))
-    (term-mode)
-    (term-exec
-     (current-buffer)
-     buffer-base-name
-     shell-file-name
-     nil
-     (list "-c" command-line))
-    (term-char-mode)
-    (run-command-runner-term-minor-mode)))
+    (let ((term-set-terminal-size t))
+      (term-mode)
+      (term-exec
+       (current-buffer)
+       buffer-base-name
+       shell-file-name
+       nil
+       (list "-c" command-line))
+      (term-char-mode)
+      (run-command-runner-term-minor-mode))))
 
 (define-minor-mode run-command-runner-term-minor-mode
-  "Minor mode to re-enable `C-x' prefix in run-command term buffers.
+  "Minor mode to re-enable `C-x' prefix in `run-command' term buffers.
 
-Since command being run is likely an ancillary process and not
-the main focus of the user's work, rebind the `C-x' prefix back to
-its usual location, so that occasional operations in the command buffer
-don't require mentally switching to a different keybinding scheme."
+Since a command run via `run-command' is likely an ancillary
+process and not the main focus of the user's work, rebind the
+`C-x' prefix back to its usual location, so that occasional
+operations in the command buffer don't force the user to mentally
+switch to a different keybinding scheme."
   :keymap '(([?\C-x] . Control-X-prefix)))
 
 (define-advice term-erase-in-display

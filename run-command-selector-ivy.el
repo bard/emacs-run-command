@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Selector for `run-command' based on Ivy.
 
 ;;; Code:
 
@@ -42,7 +40,7 @@
   "History for `run-command-selector-ivy'.")
 
 (defun run-command-selector-ivy (command-recipes)
-  "Select and run a command from `COMMAND-RECIPES' using Ivy."
+  "Select and run a command from COMMAND-RECIPES using Ivy."
   (unless (window-minibuffer-p)
     (ivy-read
      "Command: "
@@ -52,7 +50,7 @@
      :action (lambda (command-spec) (run-command--ivy-action command-spec)))))
 
 (defun run-command--ivy-targets (command-recipes)
-  "Create Helm sources from `COMMAND-RECIPES'."
+  "Create Ivy completions from COMMAND-RECIPES."
   (seq-map
    (lambda (command-spec)
      (cons
@@ -67,7 +65,7 @@
    (run-command-core-get-command-specs command-recipes)))
 
 (defun run-command--ivy-action (selection)
-  "Execute `SELECTION' from Ivy."
+  "Execute SELECTION from Ivy."
   (let* ((command-spec (cdr selection))
          (command-line (map-elt command-spec :command-line))
          (final-command-line
@@ -78,7 +76,7 @@
     (run-command-core-run command-spec)))
 
 (defun run-command--ivy-edit-action (selection)
-  "Edit `SELECTION' then execute from Ivy."
+  "Edit SELECTION then execute from Ivy."
   (let ((ivy-current-prefix-arg t))
     (run-command--ivy-action selection)))
 

@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Selector for `run-command' based on Helm.
 
 ;;; Code:
 
@@ -40,14 +38,14 @@
 (defvar helm-current-prefix-arg)
 
 (defun run-command-selector-helm (command-recipes)
-  "Select and run a command from `COMMAND-RECIPES' using Helm."
+  "Select and run a command from COMMAND-RECIPES using Helm."
   (helm
    :buffer "*run-command*"
    :prompt "Command: "
    :sources (run-command--helm-sources command-recipes)))
 
 (defun run-command--helm-sources (command-recipes)
-  "Create Helm sources from `COMMAND-RECIPES'."
+  "Create Helm sources from COMMAND-RECIPES."
   (require 'helm-adaptive)
   (thread-last
    command-recipes
@@ -69,7 +67,7 @@
          :filtered-candidate-transformer 'helm-adaptive-sort))))))
 
 (defun run-command--helm-action (command-spec)
-  "Execute `COMMAND-SPEC' from Helm."
+  "Execute COMMAND-SPEC from Helm."
   (let* ((command-line (map-elt command-spec :command-line))
          (final-command-line
           (if helm-current-prefix-arg

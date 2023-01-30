@@ -24,14 +24,12 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Utilities for `run-command'.
 
 ;;; Code:
 
 (defun run-command-util-shorter-recipe-name-maybe (command-recipe)
-  "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
+  "Shorten COMMAND-RECIPE name when it begins with conventional prefix."
   (let ((recipe-name (symbol-name command-recipe)))
     (if (string-match "^run-command-recipe-\\(.+\\)$" recipe-name)
         (match-string 1 recipe-name)

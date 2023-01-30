@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Runner for `run-command' based on `eat-mode'.
 
 ;;; Code:
 
@@ -35,9 +33,9 @@
 (declare-function eat-mode "ext:eat")
 
 (defun run-command-runner-eat (command-line buffer-base-name output-buffer)
-  "Runner to execute command in an `eat' buffer.
+  "Command runner based on `eat-mode'.
 
-Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
+Executes COMMAND-LINE in buffer OUTPUT-BUFFER.  Name the process BUFFER-BASE-NAME."
   (require 'eat)
   (with-current-buffer output-buffer
     (let ((eat-semi-char-non-bound-keys '([C-next] [C-prior])))
@@ -45,9 +43,9 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
       (eat-exec
        output-buffer
        buffer-base-name
-       "/usr/bin/env"
+       shell-file-name
        nil
-       (list "sh" "-c" command-line)))))
+       (list "-c" command-line)))))
 
 (define-advice eat--t-erase-in-disp
     (:around

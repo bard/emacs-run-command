@@ -25,9 +25,12 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Leave Emacs less.  Launch both one-off utilities and long-lived processes
+;; from context-sensitive lists with autocompletion.
+;;
+;; Supports Helm, Ivy, and Emacs's `completing-read' for selection, and
+;; `term-mode', `compilation-mode', `vterm-mode', and `eat-mode' for command
+;; output and interaction.
 
 ;;; Code:
 
@@ -45,69 +48,83 @@
 ;;;; Customization
 
 (defgroup run-command nil
-  "Run an external command from a context-dependent list."
+  "Run an external command from a context-sensitive list."
   :group 'convenience
   :group 'processes
   :prefix "run-command-"
   :link '(url-link "https://github.com/bard/emacs-run-command"))
 
 (defcustom run-command-default-runner 'run-command-runner-term
-  "Default runner function to use when recipe does not specify any.
+  "Command runner function to use when when a command recipe does not specify one.
 
-Either one of the runner functions shipped with run-command, or a
-custom runner function.
+If nil, falls back to `run-command-runner-term', except on
+Windows where it falls back to `run-command-runner-compile'.
 
-If nil, falls back to `run-command-runner-term'.
+The following runners are shipped with `run-command':
 
-Runners shipped with run-command:
-
-- `run-command-runner-term' (default): display command output in a
+- `run-command-runner-term': display command output in a
   `term-mode' buffer
+
 - `run-command-runner-compile': display command output in a
   `compilation-mode' buffer
+
 - `run-command-runner-vterm': display command output in a `vterm'
-  buffer (requires `vterm' package to be present)
+  buffer (requires `vterm' package to be available)
+
 - `run-command-runner-eat': display command output in a `eat'
-  buffer (requires `eat' package to be present)"
+  buffer (requires `eat' package to be available)"
   :type 'function
   :group 'run-command)
 
-(defcustom run-command-default-selector 'auto
-  "Selector to use to pick a command."
-  :type '(choice (const auto) function))
+(defcustom run-command-selector nil
+  "Interface to use to select a command.
 
-(defcustom run-command-completion-method 'auto
-  "Completion framework to use to select a command.
+If nil, choose one based on active global modes (such as
+`helm-mode', `ivy-mode') or fall back to `completing-read'.
 
-- `autodetect' (default): pick helm, ivy, or none, based on active
-  global completion mode
-- `helm': force use helm
-- `ivy': force use ivy
-- `completing-read': force use `completing-read'"
-  :type
-  '(choice
-    (const :tag "autodetect" auto)
-    (const :tag "helm" helm)
-    (const :tag "ivy" ivy)
-    (const :tag "completing-read" completing-read)))
+Selectors shipped with `run-command':
+
+- `run-command-selector-completing-read': use built-in `completing-read'
+
+- `run-command-selector-helm': use Helm
+
+- `run-command-selector-ivy': use Ivy"
+  :type 'function)
 
 (defcustom run-command-recipes nil
   "List of functions that will produce command lists.
 
-  Each function is called without arguments and must return a list of property
-  lists, where each property list represents a command and has the following
-  format:
+Some recipes ship with `run-command', see
+`run-command-load-cookbook'.
 
-  - `:command-name' (string, required): A name for the command, used
-  to generate the output buffer name, as well as a fallback in case
-  `:display' isn't provided
-  - `:command-line' (string or function, required): The command
-  line that will be executed.  Can be a function to e.g. further
-  query the user, and should return a string.
-  - `:display' (string, optional): A descriptive name that will
-  be displayed to the user.
-  - `:working-dir' (string, optional): Directory to run the command
-  in.  If not given, defaults to `default-directory'."
+Each function is called without arguments and must return a list
+of command specifications.
+
+A command specification is a property list with the following
+properties:
+
+- `:command-name' (string, required): A name for the command,
+  used to generate the output buffer name, as well as a fallback
+  in case `:display' isn't provided.
+
+- `:display' (string, optional): A descriptive name that will be
+  displayed in the selector interface.
+
+- `:command-line' (string or function, required): The command
+  line that will be executed.  Can be a string or a function
+  returning a string.  A function can be used to e.g. ask the user
+  for additional information to use in assembling a command line.
+
+- `:working-dir' (string, optional): Directory to run the command
+  in.  If not provided, defaults to `default-directory'.
+
+- `:runner' (function, optional): a runner function specifically
+  for this command.  If not provided, `run-command-default-runner'
+  will be used.
+
+- `:hook' (function, optional): a function to run just after the
+  command has been launched.  Can be used to e.g. switch
+  `compilation-minor-mode' on."
 
   :type '(repeat function)
   :group 'run-command)
@@ -117,7 +134,7 @@ Runners shipped with run-command:
 
 ;;;###autoload
 (defun run-command ()
-  "Pick a command from a context-dependent list, and run it.
+  "Display a context-sensitive list of external commands and run one.
 
 The command list is generated by running the functions configured in
 `run-command-recipes'."
@@ -133,9 +150,9 @@ The command list is generated by running the functions configured in
 ;;;; Internals
 
 (defun run-command--get-selector ()
-  "Determine the default selector."
-  (or (pcase run-command-default-selector
-        ('auto
+  "Determine what selector to use."
+  (or (pcase run-command-selector
+        ((pred null)
          (cond
           ((and (boundp 'helm-mode) helm-mode)
            'run-command-selector-helm)
@@ -143,25 +160,31 @@ The command list is generated by running the functions configured in
            'run-command-selector-ivy)
           (t
            'run-command-selector-completing-read)))
-        ((pred functionp) run-command-default-selector)
-        (_ nil))
-      (pcase run-command-completion-method
-        ('auto
-         (cond
-          ((and (boundp 'helm-mode) helm-mode)
-           'run-command-selector-helm)
-          ((and (boundp 'ivy-mode) ivy-mode)
-           'run-command-selector-ivy)
-          (t
-           'run-command-selector-completing-read)))
-        ('helm 'run-command-selector-helm)
-        ('ivy 'run-command-selector-ivy)
-        ('completing-read 'run-command-selector-completing-read))
+        ((pred functionp) run-command-selector)
+        (_ (error "[run-command] Could not determine selector")))
+      ;; Backward compatibility
+      (and (fboundp 'run-command-completion-method)
+           (pcase run-command-completion-method
+             ('auto
+              (cond
+               ((and (boundp 'helm-mode) helm-mode)
+                'run-command-selector-helm)
+               ((and (boundp 'ivy-mode) ivy-mode)
+                'run-command-selector-ivy)
+               (t
+                'run-command-selector-completing-read)))
+             ('helm 'run-command-selector-helm)
+             ('ivy 'run-command-selector-ivy)
+             ('completing-read 'run-command-selector-completing-read)))
       'run-command-selector-completing-read))
 
 ;;;###autoload
 (defun run-command-load-cookbook ()
-  "Load all recipes from the cookbook."
+  "Load all recipes from the cookbook.
+
+Use this in your init file to make all recipes shipped with
+`run-command' available.  (You will still need to customize
+`run-command-recipes' to activate specific ones.)"
   (interactive)
   (let* ((examples-dir
           (concat
@@ -175,10 +198,34 @@ The command list is generated by running the functions configured in
 
 ;;;; Backward compatibility
 
+(defcustom run-command-completion-method 'auto
+  "Completion framework to use to select a command.
+If nil, choose one based on active global modes (such as
+`helm-mode', `ivy-mode') or fall back to `completing-read'.
+
+- `autodetect' (default): pick helm, ivy, or none, based on active
+  global completion mode
+
+- `helm': force use helm
+
+- `ivy': force use ivy
+
+- `completing-read': force use `completing-read'"
+  :type
+  '(choice
+    (const :tag "autodetect" auto)
+    (const :tag "helm" helm)
+    (const :tag "ivy" ivy)))
+(make-obsolete-variable
+ 'run-command-completion-method
+ 'run-command-selector
+ "0.2.0")
+
 (defcustom run-command-run-method 'compile
   "Run strategy.
 
 - `compile' (default): display command output in a `compilation-mode' buffer
+
 - `term': display command output in a `term-mode' buffer"
   :type
   '(choice

@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Core functionality for `run-command'.
 
 ;;; Code:
 
@@ -39,7 +37,7 @@
 ;;;; Public API
 
 (defun run-command-core-get-command-specs (command-recipes)
-  "Execute `COMMAND-RECIPES' to generate command specs."
+  "Execute COMMAND-RECIPES functions to generate command lists."
   (seq-mapcat
    (lambda (command-recipe)
      (when (not (fboundp command-recipe))
@@ -54,7 +52,9 @@
    command-recipes))
 
 (defun run-command-core-run (command-spec)
-  "Run `COMMAND-SPEC'."
+  "Run COMMAND-SPEC.
+
+See `run-command-recipes' for the expected format of COMMAND-SPEC."
   (let* ((buffer-base-name
           (format "%s[%s]"
                   (map-elt command-spec :command-name)
@@ -80,13 +80,14 @@
 ;;;; Internals
 
 (defvar-local run-command--command-spec nil
-  "Holds command spec for command run via `run-command'.")
+  "Buffer-local variable containing command spec for the buffer.")
 
 (defvar run-command-default-runner)
+
 (defvar run-command-run-method)
 
 (defun run-command--normalize-command-spec (command-spec)
-  "Sanity-check and fill in defaults for user-provided `COMMAND-SPEC'."
+  "Validate COMMAND-SPEC and fill in defaults for missing properties."
   (unless (stringp (map-elt command-spec :command-name))
     (error
      "[run-command] Invalid `:command-name' in command spec: %S"
@@ -126,7 +127,7 @@
     cs))
 
 (defun run-command--shorter-recipe-name-maybe (command-recipe)
-  "Shorten `COMMAND-RECIPE' name when it begins with conventional prefix."
+  "Shorten COMMAND-RECIPE name when it begins with conventional prefix."
   (let ((recipe-name (symbol-name command-recipe)))
     (if (string-match "^run-command-recipe-\\(.+\\)$" recipe-name)
         (match-string 1 recipe-name)
@@ -140,15 +141,16 @@
 (defvar run-command--deprecated-experiment-warning t)
 
 (defun run-command--experiment--active-p (name)
-  "Return t if experiment `NAME' is enabled, nil otherwise."
+  "Return t if experiment NAME is enabled, nil otherwise."
   (member name run-command-experiments))
 
 (defun run-command--check-experiments ()
-  "Sanity-check the configured experiments.
+  "Validate experiments configured via `run-command-experiments'.
 
-If experiment is active, do nothing.  If experiment is retired or unknown,
-signal error.  If deprecated, print a warning and allow muting further warnings
-for the rest of the session."
+If experiment is active, do nothing.  If experiment is retired or
+unknown, signal error.  If experiment is deprecated, print a
+warning and allow muting further warnings for the rest of the
+session."
   (let ((experiments
          '((static-recipes . retired)
            (vterm-run-method . retired)

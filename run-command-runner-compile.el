@@ -24,24 +24,19 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Runner for `run-command' based on `compilation-mode'.
 
 ;;; Code:
 
 (require 'run-command-core)
 
-(defun run-command-runner-compile (command-line buffer-base-name output-buffer)
-  "Command execution backend for when run method is `compile'.
+(defun run-command-runner-compile (command-line _buffer-base-name output-buffer)
+  "Command runner based on `compilation-mode'.
 
-Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
+Executes COMMAND-LINE in buffer OUTPUT-BUFFER."
   (with-current-buffer output-buffer
     (compilation-mode)
-    (compilation-start
-     command-line nil
-     (lambda (_name-of-mode)
-       (concat "*" buffer-base-name "*")))))
+    (compilation-start command-line)))
 
 ;;;; Meta
 

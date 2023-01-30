@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Selector for `run-command' based on `completing-read'.
 
 ;;; Code:
 
@@ -35,7 +33,7 @@
 (require 'run-command-util)
 
 (defun run-command-selector-completing-read (command-recipes)
-  "Select and run a command from `COMMAND-RECIPES' using `completing-read'."
+  "Select and run a command from COMMAND-RECIPES using `completing-read'."
   (let* ((targets (run-command--completing-read-targets command-recipes))
          (choice (completing-read "Command: " targets)))
     (when choice
@@ -43,7 +41,7 @@
         (run-command-core-run command-spec)))))
 
 (defun run-command--completing-read-targets (command-recipes)
-  "Create `completing-read' targets from `COMMAND-RECIPES'."
+  "Create `completing-read' targets from COMMAND-RECIPES."
   (seq-map
    (lambda (command-spec)
      (cons

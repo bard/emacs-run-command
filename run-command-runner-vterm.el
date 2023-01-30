@@ -24,9 +24,7 @@
 
 ;;; Commentary:
 
-;; Leave Emacs less.  Relocate those frequent shell commands to configurable,
-;; dynamic, context-sensitive lists, and run them at a fraction of the
-;; keystrokes with autocompletion.
+;; Runner for `run-command' based on `vterm-mode'.
 
 ;;; Code:
 
@@ -37,18 +35,15 @@
 (defvar vterm-shell)
 
 (defun run-command-runner-vterm (command-line buffer-base-name output-buffer)
-  "Command execution backend for `vterm' experiment.
+  "Command runner based on `term-mode'.
 
-Executes COMMAND-LINE in buffer OUTPUT-BUFFER, naming it BUFFER-BASE-NAME."
+Executes COMMAND-LINE in buffer OUTPUT-BUFFER.  Name the process BUFFER-BASE-NAME."
   (require 'vterm)
   (with-current-buffer output-buffer
     (let ((vterm-kill-buffer-on-exit nil)
           ;; XXX needs escaping or commands containing quotes will cause trouble
           (vterm-shell (format "%s -c '%s'" vterm-shell command-line)))
-      (vterm-mode)
-      ;; (use-local-map nil)
-      ;; (vterm-copy-mode)
-      )))
+      (vterm-mode))))
 
 ;;;; Meta
 
