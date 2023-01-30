@@ -3,6 +3,7 @@
   "features": { "title": "Features", "theme": { "breadcrumb": false } },
   "demo": { "title": "Demo", "theme": { "breadcrumb": false } },
   "quickstart": { "title": "Quickstart", "theme": { "breadcrumb": false } },
+  "usage": { "title": "Usage", "theme": { "breadcrumb": false } },
   "configuration": {
     "title": "Configuration",
     "theme": { "breadcrumb": false }
