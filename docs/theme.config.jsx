@@ -20,15 +20,6 @@ export default {
       titleTemplate: "%s – emacs-run-command",
     };
   },
-  banner: {
-    dismissible: false,
-    text: (
-      <span>
-        ⚠️ This documentation refers to the <strong>develop</strong> branch,
-        which is not yet released on MELPA.
-      </span>
-    ),
-  },
   gitTimestamp: null,
   head: (
     <>

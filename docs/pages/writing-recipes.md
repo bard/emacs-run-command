@@ -133,7 +133,7 @@ For example, to regenerate a PDF whenever you save a file in Markdown or another
 
 Entire recipes can be generated dynamically based on a project's contents.
 
-For examples of generation from project management file, see the [package.json recipe](https://github.com/bard/emacs-run-command/tree/develop/cookbook/run-command-recipe-package-json.el) or the [Makefile example](https://github.com/bard/emacs-run-command/tree/develop/cookbook/run-command-recipe-make.el).
+For examples of generation from project management file, see the [package.json recipe](https://github.com/bard/emacs-run-command/tree/master/cookbook/run-command-recipe-package-json.el) or the [Makefile example](https://github.com/bard/emacs-run-command/tree/master/cookbook/run-command-recipe-make.el).
 
 Likewise one may use the contents of a directory:
 
