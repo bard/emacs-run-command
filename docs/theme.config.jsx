@@ -51,7 +51,7 @@ export default {
   footer: {
     text: (
       <span>
-        © 2021-{new Date().getFullYear()}{" "}
+        © 2020-{new Date().getFullYear()}{" "}
         <a
           style={{ textDecoration: "underline" }}
           href="https://massimilianomirra.com/tags/emacs"
