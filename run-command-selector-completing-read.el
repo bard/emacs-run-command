@@ -40,7 +40,7 @@
          (choice (completing-read "Command: " targets)))
     (when choice
       (let ((command-spec (cdr (assoc choice targets))))
-        (run-command-run command-spec)))))
+        (run-command-core-run command-spec)))))
 
 (defun run-command--completing-read-targets (command-recipes)
   "Create `completing-read' targets from `COMMAND-RECIPES'."

@@ -75,7 +75,7 @@
               (read-string "> " (concat command-line " "))
             command-line)))
     (map-put! command-spec :command-line final-command-line)
-    (run-command-run command-spec)))
+    (run-command-core-run command-spec)))
 
 (defun run-command--ivy-edit-action (selection)
   "Edit `SELECTION' then execute from Ivy."

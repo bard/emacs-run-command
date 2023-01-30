@@ -53,7 +53,7 @@
       (seq-map #'run-command--normalize-command-spec)))
    command-recipes))
 
-(defun run-command-run (command-spec)
+(defun run-command-core-run (command-spec)
   "Run `COMMAND-SPEC'."
   (let* ((buffer-base-name
           (format "%s[%s]"
