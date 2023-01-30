@@ -55,7 +55,7 @@
   :link '(url-link "https://github.com/bard/emacs-run-command"))
 
 (defcustom run-command-default-runner 'run-command-runner-term
-  "Command runner function to use when when a command recipe does not specify one.
+  "Runner function to use when when a command recipe does not specify one.
 
 If nil, falls back to `run-command-runner-term', except on
 Windows where it falls back to `run-command-runner-compile'.
