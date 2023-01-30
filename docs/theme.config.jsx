@@ -1,5 +1,17 @@
 export default {
-  logo: <h1 style={{ fontFamily: "monospace" }}>M-x run-command</h1>,
+  logo: (
+    <h1
+      style={{
+        fontFamily: "monospace",
+        background: "black",
+        color: "white",
+        padding: "1px 6px",
+        borderRadius: "4px",
+      }}
+    >
+      $ M-x run-command
+    </h1>
+  ),
   project: {
     link: "https://github.com/bard/emacs-run-command",
   },
