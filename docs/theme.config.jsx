@@ -57,7 +57,7 @@ export default {
         © 2020-{new Date().getFullYear()}{" "}
         <a
           style={{ textDecoration: "underline" }}
-          href="https://massimilianomirra.com/tags/emacs"
+          href="https://massimilianomirra.com/"
           target="_blank"
         >
           Massimiliano Mirra
