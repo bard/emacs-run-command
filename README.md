@@ -6,4 +6,4 @@ Emacs, the text editor that lets you read mail and play Tetris, is often cast in
 
 `run‑command` makes the combination convenient through a simple configuration format and an interaction flow that stays out of your way. Instead of reaching for a shell or a specialized major mode, you give `run‑command` a simple "recipe" and you get a contextual command palette where you can browse, select, and run commands without leaving Emacs.
 
-For demo, quickstart, and advanced configuration, see the [documentation website](bard.github.io/emacs-run-command).
+For demo, quickstart, and advanced configuration, see the [documentation website](https://bard.github.io/emacs-run-command).
