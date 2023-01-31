@@ -6,13 +6,14 @@
 
 ;;; Code:
 
-(require 'helm-make)
 (require 'seq)
+(require 'subr-x)
 
 (defun run-command-recipe-make ()
   "Provide commands to run Makefile targets.
 
 Requires `helm-make' (https://github.com/abo-abo/helm-make) to be installed."
+  (require 'helm-make)
   (when-let* ((project-dir
                (locate-dominating-file default-directory "Makefile"))
               (makefile (concat project-dir "Makefile"))
