@@ -123,8 +123,8 @@ properties:
   will be used.
 
 - `:hook' (function, optional): a function to run just after the
-  command has been launched.  Can be used to e.g. switch
-  `compilation-minor-mode' on."
+  command has been launched.  Can be used to e.g. activate
+  compilation minor mode."
 
   :type '(repeat function)
   :group 'run-command)
@@ -188,9 +188,7 @@ Use this in your init file to make all recipes shipped with
   (interactive)
   (let* ((examples-dir
           (concat
-           (file-name-directory
-            (locate-library "run-command"))
-           "cookbook/")))
+           (file-name-directory (locate-library "run-command")) "cookbook/")))
     (thread-last
      (directory-files examples-dir t)
      (seq-filter #'file-regular-p)
@@ -217,9 +215,7 @@ If nil, choose one based on active global modes (such as
     (const :tag "helm" helm)
     (const :tag "ivy" ivy)))
 (make-obsolete-variable
- 'run-command-completion-method
- 'run-command-selector
- "0.2.0")
+ 'run-command-completion-method 'run-command-selector "0.2.0")
 
 (defcustom run-command-run-method 'compile
   "Run strategy.
@@ -232,9 +228,7 @@ If nil, choose one based on active global modes (such as
     (const :tag "Terminal Mode" term)
     (const :tag "Compilation Mode" compile)))
 (make-obsolete-variable
- 'run-command-run-method
- 'run-command-default-runner
- "0.2.0")
+ 'run-command-run-method 'run-command-default-runner "0.2.0")
 
 ;;;; Meta
 
