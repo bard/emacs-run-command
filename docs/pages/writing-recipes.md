@@ -13,7 +13,7 @@ If the name begins with `run-command-recipe-`, the prefix is removed when displa
 
 You can provide a user-friendly name via the `:display` property:
 
-```lisp
+```lisp /:display/
 (defun run-command-recipe-example ()
   (list
    (list :display "Serve current directory over HTTP port 8000"
@@ -37,7 +37,7 @@ The simplest command hardcodes everything:
 
 A recipe is a plain function, so you can evaluate Lisp code to query the context. For example, to find out the current buffer's file name and pass it to the command:
 
-```lisp
+```lisp /(buffer-file (buffer-file-name))/ / buffer-file)/
 (defun run-command-recipe-example ()
   (list
    (when-let ((buffer-file (buffer-file-name)))
@@ -50,7 +50,7 @@ A recipe is a plain function, so you can evaluate Lisp code to query the context
 
 To find out the word at point and pass it to the command:
 
-```lisp
+```lisp /(word (thing-at-point 'word t)/ / word)/
 (defun run-command-recipe-example ()
   (list
    (when-let ((word (thing-at-point 'word t)))
@@ -65,24 +65,23 @@ By default, commands run in the same directory as the buffer from where `run-com
 
 For example, to run a command in the base directory of a project managed with `Makefile`:
 
-```lisp
+```lisp /(project-dir (locate-dominating-file default-directory "Makefile")/ / project-dir)/
 (defun run-command-recipe-example ()
   (list
-   (when-let ((project-dir (locate-dominating-file default-directory
-                                                   "Makefile")))
+   (when-let ((project-dir (locate-dominating-file default-directory "Makefile")))
      (list :display "Run make with default target"
            :command-name "make-default"
            :command-line "make"
            :working-dir project-dir))))
 ```
 
-## Toggling commands on or off depending on context
+## Toggling individual commands on or off depending on context
 
 To disable a command, return `nil` in its place. `when` and `when-let` are convenient ways of doing so.
 
 For example, to only enable a command when the buffer's file is executable:
 
-```lisp
+```lisp {4}
 (defun run-command-recipe-example ()
   (list
    (let ((buffer-file (buffer-file-name)))
@@ -93,16 +92,15 @@ For example, to only enable a command when the buffer's file is executable:
         :display "Run this buffer's file")))))
 ```
 
-## Toggling commands on or off depending on context
+## Toggling entire recipes on or off depending on context
 
 To disable an entire list, return `nil` in its place. As for individual commands, `when` and `when-let` are convenient ways of doing so.
 
 For example, to disable the entire recipe when we're not in a JavaScript project:
 
-```lisp
+```lisp {2}
   (defun run-command-recipe-eldev ()
-    (when-let ((project-dir (locate-dominating-file default-directory
-                                                    "package.json")))
+    (when-let ((project-dir (locate-dominating-file default-directory "package.json")))
       (list
        (list :command-name "test:watch"
              :command-line "npm run test:watch"
@@ -118,7 +116,7 @@ Utilities such as [watchexec](https://watchexec.github.io/) make it easy to conv
 
 For example, to regenerate a PDF whenever you save a file in Markdown or another pandoc-supported format:
 
-```lisp
+```lisp /watchexec/
 (defun run-command-recipe-example ()
   (list
    (when-let ((buffer-file (buffer-file-name)))
@@ -129,7 +127,7 @@ For example, to regenerate a PDF whenever you save a file in Markdown or another
                           buffer-file)))))
 ```
 
-## Generating a recipe from a project contents
+## Generating a recipe from project contents
 
 Entire recipes can be generated dynamically based on a project's contents.
 
@@ -149,15 +147,17 @@ Likewise one may use the contents of a directory:
             (directory-files "scripts"))))
 ```
 
-## Specifying the runner per-command
+## Overriding the default runner
 
-A runner can also be specified per-command when writing a recipe by using the `:runner` property.
+Normally, the variable `run-command-default-runner` determines how commands are launched (e.g. whether in `term-mode`, `compilation-mode`, etc).
 
-You might want to use this if a particular runner glitches on a command's output, or to e.g. use `compilation-mode` error navigation.
+The default runner can be overridden on a per-command basis using the `:runner` property.
+
+You might want to use this if a particular runner glitches on a command's output.
 
 For example:
 
-```lisp
+```lisp {5}
 (defun run-command-recipe-sysadmin ()
   (list
    (list :command-name "htop"
@@ -171,7 +171,7 @@ To execute Lisp code just after the command has been launched, assign a function
 
 For example, to enable `compilation-minor-mode`:
 
-```lisp
+```lisp {9}
   (defun run-command-recipe-example ()
     (when-let* ((project-dir
                  (locate-dominating-file default-directory "Eldev")))
