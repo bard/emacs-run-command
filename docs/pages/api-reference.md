@@ -1,7 +1,3 @@
----
-mdxOptions: { format: "md" }
----
-
 # API
 
 <!-- elisp-docgen-start (:symbols (run-command-recipes run-command-default-runner run-command-selector run-command run-command-core-get-command-specs run-command-core-run run-command-util-shorter-recipe-name-maybe)) -->

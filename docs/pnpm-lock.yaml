@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   next: ^13.1.4
-  nextra: ^2.2.10
+  nextra: ^2.2.14
   nextra-theme-docs: ^2.2.10
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -10,7 +10,7 @@ specifiers:
 
 dependencies:
   next: 13.1.4_biqbaboplfbrettd7655fr4n2y
-  nextra: 2.2.10_gru2niblrprbai56sdagiiy5sa
+  nextra: 2.2.14_gru2niblrprbai56sdagiiy5sa
   nextra-theme-docs: 2.2.10_gru2niblrprbai56sdagiiy5sa
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -950,8 +950,8 @@ packages:
     resolution: {integrity: sha512-SobxkQXFAdd4b5WmEakmkVoh18icjQRxGy5OWTCzgsLRm1Fu/KCtwD1HIQSsmq5ZRjVH0Ehwg6/Fn3xIUk+nKw==}
     dependencies:
       escape-string-regexp: 5.0.0
-      unist-util-is: 5.1.1
-      unist-util-visit-parents: 5.1.1
+      unist-util-is: 5.2.0
+      unist-util-visit-parents: 5.1.3
     dev: false
 
   /mdast-util-from-markdown/1.2.0:
@@ -1090,7 +1090,7 @@ packages:
     resolution: {integrity: sha512-S+QYsDRLkGi8U7o5JF1agKa/sdP+CNGXXLqC17pdTVL8FHHgQEiwFGa9yE5aYtUxNiFGYoaDy9V1kC85Sz86Gg==}
     dependencies:
       '@types/mdast': 3.0.10
-      unist-util-is: 5.1.1
+      unist-util-is: 5.2.0
     dev: false
 
   /mdast-util-to-hast/12.2.5:
@@ -1598,8 +1598,8 @@ packages:
       zod: 3.20.2
     dev: false
 
-  /nextra/2.2.10_gru2niblrprbai56sdagiiy5sa:
-    resolution: {integrity: sha512-t9Eo/YPYMhhWWQIQw3vX3sYU4BlHne31G+jAl8V+wEyySRgLM7XcrZm/Kdl7cHV1sgUyT3kLZ+fLavZusCCMwg==}
+  /nextra/2.2.14_gru2niblrprbai56sdagiiy5sa:
+    resolution: {integrity: sha512-kToTiTiE4qrQsQ9snFRqCGLLSjKSFgFV/BJm3yp/SRmkmCr1WaWrlmUTAuXlxM7PREbNaZouNSOJ0hGS92rM8A==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
@@ -1626,6 +1626,7 @@ packages:
       shiki: 0.12.1
       slash: 3.0.0
       title: 3.5.3
+      unist-util-remove: 3.1.1
       unist-util-visit: 4.1.1
     transitivePeerDependencies:
       - supports-color
@@ -2084,7 +2085,7 @@ packages:
     resolution: {integrity: sha512-gfpsxKQde7atVF30n5Gff2fQhAc4/HTOV4CvkXpTg9wRfQhZWdXitpyXHWB6YcYgnsxLx+4gGHeVjCTAAp9sjw==}
     dependencies:
       '@types/unist': 2.0.6
-      unist-util-is: 5.1.1
+      unist-util-is: 5.2.0
     dev: false
 
   /unist-util-generated/2.0.1:
@@ -2093,6 +2094,10 @@ packages:
 
   /unist-util-is/5.1.1:
     resolution: {integrity: sha512-F5CZ68eYzuSvJjGhCLPL3cYx45IxkqXSetCcRgUXtbcm50X2L9oOWQlfUfDdAf+6Pd27YDblBfdtmsThXmwpbQ==}
+    dev: false
+
+  /unist-util-is/5.2.0:
+    resolution: {integrity: sha512-Glt17jWwZeyqrFqOK0pF1Ded5U3yzJnFr8CG1GMjCWTp9zDo2p+cmD6pWbZU8AgM5WU3IzRv6+rBwhzsGh6hBQ==}
     dev: false
 
   /unist-util-modify-children/3.1.0:
@@ -2121,6 +2126,14 @@ packages:
       unist-util-visit: 4.1.1
     dev: false
 
+  /unist-util-remove/3.1.1:
+    resolution: {integrity: sha512-kfCqZK5YVY5yEa89tvpl7KnBBHu2c6CzMkqHUrlOqaRgGOMp0sMvwWOVrbAtj03KhovQB7i96Gda72v/EFE0vw==}
+    dependencies:
+      '@types/unist': 2.0.6
+      unist-util-is: 5.2.0
+      unist-util-visit-parents: 5.1.3
+    dev: false
+
   /unist-util-stringify-position/3.0.2:
     resolution: {integrity: sha512-7A6eiDCs9UtjcwZOcCpM4aPII3bAAGv13E96IkawkOAW0OhH+yRxtY0lzo8KiHpzEMfH7Q+FizUmwp8Iqy5EWg==}
     dependencies:
@@ -2145,6 +2158,13 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
       unist-util-is: 5.1.1
+    dev: false
+
+  /unist-util-visit-parents/5.1.3:
+    resolution: {integrity: sha512-x6+y8g7wWMyQhL1iZfhIPhDAs7Xwbn9nRosDXl7qoPTSCy0yNxnKc+hWokFifWQIDGi154rdUqKvbCa4+1kLhg==}
+    dependencies:
+      '@types/unist': 2.0.6
+      unist-util-is: 5.2.0
     dev: false
 
   /unist-util-visit/3.1.0:
