@@ -43,11 +43,15 @@
      (thread-last
       command-recipe (funcall)
       (seq-filter
-       (lambda (spec) (and spec (map-elt spec :command-line))))
+       #'run-command-core--normal-recipe-p)
       (seq-map
        (lambda (spec) (map-insert spec :recipe command-recipe)))
       (seq-map #'run-command--normalize-command-spec)))
    command-recipes))
+
+(defun run-command-core--normal-recipe-p (spec)
+  "Return non-nil, when a given SPEC recipe is a normal one."
+  (and spec (or (map-elt spec :command-line) (map-elt spec :lisp-function))))
 
 (defun run-command-core-run (command-spec)
   "Run COMMAND-SPEC.
