@@ -6,5 +6,7 @@
 (eldev-use-package-archive 'melpa)
 
 (eldev-use-plugin 'autoloads)
-(setq eldev-project-main-file "run-command.el")
 
+(setf eldev-lint-ignored-fileset
+      `(:or ,(eldev-package-descriptor-file-name) "demo"))
+(setq eldev-project-main-file "run-command.el")
