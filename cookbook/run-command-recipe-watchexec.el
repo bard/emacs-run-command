@@ -21,7 +21,7 @@ Requires `watchexec' (https://watchexec.github.io/) to be installed."
       (lambda ()
         (let ((command-to-run
                (shell-quote-argument (read-string "Enter command: "))))
-          (format "watchexec --clear --watch '%s' `%s'"
+          (format "watchexec --clear --watch '%s' '%s'"
                   buffer-file
                   command-to-run)))))))
 
