@@ -71,9 +71,20 @@ See `run-command-recipes' for the expected format of COMMAND-SPEC."
           (setq-local run-command--command-spec command-spec)
           (when (map-contains-key command-spec :hook)
             (funcall (map-elt command-spec :hook))))))
+    ;; Force command buffer to open in an ancillary window, unless the user
+    ;; configured `display-buffer-alist' otherwise. (Background:
+    ;; https://github.com/bard/emacs-run-command/discussions/19)
     (let ((display-buffer-alist
-           '((".*" display-buffer-use-least-recent-window))))
+           (append
+            display-buffer-alist
+            '((run-command-buffer-p display-buffer-use-least-recent-window)))))
       (display-buffer buffer))))
+
+(defun run-command-buffer-p (buffer &optional _arg)
+  "Tell whether the given BUFFER was created by `run-command'.
+
+`ARG' is unused and only defined due to be required by `display-buffer-alist'."
+  (boundp 'run-command--command-spec))
 
 ;;;; Internals
 
