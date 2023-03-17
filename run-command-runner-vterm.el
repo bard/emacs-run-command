@@ -41,6 +41,10 @@ Executes COMMAND-LINE in buffer OUTPUT-BUFFER.  Name the process BUFFER-BASE-NAM
     (let ((vterm-kill-buffer-on-exit nil)
           ;; XXX needs escaping or commands containing quotes will cause trouble
           (vterm-shell (format "%s -c '%s'" vterm-shell command-line)))
+      ;; HACK: work around vterm's lack of a `vterm-exec' function.
+      ;; See https://github.com/akermu/emacs-libvterm/issues/661
+      (setq buffer-read-only nil)
+      (setq change-major-mode-hook nil)
       (vterm-mode))))
 
 ;;;; Meta
