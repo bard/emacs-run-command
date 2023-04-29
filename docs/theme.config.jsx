@@ -9,7 +9,7 @@ export default {
         borderRadius: "4px",
       }}
     >
-      $ M-x run-command
+      M-x run-command
     </h1>
   ),
   project: {
