@@ -92,6 +92,20 @@ For example, to only enable a command when the buffer's file is executable:
         :display "Run this buffer's file")))))
 ```
 
+## Requesting user input before executing command
+
+The `:command-line` field accepts a string or a function that returns a string. You can use the latter to dynamically change the command line based on user input:
+
+```lisp {5-6}
+(defun run-command-recipe-example ()
+  (list
+   (list
+    :command-name "whois"
+    :command-line (lambda ()
+                    (format "whois %s" (read-string "Enter domain name: ")))
+    :display "whois")))
+```
+
 ## Toggling entire recipes on or off depending on context
 
 To disable an entire list, return `nil` in its place. As for individual commands, `when` and `when-let` are convenient ways of doing so.
